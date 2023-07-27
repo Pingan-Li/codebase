@@ -1,0 +1,8 @@
+shared_library("base") {
+  include_dirs = [ "//" ]
+
+  sources = [
+    "concurrent/mutex.cc",
+    "concurrent/mutex.h",
+  ]
+}
