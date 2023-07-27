@@ -33,3 +33,6 @@
 
 # Build Output
 out
+
+# VScode
+.vscode
