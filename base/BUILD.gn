@@ -6,6 +6,8 @@ source_set("base_sources") {
     "concurrent/mutex.h",
     "concurrent/mutex_guard.cc",
     "concurrent/mutex_guard.h",
+    "concurrent/restrict_mutex.cc",
+    "concurrent/restrict_mutex.h",
   ]
 }
 
@@ -13,6 +15,8 @@ executable("mutex_tests") {
   include_dirs = [ "//" ]
 
   sources = [ "concurrent/mutex_tests.cc" ]
+
+  deps = [ ":base_sources" ]
 }
 
 group("base_tests") {

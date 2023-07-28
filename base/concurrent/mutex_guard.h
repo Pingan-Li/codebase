@@ -5,17 +5,17 @@
 #include "base/macro.h"
 
 namespace base {
-class API MutexGuard final {
+template <typename MutexType> class API MutexGuard final {
 public:
-  explicit MutexGuard(Mutex &mutex);
+  explicit MutexGuard(MutexType &mutex) : mutex_(mutex) { mutex_.Acquire(); }
 
   DISABLE_COPY(MutexGuard);
   DISABLE_MOVE(MutexGuard);
 
-  ~MutexGuard();
+  ~MutexGuard() { mutex_.Release(); }
 
 private:
-  Mutex &mutex_;
+  MutexType &mutex_;
 };
 } // namespace base
 #endif
