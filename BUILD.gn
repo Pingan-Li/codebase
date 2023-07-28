@@ -1,3 +1,9 @@
 executable("hello_world") {
+  include_dirs = [ "//" ]
+
   sources = [ "//hello_world.cc" ]
+}
+
+group("all_tests") {
+  deps = [ "//base:base_tests" ]
 }

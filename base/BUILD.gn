@@ -1,8 +1,20 @@
-shared_library("base") {
+source_set("base_sources") {
   include_dirs = [ "//" ]
 
   sources = [
     "concurrent/mutex.cc",
     "concurrent/mutex.h",
+    "concurrent/mutex_guard.cc",
+    "concurrent/mutex_guard.h",
   ]
+}
+
+executable("mutex_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "concurrent/mutex_tests.cc" ]
+}
+
+group("base_tests") {
+  deps = [ ":mutex_tests" ]
 }
