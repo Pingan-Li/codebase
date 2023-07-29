@@ -19,6 +19,15 @@ executable("mutex_tests") {
   deps = [ ":base_sources" ]
 }
 
+executable("closure_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "closure_tests.cc" ]
+}
+
 group("base_tests") {
-  deps = [ ":mutex_tests" ]
+  deps = [
+    ":closure_tests",
+    ":mutex_tests",
+  ]
 }
