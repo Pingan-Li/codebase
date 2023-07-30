@@ -1,6 +1,8 @@
 #include "base/concurrent/mutex.h"
 #include "base/concurrent/mutex_guard.h"
 #include "base/concurrent/restrict_mutex.h"
+#include "base/concurrent/thread.h"
+#include "testing/googletest/include/gtest/gtest.h"
 
 #include <chrono>
 #include <cstddef>
@@ -8,8 +10,7 @@
 #include <thread>
 #include <vector>
 
-#include "testing/googletest/include/gtest/gtest.h"
-
+namespace base {
 TEST(Mutex, Accumulation) {
   int count = 0u;
   int thread_count = 10;
@@ -21,8 +22,8 @@ TEST(Mutex, Accumulation) {
   };
 
   for (int i = 0; i < thread_count; ++i) {
-    std::thread thread{l};
-    thread.detach();
+    Thread thread;
+    thread.Start(l);
   }
   // Bad.
   std::this_thread::sleep_for(std::chrono::seconds{5});
@@ -30,7 +31,7 @@ TEST(Mutex, Accumulation) {
 }
 
 TEST(Mutex, AccumulationWithMutex) {
-  base::Mutex mutex;
+  Mutex mutex;
   int count = 0u;
   int thread_count = 10;
   int accumulation_per_thread = 1'000'000;
@@ -43,8 +44,8 @@ TEST(Mutex, AccumulationWithMutex) {
   };
 
   for (int i = 0; i < thread_count; ++i) {
-    std::thread thread{l};
-    thread.detach();
+    Thread thread;
+    thread.Start(l);
   }
   // Bad.
   std::this_thread::sleep_for(std::chrono::seconds{5});
@@ -57,17 +58,18 @@ TEST(Mutex, MutexGuard) {
   int thread_count = 10;
   int accumulation_per_thread = 1'000'000;
   auto l = [&]() mutable -> void {
-    base::MutexGuard<base::Mutex> lock_guard{mutex};
+    MutexGuard<base::Mutex> lock_guard{mutex};
     for (int i = 0; i < accumulation_per_thread; ++i) {
       ++count;
     }
   };
 
   for (int i = 0; i < thread_count; ++i) {
-    std::thread thread{l};
-    thread.detach();
+    Thread thread;
+    thread.Start(l);
   }
   // Bad.
   std::this_thread::sleep_for(std::chrono::seconds{5});
   ASSERT_EQ(count, thread_count * accumulation_per_thread);
 }
+} // namespace base

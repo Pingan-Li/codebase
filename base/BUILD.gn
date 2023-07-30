@@ -8,6 +8,8 @@ source_set("base_sources") {
     "concurrent/mutex_guard.h",
     "concurrent/restrict_mutex.cc",
     "concurrent/restrict_mutex.h",
+    "concurrent/thread.cc",
+    "concurrent/thread.h",
   ]
 }
 
@@ -29,9 +31,22 @@ executable("closure_tests") {
   sources = [ "closure_tests.cc" ]
 }
 
+executable("thread_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "./concurrent/thread_tests.cc" ]
+
+  deps = [
+    ":base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
+
 group("base_tests") {
   deps = [
     ":closure_tests",
     ":mutex_tests",
+    ":thread_tests",
   ]
 }
