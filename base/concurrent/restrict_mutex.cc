@@ -1,9 +1,18 @@
+/**
+ * @file restrict_mutex.cc
+ * @author Li Pingan (lipingan.dev@outlook.com)
+ * @brief
+ * @version 0.1
+ * @date 2023-07-30
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
+
 #include "base/concurrent/restrict_mutex.h"
-#include <pthread.h>
+
 namespace base {
-RestrictMutex::RestrictMutex() : pm_(PTHREAD_MUTEX_INITIALIZER) {
-  pthread_mutex_init(&pm_, nullptr);
-}
+RestrictMutex::RestrictMutex() : pm_() { pthread_mutex_init(&pm_, nullptr); }
 
 void RestrictMutex::Acquire() { pthread_mutex_lock(&pm_); }
 

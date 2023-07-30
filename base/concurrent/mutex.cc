@@ -1,8 +1,19 @@
+/**
+ * @file mutex.cc
+ * @author Li Pingan (lipingan.dev@outlook.com)
+ * @brief
+ * @version 0.1
+ * @date 2023-07-30
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
+
 #include "base/concurrent/mutex.h"
-#include <pthread.h>
 
 namespace base {
-Mutex::Mutex() : pm_(PTHREAD_MUTEX_INITIALIZER) {
+Mutex::Mutex() : pm_() {
+  // Using default mutex attribute.
   pthread_mutex_init(&pm_, nullptr);
 };
 

@@ -1,7 +1,6 @@
 #ifndef BASE_CONCURRENT_MUTEX_GUARD_H_
 #define BASE_CONCURRENT_MUTEX_GUARD_H_
 
-#include "base/concurrent/mutex.h"
 #include "base/macro.h"
 
 namespace base {

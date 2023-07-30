@@ -16,7 +16,11 @@ executable("mutex_tests") {
 
   sources = [ "concurrent/mutex_tests.cc" ]
 
-  deps = [ ":base_sources" ]
+  deps = [
+    ":base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
 }
 
 executable("closure_tests") {
