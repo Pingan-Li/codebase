@@ -46,6 +46,13 @@ class Functor {
   void operator()() {}
 };
 
+TEST(CurrnetThread, IsMainThread) {
+  ASSERT_TRUE(CurrentThread::IsMainThread());
+  Thread thread;
+  thread.Start([]() -> void { ASSERT_FALSE(CurrentThread::IsMainThread()); });
+  thread.Join();
+}
+
 TEST(Thread, StartWithFunctor) {}
 
 TEST(std__function, rvalue) {

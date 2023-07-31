@@ -30,8 +30,7 @@ namespace base {
  *
  */
 // TODO
-class CurrentThread {
-
+struct CurrentThread {
   static void SleepFor(std::chrono::microseconds const &us);
 
   static void SleepUntil(std::chrono::microseconds const &us);
