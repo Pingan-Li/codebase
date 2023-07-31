@@ -11,7 +11,22 @@
 
 #include "base/concurrent/thread.h"
 
+#include <unistd.h>
+
 namespace base {
+
+// static
+void CurrentThread::SleepFor(std::chrono::microseconds const &us) {
+  // TODO
+}
+
+// static
+void CurrentThread::SleepUntil(std::chrono::microseconds const &us) {
+  // TODO
+}
+
+// static
+bool CurrentThread::IsMainThread() noexcept { return getpid() == gettid(); }
 
 Thread::Thread(std::string const &thread_name)
     : thread_(), joined_(false), name_(thread_name), state_{kCreated} {}
@@ -64,10 +79,41 @@ void *Thread::StartInternal(void *args) {
 }
 
 // private
-
 void Thread::SwitchState(State next_state) {
-  // TODO: add state check.
+  CheckState(state_, next_state);
   state_ = next_state;
+}
+
+void Thread::CheckState(State currnet_state, State next_state) {
+  switch (currnet_state) {
+  case kCreated: {
+    if (next_state != kStarted) {
+      // TODO, Using stack strace.
+      std::abort();
+    }
+    break;
+  }
+  case kStarted: {
+    if (next_state == kCreated) {
+      std::abort();
+    }
+    break;
+  }
+  case kSleeping: {
+    if (next_state == kCreated) {
+      std::abort();
+    }
+    break;
+  }
+  case kFinished: {
+    std::abort();
+    break;
+  }
+  default: {
+    std::abort();
+    break;
+  }
+  }
 }
 
 } // namespace base

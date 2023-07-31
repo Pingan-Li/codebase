@@ -22,13 +22,35 @@
 
 namespace base {
 
-template <typename T>
-concept Task = requires(T t) { t.operator()(); };
+// template <typename T>
+// concept Task = requires(T t) { t.operator()(); };
+
+/**
+ * @brief
+ *
+ */
+// TODO
+class CurrentThread {
+
+  static void SleepFor(std::chrono::microseconds const &us);
+
+  static void SleepUntil(std::chrono::microseconds const &us);
+
+  static bool IsMainThread() noexcept;
+};
+
+/**
+ * @brief A portable ThreadId class.
+ *
+ */
+// TODO
+class ThreadId {};
 
 /**
  * @brief A naive wrapper of platform thread.
  *
  */
+
 class Thread {
 public:
   // For now, only POSIX pthread is supported.
@@ -42,7 +64,7 @@ public:
     // After Thread::Start() called.
     kStarted,
     // Block
-    kBlocked,
+    // kBlocked,
     // Sleeping.
     kSleeping,
     // StartRoutine execution finished.
@@ -74,6 +96,7 @@ public:
     // Pthread created.
     SwitchState(kStarted);
     // Set pthread name.
+    // TODO: consider using prctl. pthread_setname_np is also non-protbale.
     pthread_setname_np(thread_, name_.c_str());
   }
 
@@ -83,22 +106,30 @@ public:
 
   State GetSate() const noexcept;
 
-  // TODO
-  void Sleep();
-  void Wake();
-  void SleepFor(std::chrono::microseconds const us);
-  void SleepFor(std::chrono::milliseconds const ms);
-  void SleepFor(std::chrono::seconds const ms);
-
 private:
+  // Test helper function.
   friend class ThreadTestHelper;
+
   static void *StartInternal(void *args);
+
   struct InternalData {
     Thread *thread;
     StartRoutine *start_routine;
   };
-
+  /**
+   * @brief Switch thread state.
+   *
+   * @param next_state - the next state of base::Thread.
+   */
   void SwitchState(State next_state);
+
+  /**
+   * @brief check if the state transition is ok.
+   *
+   * @param currnet_state
+   * @param next_state
+   */
+  void CheckState(State currnet_state, State next_state);
 
   // Must not exposed.
   PlatformThread thread_;
