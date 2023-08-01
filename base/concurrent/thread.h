@@ -30,7 +30,7 @@ namespace base {
  *
  */
 // TODO
-struct CurrentThread {
+struct API CurrentThread {
   static void SleepFor(std::chrono::microseconds const &us);
 
   static void SleepUntil(std::chrono::microseconds const &us);
@@ -50,7 +50,7 @@ class ThreadId {};
  *
  */
 
-class Thread {
+class API Thread {
 public:
   // For now, only POSIX pthread is supported.
   using PlatformThread = pthread_t;
@@ -69,9 +69,6 @@ public:
     // StartRoutine execution finished.
     kFinished,
   };
-
-  // TODO
-  static Thread &CurrnetThread();
 
   explicit Thread(std::string const &thread_name = "Anonymous");
 

@@ -11,11 +11,14 @@
 #ifndef BASE_CONCURRENT_MUTEX_H_
 #define BASE_CONCURRENT_MUTEX_H_
 
-#include <pthread.h>
-
 #include "base/macro.h"
 
+#include <pthread.h>
+
 namespace base {
+
+class ConditionVariable;
+
 class API Mutex final {
 public:
   Mutex();
@@ -28,12 +31,16 @@ public:
   void Acquire();
   // Release the ownership of this mutex.
   void Release();
+  // Try to acquire the ownership of this mutex.
+  // a false return value means failed.
+  bool TryAcquire();
 
   // Not virtual as base::Mutex is final.
   ~Mutex();
 
 private:
-  pthread_mutex_t pm_;
+  friend base::ConditionVariable;
+  pthread_mutex_t mtx_;
 };
 } // namespace base
 #endif

@@ -2,6 +2,10 @@ source_set("base_sources") {
   include_dirs = [ "//" ]
 
   sources = [
+    "concurrent/condition_variable.cc",
+    "concurrent/condition_variable.h",
+    "concurrent/monitor.cc",
+    "concurrent/monitor.h",
     "concurrent/mutex.cc",
     "concurrent/mutex.h",
     "concurrent/mutex_guard.cc",
@@ -43,9 +47,35 @@ executable("thread_tests") {
   ]
 }
 
+executable("monitor_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "./concurrent/monitor_tests.cc" ]
+
+  deps = [
+    ":base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
+
+executable("condition_variable_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "./concurrent/condition_variable_tests.cc" ]
+
+  deps = [
+    ":base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
+
 group("base_tests") {
   deps = [
     ":closure_tests",
+    ":condition_variable_tests",
+    ":monitor_tests",
     ":mutex_tests",
     ":thread_tests",
   ]

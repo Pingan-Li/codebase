@@ -11,15 +11,19 @@
 
 #include "base/concurrent/mutex.h"
 
+#include <pthread.h>
+
 namespace base {
-Mutex::Mutex() : pm_() {
+Mutex::Mutex() : mtx_() {
   // Using default mutex attribute.
-  pthread_mutex_init(&pm_, nullptr);
+  pthread_mutex_init(&mtx_, nullptr);
 };
 
-void Mutex::Acquire() { pthread_mutex_lock(&pm_); }
+void Mutex::Acquire() { pthread_mutex_lock(&mtx_); }
 
-void Mutex::Release() { pthread_mutex_unlock(&pm_); }
+void Mutex::Release() { pthread_mutex_unlock(&mtx_); }
 
-Mutex::~Mutex() { pthread_mutex_destroy(&pm_); };
+bool Mutex::TryAcquire() { return pthread_mutex_trylock(&mtx_) == 0; }
+
+Mutex::~Mutex() { pthread_mutex_destroy(&mtx_); };
 } // namespace base
