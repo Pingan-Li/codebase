@@ -2,6 +2,8 @@ source_set("base_sources") {
   include_dirs = [ "//" ]
 
   sources = [
+    "command_line.cc",
+    "command_line.h",
     "concurrent/condition_variable.cc",
     "concurrent/condition_variable.h",
     "concurrent/monitor.cc",
@@ -14,6 +16,8 @@ source_set("base_sources") {
     "concurrent/restrict_mutex.h",
     "concurrent/thread.cc",
     "concurrent/thread.h",
+    "string_aux.cc",
+    "string_aux.h",
   ]
 }
 
@@ -71,12 +75,38 @@ executable("condition_variable_tests") {
   ]
 }
 
+executable("command_line_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "./command_line_tests.cc" ]
+
+  deps = [
+    ":base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
+
+executable("string_aux_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "./string_aux_tests.cc" ]
+
+  deps = [
+    ":base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
+
 group("base_tests") {
   deps = [
     ":closure_tests",
+    ":command_line_tests",
     ":condition_variable_tests",
     ":monitor_tests",
     ":mutex_tests",
+    ":string_aux_tests",
     ":thread_tests",
   ]
 }

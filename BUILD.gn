@@ -7,3 +7,9 @@ executable("hello_world") {
 group("all_tests") {
   deps = [ "//base:base_tests" ]
 }
+
+group("experiments") {
+  deps = [
+    "experiment:weak_observer",
+  ]
+}

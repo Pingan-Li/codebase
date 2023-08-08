@@ -1,0 +1,4 @@
+executable("weak_observer") {
+  include_dirs = [ "//" ]
+  sources = [ "weak_observer.cc" ]
+}
