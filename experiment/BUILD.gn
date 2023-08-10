@@ -2,3 +2,8 @@ executable("weak_observer") {
   include_dirs = [ "//" ]
   sources = [ "weak_observer.cc" ]
 }
+
+executable("thread_expriments") {
+  include_dirs = [ "//" ]
+  sources = [ "weak_observer.cc" ]
+}
