@@ -14,12 +14,12 @@ source_set("base_sources") {
     "concurrent/mutex_guard.h",
     "concurrent/restrict_mutex.cc",
     "concurrent/restrict_mutex.h",
-    "concurrent/thread_pool.cc",
-    "concurrent/thread_pool.h",
-    "concurrent/thread_group.cc",
-    "concurrent/thread_group.h",
     "concurrent/thread.cc",
     "concurrent/thread.h",
+    "concurrent/thread_group.cc",
+    "concurrent/thread_group.h",
+    "concurrent/thread_pool.cc",
+    "concurrent/thread_pool.h",
     "string_aux.cc",
     "string_aux.h",
   ]
@@ -95,6 +95,18 @@ executable("string_aux_tests") {
   include_dirs = [ "//" ]
 
   sources = [ "./string_aux_tests.cc" ]
+
+  deps = [
+    ":base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
+
+executable("time_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "./time_tests.cc" ]
 
   deps = [
     ":base_sources",
