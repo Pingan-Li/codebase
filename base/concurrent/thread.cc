@@ -13,6 +13,7 @@
 
 #include <sys/syscall.h>
 #include <unistd.h>
+#include <utility>
 
 #ifndef SYS_gettid
 #error "SYS_gettid unavailable on this system"
@@ -23,17 +24,10 @@
 namespace base {
 
 // static
-void CurrentThread::SleepFor(std::chrono::microseconds const &us) {
-  // TODO
+bool CurrentThread::IsMainThread() noexcept {
+  // TODO, is this an solid implementation?
+  return getpid() == gettid();
 }
-
-// static
-void CurrentThread::SleepUntil(std::chrono::microseconds const &us) {
-  // TODO
-}
-
-// static
-bool CurrentThread::IsMainThread() noexcept { return getpid() == gettid(); }
 
 Thread::Thread(std::string const &thread_name)
     : thread_(), joined_(false), name_(thread_name), state_{kCreated} {}
@@ -48,6 +42,7 @@ Thread &Thread::operator=(Thread &&other) noexcept {
   thread_ = std::move_if_noexcept(other.thread_);
   joined_ = std::move_if_noexcept(other.joined_);
   name_ = std::move_if_noexcept(other.name_);
+  state_ = std::move_if_noexcept(other.state_);
   return *this;
 }
 

@@ -16,6 +16,8 @@
 
 #include <chrono>
 #include <functional>
+#include <iostream>
+#include <ratio>
 #include <string>
 
 #include <pthread.h>
@@ -31,11 +33,41 @@ namespace base {
  */
 // TODO
 struct API CurrentThread {
-  static void SleepFor(std::chrono::microseconds const &us);
-
-  static void SleepUntil(std::chrono::microseconds const &us);
-
   static bool IsMainThread() noexcept;
+
+  // time
+  //
+  template <typename Rep, typename Period>
+  static void
+  SleepFor(std::chrono::duration<Rep, Period> const &sleep_duration) {
+    if (sleep_duration <= sleep_duration.zero()) {
+      return;
+    }
+    auto seconds =
+        std::chrono::duration_cast<std::chrono::seconds>(sleep_duration);
+    auto nano_seconds = std::chrono::duration_cast<std::chrono::nanoseconds>(
+        sleep_duration - seconds);
+    __gthread_time_t gthread_time = {static_cast<std::time_t>(seconds.count()),
+                                     static_cast<long>(nano_seconds.count())};
+    while (::nanosleep(&gthread_time, &gthread_time) == -1 && errno == EINTR) {
+    }
+  }
+
+  template <typename Clock, typename Duration>
+  static void SleepUntil(
+      std::chrono::time_point<Clock, Duration> const &wakeup_time_point) {
+    auto now = Clock::now();
+    if (Clock::is_steady) {
+      if (now < wakeup_time_point)
+        SleepFor(wakeup_time_point - now);
+      return;
+    }
+    // while-loop to deal with unsteady clock.
+    while (now < wakeup_time_point) {
+      SleepFor(wakeup_time_point - now);
+      now = Clock::now();
+    }
+  }
 };
 
 /**

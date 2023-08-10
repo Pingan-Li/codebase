@@ -10,3 +10,5 @@
  */
 
 #include "base/concurrent/thread_test_helper.h"
+
+namespace base {}

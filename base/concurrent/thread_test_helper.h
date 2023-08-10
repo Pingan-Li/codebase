@@ -11,7 +11,9 @@
 
 #ifndef BASE_CONCURRENT_THREAD_TEST_HELPER_H_
 #define BASE_CONCURRENT_THREAD_TEST_HELPER_H_
+namespace base {
 class ThreadTestHelper {
   // TODO
 };
+} // namespace base
 #endif

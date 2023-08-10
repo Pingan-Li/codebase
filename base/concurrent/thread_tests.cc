@@ -12,6 +12,7 @@
 #include "base/concurrent/thread.h"
 
 #include "testing/googletest//include/gtest/gtest.h"
+#include <chrono>
 
 namespace base {
 TEST(Thread, Creation) {
@@ -46,6 +47,8 @@ class Functor {
   void operator()() {}
 };
 
+TEST(Thread, StartWithFunctor) {}
+
 TEST(CurrnetThread, IsMainThread) {
   ASSERT_TRUE(CurrentThread::IsMainThread());
   Thread thread;
@@ -53,7 +56,16 @@ TEST(CurrnetThread, IsMainThread) {
   thread.Join();
 }
 
-TEST(Thread, StartWithFunctor) {}
+TEST(CurrnetThread, SleepFor) {
+  ASSERT_TRUE(CurrentThread::IsMainThread());
+  CurrentThread::SleepFor(std::chrono::seconds{5});
+}
+
+TEST(CurrnetThread, SleepUntil) {
+  ASSERT_TRUE(CurrentThread::IsMainThread());
+  CurrentThread::SleepUntil(std::chrono::system_clock::now() +
+                            std::chrono::seconds{5});
+}
 
 TEST(std__function, rvalue) {
   std::function<int()> function;
