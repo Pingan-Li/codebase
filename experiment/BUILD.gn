@@ -1,3 +1,17 @@
+executable("tcp_client") {
+  include_dirs = [ "//" ]
+  sources = [ "tcp_client.cc" ]
+
+  deps = [ "//base:base_sources" ]
+}
+
+executable("tcp_server") {
+  include_dirs = [ "//" ]
+  sources = [ "tcp_server.cc" ]
+
+  deps = [ "//base:base_sources" ]
+}
+
 executable("weak_observer") {
   include_dirs = [ "//" ]
   sources = [ "weak_observer.cc" ]
@@ -12,5 +26,15 @@ executable("read") {
   include_dirs = [ "//" ]
   sources = [ "read.cc" ]
 
-  deps = ["//base:base_sources"]
+  deps = [ "//base:base_sources" ]
+}
+
+group("experiments") {
+  deps = [
+    ":read",
+    ":tcp_client",
+    ":tcp_server",
+    ":thread_expriments",
+    ":weak_observer",
+  ]
 }

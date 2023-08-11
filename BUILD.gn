@@ -8,10 +8,6 @@ group("all_tests") {
   deps = [ "//base:base_tests" ]
 }
 
-group("experiments") {
-  deps = [
-    "experiment:tcp_client",
-    "experiment:tcp_server",
-    "experiment:weak_observer",
-  ]
+group("all_experments") {
+  deps = [ "//experiment:experiments" ]
 }
