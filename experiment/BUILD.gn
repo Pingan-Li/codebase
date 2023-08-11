@@ -5,5 +5,12 @@ executable("weak_observer") {
 
 executable("thread_expriments") {
   include_dirs = [ "//" ]
-  sources = [ "weak_observer.cc" ]
+  sources = [ "thread_experiments.cc" ]
+}
+
+executable("read") {
+  include_dirs = [ "//" ]
+  sources = [ "read.cc" ]
+
+  deps = ["//base:base_sources"]
 }
