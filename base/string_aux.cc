@@ -134,14 +134,14 @@ bool StartsWith(const std::string &text, const std::string &prefix) {
   if (text.size() < prefix.size() || text.empty() || prefix.empty()) {
     return false;
   } else {
-    auto iterText = text.begin();
-    auto iterPrefix = prefix.begin();
-    while (iterPrefix != prefix.end()) {
-      if (*iterPrefix != *iterText) {
+    auto text_iter = text.begin();
+    auto perfix_iter = prefix.begin();
+    while (perfix_iter != prefix.end()) {
+      if (*perfix_iter != *text_iter) {
         return false;
       }
-      iterPrefix++;
-      iterText++;
+      perfix_iter++;
+      text_iter++;
     }
     return true;
   }
@@ -151,14 +151,14 @@ bool EndsWith(const std::string &text, const std::string &suffix) {
   if (text.size() < suffix.size() || text.empty() || suffix.empty()) {
     return false;
   } else {
-    auto iterText = text.rbegin();
-    auto iterSuffix = suffix.rbegin();
-    while (iterSuffix != suffix.rend()) {
-      if (*iterSuffix != *iterText) {
+    auto text_iter = text.rbegin();
+    auto suffix_iter = suffix.rbegin();
+    while (suffix_iter != suffix.rend()) {
+      if (*suffix_iter != *text_iter) {
         return false;
       }
-      ++iterSuffix;
-      ++iterText;
+      ++suffix_iter;
+      ++text_iter;
     }
     return true;
   }

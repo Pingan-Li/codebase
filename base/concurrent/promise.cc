@@ -12,6 +12,5 @@
 #include "base/concurrent/promise.h"
 
 namespace base {
-
 // TODO
 }
