@@ -8,29 +8,39 @@
  * @copyright Copyright (c) 2023
  *
  */
+
 #ifndef BASE_COMMAND_LINE_H_
 #define BASE_COMMAND_LINE_H_
 
+#include <map>
 #include <optional>
 #include <string>
-#include <vector>
 
 #include "base/macro.h"
 
 namespace base {
-class CommandLine final {
+/**
+ * @brief commanline argument parser.
+ *        support:
+ *          (1) --key
+ *          (2) --key=val
+ *          (3) -k,
+ *          (4) -k=val
+ *
+ */
 
+class API CommandLine final {
 public:
-  using KeyType = std::string;
-  using ValType = std::string;
-  struct Argument {
-    KeyType key;
-    std::optional<ValType> val;
-  };
+  using Key = std::string;
+  using Val = std::string;
 
   static void Initialize(int argc, char *argv[]);
 
   static CommandLine *Get() noexcept;
+
+  bool HasKey(Key const &key) const;
+
+  std::optional<Val> GetVal(Key const &key) const;
 
 private:
   CommandLine();
@@ -40,7 +50,7 @@ private:
 
   ~CommandLine();
 
-  std::vector<Argument> args_;
+  std::map<Key, std::optional<Val>> args_;
 };
 } // namespace base
 
