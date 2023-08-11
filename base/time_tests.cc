@@ -89,4 +89,21 @@ TEST(Time, clock) {
   long seconds = (end - start) / CLOCKS_PER_SEC;
   ASSERT_EQ(0, seconds);
 }
+
+/**
+ * @brief sleep.
+ *        suspend the execution of process. Linux implements sleep
+ *        on the top of nanosleep.
+ *
+ *
+ */
+TEST(Time, sleep) { sleep(1); }
+
+/**
+ * @brief POSIX Clock API
+ *
+ */
+
+TEST(POSIX_Clock, clock_gettime) {}
+
 } // namespace base

@@ -10,6 +10,8 @@ group("all_tests") {
 
 group("experiments") {
   deps = [
+    "experiment:tcp_client",
+    "experiment:tcp_server",
     "experiment:weak_observer",
   ]
 }
