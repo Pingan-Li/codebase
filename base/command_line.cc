@@ -32,7 +32,8 @@ void CommandLine::Initialize(int argc, char *argv[]) {
   static std::once_flag flag;
   std::call_once(flag, [argc, argv]() noexcept -> void {
     g_instance = new CommandLine;
-    for (int i = 0; i < argc; ++i) {
+    g_instance->args_.emplace(argv[0], std::nullopt);
+    for (int i = 1; i < argc; ++i) {
       if (argv[i]) {
         std::string trimed = Trim(argv[i]);
         if (StartsWith(trimed, "--")) {
@@ -77,11 +78,11 @@ void CommandLine::Initialize(int argc, char *argv[]) {
   // TEST Code: dump to std::out
   // TODO: Using LOG instead.
   for (auto &&[key, val] : g_instance->args_) {
-    std::cout << "[ " << key;
+    std::cerr << "[ " << key;
     if (val) {
-      std::cout << ", " << val.value();
+      std::cerr << ", " << val.value();
     }
-    std::cout << " ]" << std::endl;
+    std::cerr << " ]" << std::endl;
   }
 }
 
@@ -94,7 +95,7 @@ bool CommandLine::HasKey(Key const &key) const {
 
 std::optional<CommandLine::Val> CommandLine::GetVal(Key const &key) const {
   auto const iter = args_.find(key);
-  return iter == args_.cbegin() ? iter->second : std::nullopt;
+  return iter != args_.cend() ? iter->second : std::nullopt;
 }
 
 } // namespace base
