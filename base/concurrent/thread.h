@@ -47,9 +47,9 @@ struct API CurrentThread {
         std::chrono::duration_cast<std::chrono::seconds>(sleep_duration);
     auto nano_seconds = std::chrono::duration_cast<std::chrono::nanoseconds>(
         sleep_duration - seconds);
-    __gthread_time_t gthread_time = {static_cast<std::time_t>(seconds.count()),
-                                     static_cast<long>(nano_seconds.count())};
-    while (::nanosleep(&gthread_time, &gthread_time) == -1 && errno == EINTR) {
+    timespec time_spec = {static_cast<std::time_t>(seconds.count()),
+                          static_cast<long>(nano_seconds.count())};
+    while (::nanosleep(&time_spec, &time_spec) == -1 && errno == EINTR) {
     }
   }
 
@@ -62,7 +62,7 @@ struct API CurrentThread {
         SleepFor(wakeup_time_point - now);
       return;
     }
-    // while-loop to deal with unsteady clock.
+    // using while-loop to deal with the unsteady clock.
     while (now < wakeup_time_point) {
       SleepFor(wakeup_time_point - now);
       now = Clock::now();
