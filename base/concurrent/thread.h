@@ -24,9 +24,6 @@
 
 namespace base {
 
-// template <typename T>
-// concept Task = requires(T t) { t.operator()(); };
-
 /**
  * @brief
  *
@@ -35,8 +32,6 @@ namespace base {
 struct API CurrentThread {
   static bool IsMainThread() noexcept;
 
-  // time
-  //
   template <typename Rep, typename Period>
   static void
   SleepFor(std::chrono::duration<Rep, Period> const &sleep_duration) {
@@ -114,6 +109,7 @@ public:
 
   template <typename Callable, typename... Args>
   void Start(Callable &&callable, Args &&...args) {
+    SwitchState(kStarted);
     // Heap allocated.
     InternalData *data = new InternalData;
     data->thread = this;
@@ -121,8 +117,6 @@ public:
         std::forward<Callable>(callable), std::forward<Args>(args)...));
 
     pthread_create(&thread_, nullptr, &StartInternal, data);
-    // Pthread created.
-    SwitchState(kStarted);
     // Set pthread name.
     // TODO: consider using prctl. pthread_setname_np is also non-protbale.
     pthread_setname_np(thread_, name_.c_str());
