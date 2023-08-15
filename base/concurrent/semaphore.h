@@ -11,10 +11,30 @@
 
 #ifndef BASE_CONCURRENT_SEMAPHORE_H_
 #define BASE_CONCURRENT_SEMAPHORE_H_
+
+#include "base/concurrent/condition_variable.h"
+#include "base/concurrent/mutex.h"
+#include "base/macro.h"
+
 namespace base {
-class Semaphore {
+class API Semaphore final {
 public:
-  // TODO
+  Semaphore();
+  Semaphore(int count);
+
+  DISABLE_COPY(Semaphore);
+  DISABLE_MOVE(Semaphore);
+
+  ~Semaphore();
+
+  void Wait();
+
+  void Signal();
+
+private:
+  int count_;
+  Mutex mtx_;
+  ConditionVariable cv_;
 };
 } // namespace base
 #endif

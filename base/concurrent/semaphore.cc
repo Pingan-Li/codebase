@@ -11,5 +11,25 @@
 #include "base/concurrent/semaphore.h"
 
 namespace base {
-// TODO
-}
+Semaphore::Semaphore() : count_(0) {}
+Semaphore::Semaphore(int count) : count_(count) {}
+
+Semaphore::~Semaphore() = default;
+
+void Semaphore::Wait() {
+  mtx_.Acquire();
+  while (count_ <= 0) {
+    cv_.Wait(mtx_);
+  }
+  --count_;
+  mtx_.Release();
+};
+
+void Semaphore::Signal() {
+  mtx_.Acquire();
+  ++count_;
+  mtx_.Release();
+  cv_.Signal();
+};
+
+} // namespace base
