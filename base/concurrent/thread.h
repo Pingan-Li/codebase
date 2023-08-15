@@ -21,6 +21,8 @@
 #include <string>
 
 #include <pthread.h>
+#include <tuple>
+#include <utility>
 
 namespace base {
 
@@ -113,8 +115,11 @@ public:
     // Heap allocated.
     InternalData *data = new InternalData;
     data->thread = this;
-    data->start_routine = new StartRoutine(std::bind(
-        std::forward<Callable>(callable), std::forward<Args>(args)...));
+    data->start_routine = new StartRoutine(
+        // explicitly copy callable and args...
+        [callable_(std::forward<Callable>(callable)),
+         args_(std::make_tuple(std::forward<Args>(
+             args)...))]() mutable -> void { std::apply(callable_, args_); });
 
     pthread_create(&thread_, nullptr, &StartInternal, data);
     // Set pthread name.
