@@ -32,7 +32,7 @@ namespace base {
 class API CommandLine final {
 public:
   using Key = std::string;
-  using Val = std::string;
+  using Value = std::string;
 
   static void Initialize(int argc, char *argv[]);
 
@@ -40,7 +40,7 @@ public:
 
   bool HasKey(Key const &key) const;
 
-  std::optional<Val> GetVal(Key const &key) const;
+  std::optional<Value> GetValue(Key const &key) const;
 
 private:
   CommandLine();
@@ -51,7 +51,7 @@ private:
   ~CommandLine();
 
   // TODO split args_ to args_ an kwargs_;
-  std::map<Key, std::optional<Val>> args_;
+  std::map<Key, std::optional<Value>> args_;
 };
 } // namespace base
 

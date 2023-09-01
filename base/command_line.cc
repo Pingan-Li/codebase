@@ -93,7 +93,7 @@ bool CommandLine::HasKey(Key const &key) const {
   return args_.find(key) != args_.cend();
 }
 
-std::optional<CommandLine::Val> CommandLine::GetVal(Key const &key) const {
+std::optional<CommandLine::Value> CommandLine::GetValue(Key const &key) const {
   auto const iter = args_.find(key);
   return iter != args_.cend() ? iter->second : std::nullopt;
 }

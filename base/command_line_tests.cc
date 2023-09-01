@@ -26,12 +26,12 @@ TEST(CommandLine, case0) {
   base::CommandLine::Initialize(argc, result);
   ASSERT_TRUE(base::CommandLine::Get()->HasKey("key0"));
   ASSERT_FALSE(base::CommandLine::Get()->HasKey("key_1"));
-  auto optional = base::CommandLine::Get()->GetVal("key1");
+  auto optional = base::CommandLine::Get()->GetValue("key1");
   if (optional.has_value()) {
     ASSERT_EQ(optional.value(), "val");
   }
 
-  ASSERT_FALSE(base::CommandLine::Get()->GetVal("key2").has_value());
+  ASSERT_FALSE(base::CommandLine::Get()->GetValue("key2").has_value());
   DestroyArgv(result);
   // std::string {nullptr};
 }
