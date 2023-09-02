@@ -29,8 +29,16 @@ executable("read") {
   deps = [ "//base:base_sources" ]
 }
 
+executable("epoll_server") {
+  include_dirs = [ "//" ]
+  sources = [ "epoll_server.cc" ]
+
+  deps = [ "//base:base_sources" ]
+}
+
 group("experiments") {
   deps = [
+    ":epoll_server",
     ":read",
     ":tcp_client",
     ":tcp_server",

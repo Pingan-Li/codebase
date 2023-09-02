@@ -25,7 +25,7 @@ void PrintHelp() { std::cout << "read tools."; }
 
 int main(int argc, char **argv) {
   base::CommandLine::Initialize(argc, argv);
-  auto path = base::CommandLine::Get()->GetVal("file");
+  auto path = base::CommandLine::Get()->GetValue("file");
   if (path) {
     int fd = open(path->c_str(), O_RDONLY);
     if (fd == -1) {

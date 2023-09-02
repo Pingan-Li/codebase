@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
   std::memset(&server_addr, 0, sizeof(server_addr));
   std::memset(&buffer, 0, sizeof(buffer));
 
-  auto p = base::CommandLine::Get()->GetVal("port");
+  auto p = base::CommandLine::Get()->GetValue("port");
   if (!p) {
     port = kDefaultPort;
     std::cerr << "--port=[port] pased failed, using default port: "
