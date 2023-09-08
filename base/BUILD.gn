@@ -4,6 +4,8 @@ source_set("base_sources") {
   sources = [
     "command_line.cc",
     "command_line.h",
+    "concurrent/blocking_queue.cc",
+    "concurrent/blocking_queue.h",
     "concurrent/condition_variable.cc",
     "concurrent/condition_variable.h",
     "concurrent/countdown_latch.cc",
@@ -121,6 +123,18 @@ executable("time_tests") {
   include_dirs = [ "//" ]
 
   sources = [ "./time_tests.cc" ]
+
+  deps = [
+    ":base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
+
+executable("blocking_queue_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "./concurrent/blocking_queue_tests.cc" ]
 
   deps = [
     ":base_sources",
