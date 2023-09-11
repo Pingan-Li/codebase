@@ -143,13 +143,27 @@ executable("blocking_queue_tests") {
   ]
 }
 
+executable("priority_queue_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "./priority_queue_tests.cc" ]
+
+  deps = [
+    ":base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
+
 group("base_tests") {
   deps = [
+    ":blocking_queue_tests",
     ":closure_tests",
     ":command_line_tests",
     ":condition_variable_tests",
     ":monitor_tests",
     ":mutex_tests",
+    ":priority_queue_tests",
     ":string_aux_tests",
     ":thread_tests",
   ]
