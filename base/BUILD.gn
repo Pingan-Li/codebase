@@ -2,6 +2,8 @@ source_set("base_sources") {
   include_dirs = [ "//" ]
 
   sources = [
+    "algorithm/hash.cc",
+    "algorithm/hash.h",
     "command_line.cc",
     "command_line.h",
     "concurrent/blocking_queue.cc",
