@@ -11,7 +11,29 @@
 
 #ifndef BASE_LOG_H_
 #define BASE_LOG_H_
+
+#include <cstddef>
+
 namespace base {
-// TODO
-}
+class Logger {
+public:
+  enum LogLevel {
+    ALL,
+    TRACE,
+    DEBUG,
+    WARN,
+    INFO,
+    ERROR,
+    FATAL,
+    OFF,
+  };
+
+  void Log(char const *message, std::size_t length);
+};
+
+class LoggerStream {
+public:
+  LoggerStream &operator<<(char const *message) { return *this; }
+};
+} // namespace base
 #endif
