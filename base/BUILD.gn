@@ -157,6 +157,18 @@ executable("priority_queue_tests") {
   ]
 }
 
+executable("hash_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "./algorithm/hash_tests.cc" ]
+
+  deps = [
+    ":base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
+
 group("base_tests") {
   deps = [
     ":blocking_queue_tests",

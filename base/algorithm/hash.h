@@ -25,8 +25,8 @@ public:
   std::uint32_t operator()(std::basic_string<Char> const &str) {
     std::uint32_t hash = fnv_offset_basis;
     for (auto &&c : str) {
-      hash *= fnv_prime;
       hash ^= c;
+      hash *= fnv_prime;
     }
     return hash;
   }
@@ -45,6 +45,30 @@ public:
     }
     return hash;
   }
+};
+
+template <typename Integer> struct IntegerTraits {};
+
+template <> struct IntegerTraits<std::uint32_t> {
+  std::size_t static constexpr fnv_prime = 16777619u;
+  std::size_t static constexpr fnv_offset_basis = 2166136261u;
+};
+
+template <> struct IntegerTraits<std::uint64_t> {
+  std::size_t static constexpr fnv_prime = 1099511628211u;
+  std::size_t static constexpr fnv_offset_basis = 14695981039346656037u;
+};
+
+template <typename String, typename Integer> class FNV1A {
+public:
+  Integer operator()(String const &str) {
+    Integer hash = IntegerTraits<Integer>::fnv_offset_basis;
+    for (auto &&c : str) {
+      hash ^= c;
+      hash *= IntegerTraits<Integer>::fnv_prime;
+    }
+    return hash;
+  };
 };
 
 // For 32 bit machines:
