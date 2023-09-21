@@ -93,7 +93,6 @@ void RightTrim(std::string &text) {
   while (iter != text.rend() && std::isspace(*iter)) {
     ++iter;
   }
-  iter.base();
   text.erase(iter.base(), text.rbegin().base());
 }
 
