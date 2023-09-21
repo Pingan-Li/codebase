@@ -132,35 +132,33 @@ std::string Trim(const std::string &text) {
 bool StartsWith(const std::string &text, const std::string &prefix) {
   if (text.size() < prefix.size() || text.empty() || prefix.empty()) {
     return false;
-  } else {
-    auto text_iter = text.begin();
-    auto perfix_iter = prefix.begin();
-    while (perfix_iter != prefix.end()) {
-      if (*perfix_iter != *text_iter) {
-        return false;
-      }
-      perfix_iter++;
-      text_iter++;
-    }
-    return true;
   }
+  auto text_iter = text.begin();
+  auto perfix_iter = prefix.begin();
+  while (perfix_iter != prefix.end()) {
+    if (*perfix_iter != *text_iter) {
+      return false;
+    }
+    perfix_iter++;
+    text_iter++;
+  }
+  return true;
 }
 
 bool EndsWith(const std::string &text, const std::string &suffix) {
   if (text.size() < suffix.size() || text.empty() || suffix.empty()) {
     return false;
-  } else {
-    auto text_iter = text.rbegin();
-    auto suffix_iter = suffix.rbegin();
-    while (suffix_iter != suffix.rend()) {
-      if (*suffix_iter != *text_iter) {
-        return false;
-      }
-      ++suffix_iter;
-      ++text_iter;
-    }
-    return true;
   }
+  auto text_iter = text.rbegin();
+  auto suffix_iter = suffix.rbegin();
+  while (suffix_iter != suffix.rend()) {
+    if (*suffix_iter != *text_iter) {
+      return false;
+    }
+    ++suffix_iter;
+    ++text_iter;
+  }
+  return true;
 }
 
 void SetBit(size_t &bits, size_t index) {
