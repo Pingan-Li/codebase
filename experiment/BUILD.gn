@@ -1,3 +1,5 @@
+group("experiments") {}
+
 executable("tcp_client") {
   include_dirs = [ "//" ]
   sources = [ "tcp_client.cc" ]
@@ -43,14 +45,9 @@ executable("rb_tree") {
   deps = [ "//base:base_sources" ]
 }
 
-group("experiments") {
-  deps = [
-    ":epoll_server",
-    ":rb_tree",
-    ":read",
-    ":tcp_client",
-    ":tcp_server",
-    ":thread_expriments",
-    ":weak_observer",
-  ]
+executable("simple_cipher") {
+  include_dirs = [ "//" ]
+  sources = [ "simple_cipher.cc" ]
+
+  deps = [ "//base:base_sources" ]
 }
