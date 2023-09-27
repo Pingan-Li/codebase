@@ -36,9 +36,17 @@ executable("epoll_server") {
   deps = [ "//base:base_sources" ]
 }
 
+executable("rb_tree") {
+  include_dirs = [ "//" ]
+  sources = [ "rb_tree.cc" ]
+
+  deps = [ "//base:base_sources" ]
+}
+
 group("experiments") {
   deps = [
     ":epoll_server",
+    ":rb_tree",
     ":read",
     ":tcp_client",
     ":tcp_server",
