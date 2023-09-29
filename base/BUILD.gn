@@ -183,6 +183,30 @@ executable("heap_tests") {
   ]
 }
 
+executable("log_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "./log_tests.cc" ]
+
+  deps = [
+    ":base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
+
+executable("find_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "./algorithm/find_tests.cc" ]
+
+  deps = [
+    ":base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
+
 executable("timestamp_tests") {
   include_dirs = [ "//" ]
 
