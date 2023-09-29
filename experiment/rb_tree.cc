@@ -10,6 +10,7 @@
  */
 
 #include <iostream>
+#include <queue>
 #include <stack>
 
 /**
@@ -79,9 +80,10 @@ public:
     FixInsertion(new_node);
   }
 
- // Refs:
- // 1. https://www.enjoyalgorithms.com/blog/iterative-binary-tree-traversals-using-stack
- // 2. https://blog.csdn.net/xiaogaotongxue__/article/details/125627746
+  // Refs:
+  // 1.
+  // https://www.enjoyalgorithms.com/blog/iterative-binary-tree-traversals-using-stack
+  // 2. https://blog.csdn.net/xiaogaotongxue__/article/details/125627746
   void PreOrder() const {
     PreOrder(root_);
     std::cout << '\n';
@@ -190,6 +192,25 @@ public:
       }
     }
     std::cout << "\n";
+  }
+
+  void LevelOrder() {
+    if (!root_) {
+      return;
+    }
+    std::queue<TreeNode *> queue;
+    queue.push(root_);
+    while (!queue.empty()) {
+      TreeNode *node = queue.front();
+      queue.pop();
+      std::cout << node->data << ", ";
+      if (node->left) {
+        queue.push(node->left);
+      }
+      if (node->right) {
+        queue.push(node->right);
+      }
+    }
   }
 
 private:
@@ -314,5 +335,7 @@ int main() {
   rb_tree.PostOrder();
   rb_tree.PostOrderIterative();
   rb_tree.PostOrderIterativeSingleStack();
+  std::cout << "LevelOrder: " << std::endl;
+  rb_tree.LevelOrder();
   return 0;
 }
