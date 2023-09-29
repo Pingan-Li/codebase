@@ -40,6 +40,8 @@ source_set("base_sources") {
     "log.h",
     "string_aux.cc",
     "string_aux.h",
+    "timestamp.cc",
+    "timestamp.h",
   ]
 }
 
@@ -173,6 +175,18 @@ executable("heap_tests") {
   include_dirs = [ "//" ]
 
   sources = [ "./algorithm/heap_tests.cc" ]
+
+  deps = [
+    ":base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
+
+executable("timestamp_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "./timestamp_tests.cc" ]
 
   deps = [
     ":base_sources",
