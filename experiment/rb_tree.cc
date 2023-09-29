@@ -10,12 +10,18 @@
  */
 
 #include <iostream>
-using namespace std;
+#include <stack>
+
 /**
  * @brief Colors of tree nodes.
  *
  */
 enum Color { RED, BLACK };
+/**
+ * @brief
+ *
+ * @tparam T
+ */
 template <typename T> struct Node {
   T data;       // data
   Color color;  // cloor
@@ -29,7 +35,7 @@ template <typename T> struct Node {
 
 template <typename T> class RedBlackTree {
 public:
-  using NodeType = Node<T>;
+  using TreeNode = Node<T>;
   RedBlackTree() : root_(nullptr) {}
 
   RedBlackTree(RedBlackTree const &) = delete;
@@ -44,9 +50,9 @@ public:
    * @param val
    */
   void Insert(T const &val) {
-    NodeType *new_node = new NodeType(val);
-    NodeType *parent = nullptr;
-    NodeType *current = root_;
+    TreeNode *new_node = new TreeNode(val);
+    TreeNode *parent = nullptr;
+    TreeNode *current = root_;
 
     // find a position to insert.
     while (current) {
@@ -73,11 +79,124 @@ public:
     FixInsertion(new_node);
   }
 
-private:
-  NodeType *root_;
+ // Refs:
+ // 1. https://www.enjoyalgorithms.com/blog/iterative-binary-tree-traversals-using-stack
+ // 2. https://blog.csdn.net/xiaogaotongxue__/article/details/125627746
+  void PreOrder() const {
+    PreOrder(root_);
+    std::cout << '\n';
+  }
 
-  void RotateLeft(NodeType *node) {
-    NodeType *right_child = node->right;
+  void InOrder() const {
+    InOrder(root_);
+    std::cout << '\n';
+  }
+
+  void PostOrder() const {
+    PostOrder(root_);
+    std::cout << '\n';
+  }
+
+  void PreOrderIterative() const {
+    if (!root_) {
+      return;
+    }
+    std::stack<TreeNode *> stack;
+    TreeNode *current = root_;
+    stack.push(current);
+    while (!stack.empty()) {
+      current = stack.top();
+      stack.pop();
+      std::cout << current->data << ", ";
+      if (current->right)
+        stack.push(current->right);
+      if (current->left)
+        stack.push(current->left);
+    }
+    std::cout << '\n';
+  }
+
+  void InOrderIterative() const {
+    if (!root_) {
+      return;
+    }
+    std::stack<TreeNode *> stack;
+    TreeNode *current = root_;
+    while (!stack.empty() || current) {
+      if (current) {
+        stack.push(current);
+        current = current->left;
+      } else {
+        current = stack.top();
+        stack.pop();
+        std::cout << current->data << ", ";
+        current = current->right;
+      }
+    }
+    std::cout << "\n";
+  }
+
+  void PostOrderIterative() const {
+    if (!root_) {
+      return;
+    }
+    std::stack<TreeNode *> main_stack;
+    std::stack<TreeNode *> right_child_stack;
+    TreeNode *current = root_;
+    while (!main_stack.empty() || current) {
+      if (current) {
+        if (current->right) {
+          right_child_stack.push(current->right);
+        }
+        main_stack.push(current);
+        current = current->left;
+      } else {
+        current = main_stack.top();
+        if (!right_child_stack.empty() &&
+            current->right == right_child_stack.top()) {
+          current = right_child_stack.top();
+          right_child_stack.pop();
+        } else {
+          std::cout << current->data << ", ";
+          main_stack.pop();
+          current = nullptr;
+        }
+      }
+    }
+    std::cout << "\n";
+  }
+
+  void PostOrderIterativeSingleStack() {
+    if (!root_) {
+      return;
+    }
+
+    std::stack<TreeNode *> stack;
+    TreeNode *current = root_;
+    TreeNode *previous = nullptr;
+    while (!stack.empty() || current) {
+      if (current) {
+        stack.push(current);
+        current = current->left;
+      } else {
+        TreeNode *top_node = stack.top();
+        if (top_node->right && top_node->right != previous) {
+          current = top_node->right;
+        } else {
+          std::cout << top_node->data << ", ";
+          previous = top_node;
+          stack.pop();
+        }
+      }
+    }
+    std::cout << "\n";
+  }
+
+private:
+  TreeNode *root_;
+
+  void RotateLeft(TreeNode *node) {
+    TreeNode *right_child = node->right;
     node->right = right_child->left;
     if (right_child->left) {
       right_child->left->parent = node;
@@ -94,8 +213,8 @@ private:
     node->parent = right_child;
   }
 
-  void RotateRight(NodeType *node) {
-    NodeType *left_child = node->left;
+  void RotateRight(TreeNode *node) {
+    TreeNode *left_child = node->left;
     node->left = left_child->right;
     if (left_child->right) {
       left_child->right->parent = node;
@@ -116,10 +235,10 @@ private:
    *
    * @param node
    */
-  void FixInsertion(NodeType *node) {
+  void FixInsertion(TreeNode *node) {
     while (node != root_ && node->parent->color == RED) {
       if (node->parent == node->parent->parent->left) {
-        NodeType *uncle = node->parent->parent->right;
+        TreeNode *uncle = node->parent->parent->right;
         if (uncle && uncle->color == RED) { // Case 1:  uncle node is red
           node->parent->color = BLACK;
           uncle->color = BLACK;
@@ -135,7 +254,7 @@ private:
           RotateRight(node->parent->parent); // RotateRight
         }
       } else {
-        NodeType *uncle = node->parent->parent->left;
+        TreeNode *uncle = node->parent->parent->left;
         if (uncle && uncle->color == RED) { // Case 1: uncle node is red
           node->parent->color = BLACK;
           uncle->color = BLACK;
@@ -154,14 +273,46 @@ private:
     }
     root_->color = BLACK; // the root node is always black.
   }
+
+  void PreOrder(TreeNode *node) const {
+    if (node) {
+      std::cout << node->data << ", ";
+      PreOrder(node->left);
+      PreOrder(node->right);
+    }
+  }
+
+  void InOrder(TreeNode *node) const {
+    if (node) {
+      InOrder(node->left);
+      std::cout << node->data << ", ";
+      InOrder(node->right);
+    }
+  }
+
+  void PostOrder(TreeNode *node) const {
+    if (node) {
+      PostOrder(node->left);
+      PostOrder(node->right);
+      std::cout << node->data << ", ";
+    }
+  }
 };
 
 int main() {
   RedBlackTree<int> rb_tree;
-  rb_tree.Insert(1);
-  rb_tree.Insert(2);
-  rb_tree.Insert(3);
-  rb_tree.Insert(4);
-  rb_tree.Insert(5);
+  for (int i = 0; i < 10; ++i) {
+    rb_tree.Insert(i);
+  }
+  std::cout << "PreOrder: " << std::endl;
+  rb_tree.PreOrder();
+  rb_tree.PreOrderIterative();
+  std::cout << "InOrder: " << std::endl;
+  rb_tree.InOrder();
+  rb_tree.InOrderIterative();
+  std::cout << "PostOrder: " << std::endl;
+  rb_tree.PostOrder();
+  rb_tree.PostOrderIterative();
+  rb_tree.PostOrderIterativeSingleStack();
   return 0;
 }
