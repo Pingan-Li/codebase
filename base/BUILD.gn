@@ -4,6 +4,8 @@ source_set("base_sources") {
   sources = [
     "algorithm/hash.cc",
     "algorithm/hash.h",
+    "algorithm/linked_symbol_table.h",
+    "algorithm/symbol_table.h",
     "command_line.cc",
     "command_line.h",
     "concurrent/blocking_queue.cc",
@@ -217,6 +219,35 @@ executable("timestamp_tests") {
     "//testing:gtest",
     "//testing:gtest_main",
   ]
+}
+
+executable("symbol_table_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "./algorithm/symbol_table_tests.cc" ]
+
+  deps = [
+    ":base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
+executable("vector_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "./container/vector_tests.cc" ]
+
+  deps = [
+    ":base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+
+  cflags = [
+    "-fsanitize=address",
+    "-fno-access-control",
+  ]
+  ldflags = [ "-fsanitize=address" ]
 }
 
 group("base_tests") {

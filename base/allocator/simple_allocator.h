@@ -34,7 +34,10 @@ public:
     return static_cast<T *>(::operator new(n * sizeof(T)));
   }
 
-  constexpr void deallocate(T *p, std::size_t n) { ::operator delete(p); }
+  constexpr void deallocate(T *p, std::size_t n = 1) {
+    std::ignore = n;
+    ::operator delete(p);
+  }
 };
 
 template <class T, class U>
