@@ -72,8 +72,15 @@ public:
   void ShrinkToFit() const {}
   // ~Size
   // Modifiers
-  void Clear() {}
-  void Insert() {}
+  void Clear() {
+    for (std::size_t i = 0; i < size_; ++i) {
+      data_[i].~T();
+    }
+    size_ = 0;
+  }
+  void Insert(ConstIter const_iter) {
+    
+  }
   void Emplace(T &&t) {}
   Iter Erase() {}
   void PushBack(T const &t) {

@@ -23,6 +23,7 @@ namespace base {
 template <typename T, typename Container> class iterator {
 public:
   using difference_type = std::ptrdiff_t;
+  using value_type = T;
   iterator() noexcept = default;
   iterator(T *p) noexcept : p_(p) {}
 
