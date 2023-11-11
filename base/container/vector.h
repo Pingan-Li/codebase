@@ -24,10 +24,10 @@ namespace base {
 template <typename T, typename Allocator = SimpleAllocator<T>>
 class Vector final {
 public:
-  using Iter = iterator<T, Vector>;
-  using ConstIter = const_iterator<T, Vector>;
-  using ReverseIter = reverse_iterator<T, Vector>;
-  using ConstReverseIter = const_reverse_iterator<T, Vector>;
+  using Iterator = PointerIterator<T, Vector>;
+  using ConstIterator = const_iterator<T, Vector>;
+  using ReverseIterator = reverse_iterator<T, Vector>;
+  using ConstReverseIterator = const_reverse_iterator<T, Vector>;
 
   Vector() : data_(nullptr), size_(0), capacity_(0) {}
 
@@ -38,16 +38,16 @@ public:
   ~Vector() { allocator_.deallocate(data_); }
 
   // Iterators.
-  Iter begin() { return Iter{data_}; }
-  Iter end() { return Iter{data_ + size_}; }
-  ReverseIter rbegin() { return ReverseIter{data_ + size_ - 1}; }
-  ReverseIter rend() { return ReverseIter{data_ - 1}; }
-  ConstIter cbegin() const { return ConstIter{data_}; }
-  ConstIter cend() const { return ConstIter{data_ + size_}; }
-  ConstReverseIter crbegin() const {
-    return ConstReverseIter{data_ + size_ - 1};
+  Iterator begin() { return Iterator{data_}; }
+  Iterator end() { return Iterator{data_ + size_}; }
+  ReverseIterator rbegin() { return ReverseIterator{data_ + size_ - 1}; }
+  ReverseIterator rend() { return ReverseIterator{data_ - 1}; }
+  ConstIterator cbegin() const { return ConstIterator{data_}; }
+  ConstIterator cend() const { return ConstIterator{data_ + size_}; }
+  ConstReverseIterator crbegin() const {
+    return ConstReverseIterator{data_ + size_ - 1};
   }
-  ConstReverseIter crend() const { return ConstReverseIter{data_ - 1}; }
+  ConstReverseIterator crend() const { return ConstReverseIterator{data_ - 1}; }
   // ~Iterators.
 
   // Element Access
@@ -78,11 +78,9 @@ public:
     }
     size_ = 0;
   }
-  void Insert(ConstIter const_iter) {
-    
-  }
+  void Insert(ConstIterator const_iter) {}
   void Emplace(T &&t) {}
-  Iter Erase() {}
+  Iterator Erase() {}
   void PushBack(T const &t) {
     EnsureCapacity();
     data_[size_++] = t;

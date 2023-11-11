@@ -12,6 +12,8 @@
 #include "base/container/vector.h"
 #include "testing/googletest/include/gtest/gtest.h"
 #include <cstddef>
+#include <iterator>
+#include <type_traits>
 #include <vector>
 
 class VectorTestHelper : public testing::Test {
@@ -46,4 +48,10 @@ TEST_F(VectorTestHelper, Construction) {
   for (auto iter = vec.rbegin(); iter != vec.rend(); ++iter) {
     std::cout << *iter << ", ";
   }
+}
+
+TEST_F(VectorTestHelper, IteratorTratis) {
+  std::cout
+      << std::is_same<typename std::iterator_traits<int *>::iterator_category,
+                      std::random_access_iterator_tag>::value;
 }
