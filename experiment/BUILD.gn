@@ -51,3 +51,9 @@ executable("simple_cipher") {
 
   deps = [ "//base:base_sources" ]
 }
+executable("mmap") {
+  include_dirs = [ "//" ]
+  sources = [ "mmap.cc" ]
+
+  deps = [ "//base:base_sources" ]
+}
