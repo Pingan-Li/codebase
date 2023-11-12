@@ -13,30 +13,118 @@
 #define BASE_ALGORITHM_VECTOR_H_
 
 #include <cstddef>
-#include <iostream>
 #include <limits>
-#include <utility>
 
 #include "base/allocator/simple_allocator.h"
 #include "base/container/internal/iterator.h"
 #include "base/container/internal/pointer_iterator.h"
+#include "base/memory/lifetime.h"
 
 namespace base {
+
+template <typename T, typename Allocator> struct VectorBase {
+  VectorBase() noexcept = default;
+
+  VectorBase(Allocator const &allocator) noexcept : allocator_(allocator) {}
+
+  Allocator allocator_;
+};
+
 template <typename T, typename Allocator = SimpleAllocator<T>>
-class Vector final {
+class Vector final : public VectorBase<T, Allocator> {
 public:
+  using Super = VectorBase<T, Allocator>;
   using iterator = PointerIterator<T, Vector>;
   using const_iterator = PointerIterator<T const, Vector>;
   using reverse_iteraotr = ReverseIterator<iterator>;
   using const_reverse_iterator = ReverseIterator<const_iterator>;
 
-  Vector() : data_(nullptr), size_(0), capacity_(0) {}
+  /**
+   * @brief Constructor (1) Default constructor. Constructs an empty container
+   * with a default-constructed allocator.
+   *
+   */
+  Vector() noexcept(noexcept(Allocator()))
+      : Super(), data_(nullptr), size_(0), capacity_(0) {}
 
-  Vector(std::size_t n) : data_(nullptr), size_(0), capacity_(n) {
-    data_ = allocator_.allocate(n);
+  /**
+   * @brief Constructor (2) Constructs an empty container with the given
+   * allocator `allocator`.
+   *
+   * @param allocator
+   */
+  explicit Vector(Allocator const &alloc) : Super(alloc) {}
+
+  /**
+   * @brief Constructor (3) Constructs the container with n copies of
+   * elements with value `value`.
+   *
+   * @param n
+   */
+
+  Vector(std::size_t n, T const &value, const Allocator &alloc = Allocator())
+      : Super(), data_(this->allocator_.allocate()), size_(), capacity_(n) {
+    for (std::size_t idx = 0; idx < size_; ++idx) {
+      data_[idx] = value;
+      ++size_;
+    }
   }
+
+  /**
+   * @brief Constructor (4) Constructs the container with count default-inserted
+   * instances of T. No copies are made.
+   *
+   * @param n
+   */
+  explicit Vector(std::size_t n)
+      : Super(), data_(this->allocator_.allocate(n)), size_(0), capacity_(n) {
+    for (std::size_t idx = 0; idx < n; ++idx) {
+      base::Construct(data_ + idx);
+      ++size_;
+    }
+  }
+
+  /**
+   * @brief Constructor (5) Constructs the container with the contents of the
+   * range [first, last).
+   *
+   * @tparam InputIterator
+   * @param first
+   * @param last
+   * @param alloc
+   */
+
+  template <class InputIterator>
+  Vector(InputIterator first, InputIterator last,
+         const Allocator &alloc = Allocator()) {
+    while (first != last) {
+      EmplaceBack(*first);
+      ++first;
+    }
+  }
+
+  /**
+   * @brief Constructor (6) Constructs the container with the copy of the
+   * contents of other.
+   *
+   * @param other
+   */
+  Vector(Vector const &other)
+      : Super(), data_(this->allocator_(other.Size())), size_(0),
+        capacity_(other.Size()) {
+    for (std::size_t idx = 0; idx < other.Size(); ++idx) {
+      data_[idx] = other.data_[idx];
+      ++size_;
+    }
+  }
+
+  /**
+   * @brief Destroy the Vector object
+   *
+   */
+
   // final
-  ~Vector() { allocator_.deallocate(data_); }
+  ~Vector() { this->allocator_.deallocate(data_); }
 
   // Iterators.
   iterator begin() { return iterator(data_); }
@@ -97,6 +185,12 @@ public:
     data_[size_++] = std::move(t);
   }
 
+  template <typename... Args> void EmplaceBack(Args &&...args) {
+    EnsureCapacity();
+    ++size_;
+    base::Construct(data_ + size_, std::forward<Args>(args)...);
+  }
+
   T PopBack() { return std::move(data_[--size_]); }
   // ~Modifiers
 
@@ -104,7 +198,7 @@ public:
   void Resize(std::size_t n, T const &t) {
     capacity_ = n;
     size_ = n;
-    T *new_area = allocator_.allocate(n);
+    T *new_area = this->allocator_.allocate(n);
   }
 
 private:
@@ -113,16 +207,16 @@ private:
   void EnsureCapacity() {
     if (!data_) {
       capacity_ = 4u;
-      data_ = allocator_.allocate(capacity_);
+      data_ = this->allocator_.allocate(capacity_);
       return;
     }
     if (size_ == capacity_) {
       capacity_ <<= 1;
-      T *new_data = allocator_.allocate(capacity_);
+      T *new_data = this->allocator_.allocate(capacity_);
       for (std::size_t i = 0; i < size_; ++i) {
         new_data[i] = std::move(data_[i]);
       }
-      allocator_.deallocate(data_);
+      this->allocator_.deallocate(data_);
       data_ = new_data;
     }
   }
@@ -131,7 +225,6 @@ private:
   T *data_ = nullptr;
   std::size_t size_ = 0;
   std::size_t capacity_ = 0;
-  Allocator allocator_{};
 };
 } // namespace base
 #endif
