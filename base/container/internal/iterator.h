@@ -11,65 +11,145 @@
 
 #ifndef BASE_CONTAINER_INTERANL_H_
 #define BASE_CONTAINER_INTERANL_H_
+
+#include <utility>
+
 #include "base/container/internal/iterator_traits.h"
-template <typename IteratorImpl, typename Container> struct Iterator {
-  using iterator_type = IteratorImpl;
-  using value_type = typename iterator_type::value_type;
-  using pointer = typename iterator_type::pointer;
-  using reference = typename iterator_type::reference;
-  using difference_type = typename iterator_type::difference_type;
+namespace base {
 
-  // typedef _Iter iterator_type; typedef typename
-  // iterator_traits<iterator_type>::value_type        value_type; typedef
-  // typename iterator_traits<iterator_type>::difference_type   difference_type;
-  // typedef typename iterator_traits<iterator_type>::pointer           pointer;
-  // typedef typename iterator_traits<iterator_type>::reference reference;
-  // typedef typename iterator_traits<iterator_type>::iterator_category
-  // iterator_category;
+template <typename IteratorImpl> struct Iterator {};
 
-  /**
-   * @brief default constructor
-   *
-   */
-  Iterator() noexcept : iter_() {}
+template <typename Iterator> class ReverseIterator {
+public:
+  using iterator_category =
+      typename IteratorTraits<Iterator>::iterator_category;
+  using value_type = typename IteratorTraits<Iterator>::value_type;
+  using difference_type = typename IteratorTraits<Iterator>::difference_type;
+  using pointer = typename IteratorTraits<Iterator>::pointer;
+  using reference = typename IteratorTraits<Iterator>::reference;
 
-  Iterator(IteratorImpl const &iterator_impl) = default;
+  ReverseIterator() noexcept : iter_() {}
 
-  Iterator &operator=(IteratorImpl const &iterator_impl) = default;
+  explicit ReverseIterator(Iterator iter) noexcept : iter_(iter) {}
 
-  ~Iterator() = default;
+  // Copy
+  ReverseIterator(ReverseIterator const &other) noexcept = default;
+  ReverseIterator &operator=(ReverseIterator const &other) noexcept = default;
 
-  reference operator*() const { return *iter_; }
-  Iterator operator++() noexcept {
+  // Converstion
+  template <typename Iter>
+  ReverseIterator(ReverseIterator<Iter> const &other) : iter_(other.iter_) {}
+  template <typename Iter>
+  ReverseIterator &operator=(ReverseIterator<Iter> const &other) {
+    iter_ = other.iter_;
+    return *this;
+  }
+
+  Iterator base() const noexcept { return iter_; }
+
+  reference operator*() const {
+    Iterator tmp = iter_;
+    return *(--tmp);
+  }
+
+  pointer operator->() const {
+    Iterator tmp = iter_;
+    --tmp;
+    return tmp.operator->();
+  }
+
+  ReverseIterator &operator++() {
+    --iter_;
+    return *this;
+  }
+  ReverseIterator &operator--() {
     ++iter_;
     return *this;
   }
 
+  ReverseIterator operator++(int) {
+    ReverseIterator tmp = *this;
+    --iter_;
+    return tmp;
+  }
+
+  ReverseIterator operator--(int) {
+    ReverseIterator tmp = *this;
+    ++iter_;
+    return tmp;
+  }
+
+  ReverseIterator operator+(difference_type diff) {
+    return ReverseIterator(iter_ - diff);
+  }
+
+  ReverseIterator &operator+=(difference_type diff) {
+    iter_ -= diff;
+    return *this;
+  }
+
+  ReverseIterator operator-(difference_type diff) {
+    return ReverseIterator(iter_ + diff);
+  }
+
+  ReverseIterator &operator-=(difference_type diff) {
+    iter_ += diff;
+    return *this;
+  }
+
 private:
-  IteratorImpl iter_;
+  Iterator iter_;
 };
 
-template <typename Iterator> class ReverseIterator {
-  using Base = Iterator;
-  using IteratorCategory =
-      typename base::IteratorTraits<Iterator>::IteratorCategory;
-  using value_type = typename base::IteratorTraits<Base>::value_type;
-  using pointer = typename base::IteratorTraits<Base>::pointer;
-  using reference = typename base::IteratorTraits<Base>::reference;
-  using difference_type = typename base::IteratorTraits<Base>::difference_type;
+template <typename Iter1, typename Iter2>
+inline bool operator==(ReverseIterator<Iter1> const &lhs,
+                       ReverseIterator<Iter2> const &rhs) {
+  return lhs.base() == rhs.base();
+}
 
-  ReverseIterator(Base iter) : iter_(iter) {}
-  ReverseIterator(Base const &iter) : iter_(iter) {}
+template <typename Iter1, typename Iter2>
+inline bool operator!=(ReverseIterator<Iter1> const &lhs,
+                       ReverseIterator<Iter2> const &rhs) {
+  return lhs.base() != rhs.base();
+}
 
-private:
-  Base iter_;
-};
+template <typename Iter1, typename Iter2>
+inline bool operator>(ReverseIterator<Iter1> const &lhs,
+                      ReverseIterator<Iter2> const &rhs) {
+  return lhs.base() < rhs.base();
+}
 
-// template <typename IteratorImpl> struct ForwardIterator {
-//   using iterator_type = IteratorImpl;
-//   using value_type = typename iterator_type::value_type;
-//   using pointer = typename iterator_type::pointer;
-//   using reference = typename iterator_type::reference;
-//   using difference_type = typename iterator_type::difference_type;
-// };
+template <typename Iter1, typename Iter2>
+inline bool operator<(ReverseIterator<Iter1> const &lhs,
+                      ReverseIterator<Iter2> const &rhs) {
+  return lhs.base() > rhs.base();
+}
+
+template <typename Iter1, typename Iter2>
+inline bool operator>=(ReverseIterator<Iter1> const &lhs,
+                       ReverseIterator<Iter2> const &rhs) {
+  return lhs.base() <= rhs.base();
+}
+
+template <typename Iter1, typename Iter2>
+inline bool operator<=(ReverseIterator<Iter1> const &lhs,
+                       ReverseIterator<Iter2> const &rhs) {
+  return lhs.base() >= rhs.base();
+}
+
+template <typename Iter1, typename Iter2>
+inline auto operator-(ReverseIterator<Iter1> const &lhs,
+                      ReverseIterator<Iter2> const &rhs)
+    -> decltype(rhs.base() - lhs.base()) {
+  return rhs.base() - lhs.base();
+}
+
+template <typename Iter>
+inline ReverseIterator<Iter>
+operator+(typename ReverseIterator<Iter>::difference_type diff,
+          ReverseIterator<Iter> const &iter) {
+  return ReverseIterator<Iter>(iter.base() - diff);
+}
+
+} // namespace base
 #endif

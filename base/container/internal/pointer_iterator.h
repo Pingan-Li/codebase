@@ -24,8 +24,8 @@ namespace base {
 template <typename T, typename Container> class PointerIterator {
 public:
   using P = T *;
-  using IteratorCategory = typename IteratorTraits<P>::IteratorCategory;
-  using value_type = typename IteratorTraits<P>::IteratorCategory;
+  using iterator_category = typename IteratorTraits<P>::iterator_category;
+  using value_type = typename IteratorTraits<P>::value_type;
   using pointer = typename IteratorTraits<P>::pointer;
   using reference = typename IteratorTraits<P>::reference;
   using difference_type = typename IteratorTraits<P>::difference_type;
@@ -93,220 +93,61 @@ private:
   pointer p_ = nullptr;
 };
 
-/**
- * @brief constant iterator.
- *
- */
-template <typename T, typename Container> class const_iterator {
-public:
-  using difference_type = std::ptrdiff_t;
-  const_iterator() noexcept = default;
-  const_iterator(T *p) noexcept : p_(p) {}
-  const_iterator(T const *p) noexcept : p_(p) {}
-
-  T const &operator*() const noexcept { return *p_; }
-
-  T const *operator->() const noexcept { return p_; }
-
-  const_iterator &operator++() noexcept {
-    ++p_;
-    return *this;
-  }
-
-  const_iterator &operator--() noexcept {
-    --p_;
-    return *this;
-  }
-
-  const_iterator operator++(int) noexcept { return const_iterator(p_++); }
-
-  const_iterator operator--(int) noexcept { return const_iterator(p_--); }
-
-  const_iterator &operator+=(difference_type diff) noexcept {
-    p_ += diff;
-    return *this;
-  }
-
-  const_iterator &operator-=(difference_type diff) noexcept {
-    p_ -= diff;
-    return *this;
-  }
-
-  const_iterator operator+(difference_type diff) const noexcept {
-    return const_iterator{p_ + diff};
-  }
-
-  const_iterator operator-(difference_type diff) const noexcept {
-    return const_iterator{p_ - diff};
-  }
-
-  T const &operator[](difference_type diff) const noexcept { return p_[diff]; }
-
-private:
-  T const *p_{};
-};
-
-/**
- * @brief
- *
- * @tparam T - Data type
- * @tparam Container - Container is used to distinguish iterator types
- */
-template <typename T, typename Container> class reverse_iterator {
-public:
-  using difference_type = std::ptrdiff_t;
-  using BaseIterator = PointerIterator<T, Container>;
-
-  reverse_iterator() noexcept = default;
-  reverse_iterator(T *p) noexcept : p_(p) {}
-
-  T &operator*() const noexcept { return *p_; }
-
-  T *operator->() const noexcept { return p_; }
-
-  reverse_iterator &operator++() noexcept {
-    --p_;
-    return *this;
-  }
-
-  reverse_iterator &operator--() noexcept {
-    ++p_;
-    return *this;
-  }
-
-  reverse_iterator operator++(int) noexcept { return reverse_iterator(p_--); }
-
-  reverse_iterator operator--(int) noexcept { return reverse_iterator(p_++); }
-
-  reverse_iterator &operator+=(difference_type diff) noexcept {
-    p_ -= diff;
-    return *this;
-  }
-
-  reverse_iterator &operator-=(difference_type diff) noexcept {
-    p_ += diff;
-    return *this;
-  }
-
-  reverse_iterator operator+(difference_type diff) const noexcept {
-    return reverse_iterator{p_ - diff};
-  }
-
-  reverse_iterator operator-(difference_type diff) const noexcept {
-    return reverse_iterator{p_ + diff};
-  }
-
-  T &operator[](difference_type diff) const noexcept { return p_[-diff]; }
-
-  BaseIterator base() const { return BaseIterator{p_ + 1}; }
-
-private:
-  T *p_{};
-};
-
-template <typename T, typename Container> class const_reverse_iterator {
-public:
-  using difference_type = std::ptrdiff_t;
-  using BaseIterator = const_iterator<T, Container>;
-
-  const_reverse_iterator() noexcept = default;
-  const_reverse_iterator(T *p) noexcept : p_(p) {}
-
-  T const &operator*() const noexcept { return *p_; }
-
-  T const *operator->() const noexcept { return p_; }
-
-  const_reverse_iterator &operator++() noexcept {
-    --p_;
-    return *this;
-  }
-
-  const_reverse_iterator &operator--() noexcept {
-    ++p_;
-    return *this;
-  }
-
-  const_reverse_iterator operator++(int) noexcept {
-    return const_reverse_iterator(p_--);
-  }
-
-  const_reverse_iterator operator--(int) noexcept {
-    return const_reverse_iterator(p_++);
-  }
-
-  const_reverse_iterator &operator+=(difference_type diff) noexcept {
-    p_ -= diff;
-    return *this;
-  }
-
-  const_reverse_iterator &operator-=(difference_type diff) noexcept {
-    p_ += diff;
-    return *this;
-  }
-
-  const_reverse_iterator operator+(difference_type diff) const noexcept {
-    return const_reverse_iterator{p_ - diff};
-  }
-
-  const_reverse_iterator operator-(difference_type diff) const noexcept {
-    return const_reverse_iterator{p_ + diff};
-  }
-
-  T &operator[](difference_type diff) const noexcept { return p_[-diff]; }
-
-  BaseIterator base() const { return BaseIterator{p_ + 1}; }
-
-private:
-  T *const p_{};
-};
-
-template <typename T, typename Container>
-bool operator==(PointerIterator<T, Container> const &lhs,
-                PointerIterator<T, Container> const &rhs) {
+template <typename T, typename U, typename Container>
+inline bool operator==(PointerIterator<T, Container> const &lhs,
+                       PointerIterator<U, Container> const &rhs) noexcept {
   return lhs.p_ == rhs.p_;
 }
 
-template <typename T, typename Container>
-bool operator!=(PointerIterator<T, Container> const &lhs,
-                PointerIterator<T, Container> const &rhs) {
-  return !(lhs == rhs);
+template <typename T, typename U, typename Container>
+inline bool operator!=(PointerIterator<T, Container> const &lhs,
+                       PointerIterator<U, Container> const &rhs) noexcept {
+  return lhs.p_ != rhs.p_;
+}
+
+template <typename T, typename U, typename Container>
+inline bool operator<(PointerIterator<T, Container> const &lhs,
+                      PointerIterator<U, Container> const &rhs) noexcept {
+  return lhs.p_ < rhs.p_;
+}
+
+template <typename T, typename U, typename Container>
+inline bool operator<=(PointerIterator<T, Container> const &lhs,
+                       PointerIterator<U, Container> const &rhs) noexcept {
+  return lhs.p_ <= rhs.p_;
+}
+
+template <typename T, typename U, typename Container>
+inline bool operator>(PointerIterator<T, Container> const &lhs,
+                      PointerIterator<U, Container> const &rhs) noexcept {
+  return lhs.p_ > rhs.p_;
+}
+
+template <typename T, typename U, typename Container>
+inline bool operator>=(PointerIterator<T, Container> const &lhs,
+                       PointerIterator<U, Container> const &rhs) noexcept {
+  return lhs.p_ >= rhs.p_;
 }
 
 template <typename T, typename Container>
-bool operator==(const_iterator<T, Container> const &lhs,
-                const_iterator<T, Container> const &rhs) {
-  return lhs.p_ == rhs.p_;
+inline typename PointerIterator<T, Container>::difference_type
+operator-(PointerIterator<T, Container> const &lhs,
+          PointerIterator<T, Container> const &rhs) noexcept {
+  return lhs.p_ - rhs.p_;
+}
+
+template <typename T, typename U, typename Container>
+inline auto operator-(PointerIterator<T, Container> const &lhs,
+                      PointerIterator<U, Container> const &rhs) noexcept
+    -> decltype(lhs.p_->rhs.p_) {
+  return lhs.p_ - rhs.p_;
 }
 
 template <typename T, typename Container>
-bool operator!=(const_iterator<T, Container> const &lhs,
-                const_iterator<T, Container> const &rhs) {
-  return !(lhs == rhs);
+inline PointerIterator<T, Container>
+operator+(typename PointerIterator<T, Container>::difference_type diff,
+          PointerIterator<T, Container> const &iter) noexcept {
+  return {iter.p_ + diff};
 }
-
-template <typename T, typename Container>
-bool operator==(reverse_iterator<T, Container> const &lhs,
-                reverse_iterator<T, Container> const &rhs) {
-  return lhs.p_ == rhs.p_;
-}
-
-template <typename T, typename Container>
-bool operator!=(reverse_iterator<T, Container> const &lhs,
-                reverse_iterator<T, Container> const &rhs) {
-  return !(lhs == rhs);
-}
-
-template <typename T, typename Container>
-bool operator==(const_reverse_iterator<T, Container> const &lhs,
-                const_reverse_iterator<T, Container> const &rhs) {
-  return lhs.p_ == rhs.p_;
-}
-
-template <typename T, typename Container>
-bool operator!=(const_reverse_iterator<T, Container> const &lhs,
-                const_reverse_iterator<T, Container> const &rhs) {
-  return !(lhs == rhs);
-}
-
 } // namespace base
 #endif

@@ -18,16 +18,17 @@
 #include <utility>
 
 #include "base/allocator/simple_allocator.h"
+#include "base/container/internal/iterator.h"
 #include "base/container/internal/pointer_iterator.h"
 
 namespace base {
 template <typename T, typename Allocator = SimpleAllocator<T>>
 class Vector final {
 public:
-  using Iterator = PointerIterator<T, Vector>;
-  using ConstIterator = const_iterator<T, Vector>;
-  using ReverseIterator = reverse_iterator<T, Vector>;
-  using ConstReverseIterator = const_reverse_iterator<T, Vector>;
+  using iterator = PointerIterator<T, Vector>;
+  using const_iterator = PointerIterator<T const, Vector>;
+  using reverse_iteraotr = ReverseIterator<iterator>;
+  using const_reverse_iterator = ReverseIterator<const_iterator>;
 
   Vector() : data_(nullptr), size_(0), capacity_(0) {}
 
@@ -38,16 +39,21 @@ public:
   ~Vector() { allocator_.deallocate(data_); }
 
   // Iterators.
-  Iterator begin() { return Iterator{data_}; }
-  Iterator end() { return Iterator{data_ + size_}; }
-  ReverseIterator rbegin() { return ReverseIterator{data_ + size_ - 1}; }
-  ReverseIterator rend() { return ReverseIterator{data_ - 1}; }
-  ConstIterator cbegin() const { return ConstIterator{data_}; }
-  ConstIterator cend() const { return ConstIterator{data_ + size_}; }
-  ConstReverseIterator crbegin() const {
-    return ConstReverseIterator{data_ + size_ - 1};
+  iterator begin() { return iterator(data_); }
+  iterator end() { return iterator(data_ + size_); }
+
+  reverse_iteraotr rbegin() { return reverse_iteraotr(end()); }
+  reverse_iteraotr rend() { return reverse_iteraotr(begin()); }
+
+  const_iterator cbegin() const { return const_iterator(data_); }
+  const_iterator cend() const { return const_iterator(data_ + size_); }
+
+  const_reverse_iterator crbegin() const {
+    return const_reverse_iterator(cend());
   }
-  ConstReverseIterator crend() const { return ConstReverseIterator{data_ - 1}; }
+  const_reverse_iterator crend() const {
+    return const_reverse_iterator(cbegin());
+  }
   // ~Iterators.
 
   // Element Access
@@ -78,9 +84,9 @@ public:
     }
     size_ = 0;
   }
-  void Insert(ConstIterator const_iter) {}
+  void Insert(const_iterator const_iter) {}
   void Emplace(T &&t) {}
-  Iterator Erase() {}
+  iterator Erase() {}
   void PushBack(T const &t) {
     EnsureCapacity();
     data_[size_++] = t;
