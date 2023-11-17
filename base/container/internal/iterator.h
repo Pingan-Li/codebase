@@ -151,5 +151,296 @@ operator+(typename ReverseIterator<Iter>::difference_type diff,
   return ReverseIterator<Iter>(iter.base() - diff);
 }
 
+template <typename Iterator> class GenericIterator {
+public:
+  using IteratorTraits = IteratorTraits<Iterator>;
+  using iterator_category = typename IteratorTraits::iterator_category;
+  using value_type = typename IteratorTraits::value_type;
+  using pointer = typename IteratorTraits::pointer;
+  using reference = typename IteratorTraits::reference;
+  using difference_type = typename IteratorTraits::difference_type;
+
+  /**
+   * @brief Default constructor.
+   *
+   */
+  GenericIterator() noexcept : iterator_() {}
+
+  /**
+   * @brief Constructor with const &iter
+   *
+   * @param iter - actually iterator.
+   */
+  explicit GenericIterator(Iterator const &iter) noexcept : iterator_(iter) {}
+
+  template <typename Iter>
+  explicit GenericIterator(GenericIterator<Iter> const &iterator) noexcept
+      : iterator_(iterator.base()) {}
+
+  Iterator const &base() const noexcept { return iterator_; }
+
+  reference operator*() const noexcept { return *iterator_; }
+
+  pointer operator->() const noexcept { return iterator_; }
+
+  reference operator[](difference_type diff) const noexcept {
+    return iterator_[diff];
+  }
+
+  GenericIterator &operator++() noexcept {
+    ++iterator_;
+    return *this;
+  }
+
+  GenericIterator &operator--() noexcept {
+    --iterator_;
+    return *this;
+  }
+
+  GenericIterator operator++(int) noexcept {
+    return GenericIterator(iterator_++);
+  }
+
+  GenericIterator operator--(int) noexcept {
+    return GenericIterator(iterator_--);
+  }
+
+  GenericIterator &operator+=(difference_type diff) noexcept {
+    iterator_ += diff;
+    return *this;
+  }
+
+  GenericIterator &operator-=(difference_type diff) noexcept {
+    iterator_ -= diff;
+    return *this;
+  }
+
+  GenericIterator operator+(difference_type diff) const noexcept {
+    return GenericIterator(iterator_ + diff);
+  }
+
+  GenericIterator operator-(difference_type diff) const noexcept {
+    return GenericIterator(iterator_ - diff);
+  }
+
+private:
+  Iterator iterator_;
+};
+
+// template <typename L, typename R>
+// constexpr inline bool operator==(GenericIterator<L> const &lhs,
+//                                  GenericIterator<R> const &rhs) {
+//   return lhs.Base() == rhs.Base();
+// }
+
+// template <typename Iterator>
+// constexpr inline bool operator==(GenericIterator<Iterator> const &lhs,
+//                                  GenericIterator<Iterator> const &rhs) {
+//   return lhs.Base() == rhs.Base();
+// }
+
+template <typename Iterator> class GenericReverseIterator {
+public:
+  using IteratorTraits = IteratorTraits<Iterator>;
+  using iterator_category = typename IteratorTraits::iterator_category;
+  using value_type = typename IteratorTraits::value_type;
+  using pointer = typename IteratorTraits::pointer;
+  using reference = typename IteratorTraits::reference;
+  using difference_type = typename IteratorTraits::difference_type;
+
+  GenericReverseIterator() noexcept : iterator_() {}
+
+  GenericReverseIterator(Iterator const iterator) : iterator_(iterator) {}
+
+  template <typename Iter>
+  GenericReverseIterator(GenericReverseIterator<Iter> const iterator)
+      : iterator_(iterator.iterator_) {}
+
+  template <typename Iter>
+  GenericReverseIterator &
+  operator=(GenericReverseIterator<Iter> const &iterator) {
+    iterator_ = iterator.iterator_;
+    return *this;
+  }
+
+  Iterator const &base() const noexcept { return iterator_; }
+
+  reference operator*() const noexcept {
+    Iterator tmp = iterator_;
+    return *(--tmp);
+  }
+
+  pointer operator->() const noexcept {
+    Iterator tmp = iterator_;
+    return (--tmp).operator->();
+  }
+
+  reference operator[](difference_type diff) const {
+    return *(iterator_ - diff);
+  }
+
+  GenericReverseIterator &operator++() noexcept {
+    --iterator_;
+    return *this;
+  }
+
+  GenericReverseIterator operator++(int) noexcept {
+    Iterator tmp = iterator_;
+    --iterator_;
+    return GenericReverseIterator(iterator_);
+  }
+
+  GenericReverseIterator &operator--() noexcept {
+    ++iterator_;
+    return *this;
+  }
+
+  GenericReverseIterator operator--(int) noexcept {
+    Iterator tmp = iterator_;
+    ++tmp;
+    return tmp;
+  }
+
+  GenericReverseIterator operator+(difference_type diff) const noexcept {
+    return GenericReverseIterator(iterator_ - diff);
+  }
+
+  GenericReverseIterator &operator+=(difference_type diff) noexcept {
+    iterator_ -= diff;
+    return *this;
+  }
+
+  GenericReverseIterator operator-(difference_type diff) const noexcept {
+    return GenericReverseIterator(iterator_ + diff);
+  }
+
+  GenericReverseIterator &operator-=(difference_type diff) noexcept {
+    iterator_ += diff;
+    return *this;
+  }
+
+private:
+  Iterator iterator_;
+};
+
+template <typename L, typename R>
+constexpr inline bool operator==(GenericIterator<L> const &lhs,
+                                 GenericIterator<R> const &rhs) {
+  return lhs.base() == rhs.base();
+}
+
+template <typename Iterator>
+constexpr inline bool operator==(GenericIterator<Iterator> const &lhs,
+                                 GenericIterator<Iterator> const &rhs) {
+  return lhs.base() == rhs.base();
+}
+
+template <typename L, typename R>
+constexpr inline bool operator!=(GenericIterator<L> const &lhs,
+                                 GenericIterator<R> const &rhs) {
+  return lhs.base() != rhs.base();
+}
+
+template <typename L, typename R>
+constexpr inline bool operator<(GenericIterator<L> const &lhs,
+                                GenericIterator<R> const &rhs) {
+  return lhs.base() < rhs.base();
+}
+
+template <typename L, typename R>
+constexpr inline bool operator<=(GenericIterator<L> const &lhs,
+                                 GenericIterator<R> const &rhs) {
+  return lhs.base() <= rhs.base();
+}
+
+template <typename L, typename R>
+constexpr inline bool operator>(GenericIterator<L> const &lhs,
+                                GenericIterator<R> const &rhs) {
+  return lhs.base() > rhs.base();
+}
+
+template <typename L, typename R>
+constexpr inline bool operator>=(GenericIterator<L> const &lhs,
+                                 GenericIterator<R> const &rhs) {
+  return lhs.base() >= rhs.base();
+}
+
+template <typename L, typename R>
+constexpr inline auto operator-(GenericIterator<L> const &lhs,
+                                GenericIterator<R> const &rhs)
+    -> decltype(lhs.base() - rhs.base()) {
+  return lhs.base() - rhs.base();
+}
+
+template <typename Iterator>
+constexpr inline typename GenericIterator<Iterator>::difference_type
+operator-(GenericIterator<Iterator> const &lhs,
+          GenericIterator<Iterator> const &rhs) {
+  return lhs.base() - rhs.base();
+}
+
+template <typename Iterator>
+constexpr inline GenericIterator<Iterator>
+operator+(typename GenericIterator<Iterator>::difference_type diff,
+          GenericIterator<Iterator> const &iterator) {
+  return GenericIterator(iterator.base() + diff);
+}
+
+template <typename L, typename R>
+constexpr inline bool operator==(GenericReverseIterator<L> const &lhs,
+                                 GenericReverseIterator<R> const &rhs) {
+  return lhs.base() == rhs.base();
+}
+
+template <typename Iterator>
+constexpr inline bool operator==(GenericReverseIterator<Iterator> const &lhs,
+                                 GenericReverseIterator<Iterator> const &rhs) {
+  return lhs.base() == rhs.base();
+}
+
+template <typename L, typename R>
+constexpr inline bool operator!=(GenericReverseIterator<L> const &lhs,
+                                 GenericReverseIterator<R> const &rhs) {
+  return lhs.base() != rhs.base();
+}
+
+template <typename L, typename R>
+constexpr inline bool operator<(GenericReverseIterator<L> const &lhs,
+                                GenericReverseIterator<R> const &rhs) {
+  return lhs.base() > rhs.base();
+}
+
+template <typename L, typename R>
+constexpr inline bool operator<=(GenericReverseIterator<L> const &lhs,
+                                 GenericReverseIterator<R> const &rhs) {
+  return lhs.base() >= rhs.base();
+}
+
+template <typename L, typename R>
+constexpr inline bool operator>(GenericReverseIterator<L> const &lhs,
+                                GenericReverseIterator<R> const &rhs) {
+  return lhs.base() < rhs.base();
+}
+
+template <typename L, typename R>
+constexpr inline bool operator>=(GenericReverseIterator<L> const &lhs,
+                                 GenericReverseIterator<R> const &rhs) {
+  return lhs.base() <= rhs.base();
+}
+
+template <typename L, typename R>
+constexpr inline auto operator-(GenericReverseIterator<L> const &lhs,
+                                GenericReverseIterator<R> const &rhs)
+    -> decltype(rhs.base() - lhs.base()) {
+  return rhs.base() - lhs.base();
+}
+
+template <typename Iterator>
+constexpr inline GenericReverseIterator<Iterator>
+operator+(typename GenericReverseIterator<Iterator>::difference_type diff,
+          GenericReverseIterator<Iterator> const &iterator) {
+  return GenericReverseIterator(iterator.base() - diff);
+}
+
 } // namespace base
 #endif

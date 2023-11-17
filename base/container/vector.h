@@ -45,10 +45,10 @@ template <typename T, typename Allocator = SimpleAllocator<T>>
 class Vector final : private VectorBase<T, Allocator> {
 public:
   using Super = VectorBase<T, Allocator>;
-  using iterator = PointerIterator<T, Vector>;
-  using const_iterator = PointerIterator<T const, Vector>;
-  using reverse_iteraotr = ReverseIterator<iterator>;
-  using const_reverse_iterator = ReverseIterator<const_iterator>;
+  using iterator = GenericIterator<T *>;
+  using const_iterator = GenericIterator<T const *>;
+  using reverse_iteraotr = GenericReverseIterator<iterator>;
+  using const_reverse_iterator = GenericReverseIterator<const_iterator>;
   using size_type = typename Super::allocator_traits::size_type;
   /**
    * @brief Constructor (1) Default constructor. Constructs an empty container
