@@ -14,6 +14,7 @@
 
 #include <cstddef>
 #include <limits>
+#include <memory>
 
 #include "base/allocator/simple_allocator.h"
 #include "base/container/internal/iterator.h"
@@ -22,23 +23,33 @@
 
 namespace base {
 
-template <typename T, typename Allocator> struct VectorBase {
+template <typename T, typename Allocator> class VectorBase {
+public:
   VectorBase() noexcept = default;
-
   VectorBase(Allocator const &allocator) noexcept : allocator_(allocator) {}
+
+  using allocator_type = Allocator;
+  using allocator_traits = std::allocator_traits<allocator_type>;
+  using size_type = typename allocator_traits::size_type;
+  using value_type = T;
+  using reference = value_type &;
+  using const_reference = const value_type &;
+  using difference_type = typename allocator_traits::difference_type;
+  using pointer = typename allocator_traits::pointer;
+  using const_pointer = typename allocator_traits::const_pointer;
 
   Allocator allocator_;
 };
 
 template <typename T, typename Allocator = SimpleAllocator<T>>
-class Vector final : public VectorBase<T, Allocator> {
+class Vector final : private VectorBase<T, Allocator> {
 public:
   using Super = VectorBase<T, Allocator>;
   using iterator = PointerIterator<T, Vector>;
   using const_iterator = PointerIterator<T const, Vector>;
   using reverse_iteraotr = ReverseIterator<iterator>;
   using const_reverse_iterator = ReverseIterator<const_iterator>;
-
+  using size_type = typename Super::allocator_traits::size_type;
   /**
    * @brief Constructor (1) Default constructor. Constructs an empty container
    * with a default-constructed allocator.
@@ -62,9 +73,9 @@ public:
    * @param n
    */
 
-  Vector(std::size_t n, T const &value, const Allocator &alloc = Allocator())
+  Vector(size_type n, T const &value, const Allocator &alloc = Allocator())
       : Super(), data_(this->allocator_.allocate()), size_(), capacity_(n) {
-    for (std::size_t idx = 0; idx < size_; ++idx) {
+    for (size_type idx = 0; idx < size_; ++idx) {
       data_[idx] = value;
       ++size_;
     }
@@ -76,9 +87,9 @@ public:
    *
    * @param n
    */
-  explicit Vector(std::size_t n)
+  explicit Vector(size_type n)
       : Super(), data_(this->allocator_.allocate(n)), size_(0), capacity_(n) {
-    for (std::size_t idx = 0; idx < n; ++idx) {
+    for (size_type idx = 0; idx < n; ++idx) {
       base::Construct(data_ + idx);
       ++size_;
     }
@@ -112,7 +123,7 @@ public:
   Vector(Vector const &other)
       : Super(), data_(this->allocator_(other.Size())), size_(0),
         capacity_(other.Size()) {
-    for (std::size_t idx = 0; idx < other.Size(); ++idx) {
+    for (size_type idx = 0; idx < other.Size(); ++idx) {
       data_[idx] = other.data_[idx];
       ++size_;
     }
@@ -145,10 +156,10 @@ public:
   // ~Iterators.
 
   // Element Access
-  T &At(std::size_t index) { return data_[index]; }
-  T const &At(std::size_t index) const { return data_[index]; }
-  T &operator[](std::size_t index) { return data_[index]; }
-  T const &operator[](std::size_t index) const { return data_[index]; }
+  T &At(size_type index) { return data_[index]; }
+  T const &At(size_type index) const { return data_[index]; }
+  T &operator[](size_type index) { return data_[index]; }
+  T const &operator[](size_type index) const { return data_[index]; }
   T &Front() { return data_[0]; }
   T const &Front() const { return data_[0]; }
   T &Back() { return data_[size_ - 1]; }
@@ -158,22 +169,24 @@ public:
   // ~Element Access
   // Size
   bool Empty() const noexcept { return size_ == 0; }
-  std::size_t Size() const noexcept { return size_; }
-  std::size_t MaxSize() const noexcept {
-    return std::numeric_limits<std::size_t>::max() / sizeof(T);
+  size_type Size() const noexcept { return size_; }
+  size_type MaxSize() const noexcept {
+    return std::numeric_limits<size_type>::max() / sizeof(T);
   }
-  std::size_t Capacity() const noexcept { return capacity_; }
+  size_type Capacity() const noexcept { return capacity_; }
   void ShrinkToFit() const {}
   // ~Size
   // Modifiers
   void Clear() {
-    for (std::size_t i = 0; i < size_; ++i) {
-      data_[i].~T();
+    while (size_ != 0) {
+      base::Destruct(data_ + --size_);
     }
-    size_ = 0;
   }
-  void Insert(const_iterator const_iter) {}
+
+  iterator Insert(const_iterator const_iter, T const &t) {}
+
   void Emplace(T &&t) {}
+
   iterator Erase() {}
   void PushBack(T const &t) {
     EnsureCapacity();
@@ -194,8 +207,8 @@ public:
   T PopBack() { return std::move(data_[--size_]); }
   // ~Modifiers
 
-  void Reserve(std::size_t n) {}
-  void Resize(std::size_t n, T const &t) {
+  void Reserve(size_type n) {}
+  void Resize(size_type n, T const &t) {
     capacity_ = n;
     size_ = n;
     T *new_area = this->allocator_.allocate(n);
@@ -213,7 +226,7 @@ private:
     if (size_ == capacity_) {
       capacity_ <<= 1;
       T *new_data = this->allocator_.allocate(capacity_);
-      for (std::size_t i = 0; i < size_; ++i) {
+      for (size_type i = 0; i < size_; ++i) {
         new_data[i] = std::move(data_[i]);
       }
       this->allocator_.deallocate(data_);
@@ -223,8 +236,8 @@ private:
 
   // data members.
   T *data_ = nullptr;
-  std::size_t size_ = 0;
-  std::size_t capacity_ = 0;
+  size_type size_ = 0;
+  size_type capacity_ = 0;
 };
 } // namespace base
 #endif

@@ -1,4 +1,5 @@
-group("experiments") {}
+group("experiments") {
+}
 
 executable("tcp_client") {
   include_dirs = [ "//" ]
@@ -51,9 +52,21 @@ executable("simple_cipher") {
 
   deps = [ "//base:base_sources" ]
 }
+
 executable("mmap") {
   include_dirs = [ "//" ]
   sources = [ "mmap.cc" ]
 
   deps = [ "//base:base_sources" ]
+}
+
+executable("atomic") {
+  include_dirs = [ "//" ]
+  sources = [ "atomic.cc" ]
+
+  deps = [
+    "//base:base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
 }

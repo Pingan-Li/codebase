@@ -10,11 +10,8 @@
  */
 
 #include "base/container/vector.h"
+
 #include "testing/googletest/include/gtest/gtest.h"
-#include <cstddef>
-#include <iterator>
-#include <type_traits>
-#include <vector>
 
 class VectorTestHelper : public testing::Test {
 public:

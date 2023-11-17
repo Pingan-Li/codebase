@@ -12,8 +12,9 @@
 #ifndef BASE_CONTAINER_INTERNAL_POINTER_ITERATOR_H_
 #define BASE_CONTAINER_INTERNAL_POINTER_ITERATOR_H_
 
-#include "base/container/internal/iterator_traits.h"
 #include <cstddef>
+
+#include "base/container/internal/iterator_traits.h"
 
 namespace base {
 
@@ -90,6 +91,46 @@ public:
   reference operator[](difference_type diff) const noexcept { return p_[diff]; }
 
 private:
+  template <typename X, typename Y, typename C>
+  friend bool operator==(PointerIterator<X, C> const &,
+                         PointerIterator<Y, C> const &) noexcept;
+
+  template <typename X, typename Y, typename C>
+  friend bool operator!=(PointerIterator<X, C> const &,
+                         PointerIterator<Y, C> const &) noexcept;
+
+  template <typename X, typename Y, typename C>
+  friend bool operator<(PointerIterator<X, C> const &,
+                        PointerIterator<Y, C> const &) noexcept;
+
+  template <typename X, typename Y, typename C>
+  friend bool operator<=(PointerIterator<X, C> const &,
+                         PointerIterator<Y, C> const &) noexcept;
+
+  template <typename X, typename Y, typename C>
+  friend bool operator>(PointerIterator<X, C> const &,
+                        PointerIterator<Y, C> const &) noexcept;
+
+  template <typename X, typename Y, typename C>
+  friend bool operator>=(PointerIterator<X, C> const &,
+                         PointerIterator<Y, C> const &) noexcept;
+
+  template <typename X, typename C>
+  friend typename PointerIterator<X, C>::difference_type
+  operator-(PointerIterator<X, C> const &,
+            PointerIterator<X, C> const &) noexcept;
+
+  template <typename X, typename Y, typename C>
+  friend inline auto operator-(PointerIterator<X, C> const &lhs,
+                               PointerIterator<Y, C> const &rhs) noexcept
+      -> decltype(lhs.p_ - rhs.p_);
+
+  template <typename X, typename C>
+  PointerIterator<X, C> friend
+  operator+(typename PointerIterator<X, C>::difference_type diff,
+            PointerIterator<X, C> const &iter) noexcept;
+
+private:
   pointer p_ = nullptr;
 };
 
@@ -139,7 +180,7 @@ operator-(PointerIterator<T, Container> const &lhs,
 template <typename T, typename U, typename Container>
 inline auto operator-(PointerIterator<T, Container> const &lhs,
                       PointerIterator<U, Container> const &rhs) noexcept
-    -> decltype(lhs.p_->rhs.p_) {
+    -> decltype(lhs.p_ - rhs.p_) {
   return lhs.p_ - rhs.p_;
 }
 
