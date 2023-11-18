@@ -153,12 +153,13 @@ operator+(typename ReverseIterator<Iter>::difference_type diff,
 
 template <typename Iterator> class GenericIterator {
 public:
-  using IteratorTraits = IteratorTraits<Iterator>;
-  using iterator_category = typename IteratorTraits::iterator_category;
-  using value_type = typename IteratorTraits::value_type;
-  using pointer = typename IteratorTraits::pointer;
-  using reference = typename IteratorTraits::reference;
-  using difference_type = typename IteratorTraits::difference_type;
+  using iterator_type = Iterator;
+  using Traits = IteratorTraits<iterator_type>;
+  using iterator_category = typename Traits::iterator_category;
+  using value_type = typename Traits::value_type;
+  using pointer = typename Traits::pointer;
+  using reference = typename Traits::reference;
+  using difference_type = typename Traits::difference_type;
 
   /**
    * @brief Default constructor.
@@ -171,13 +172,14 @@ public:
    *
    * @param iter - actually iterator.
    */
-  explicit GenericIterator(Iterator const &iter) noexcept : iterator_(iter) {}
+  explicit GenericIterator(iterator_type const &iter) noexcept
+      : iterator_(iter) {}
 
   template <typename Iter>
   explicit GenericIterator(GenericIterator<Iter> const &iterator) noexcept
       : iterator_(iterator.base()) {}
 
-  Iterator const &base() const noexcept { return iterator_; }
+  iterator_type base() const noexcept { return iterator_; }
 
   reference operator*() const noexcept { return *iterator_; }
 
@@ -227,26 +229,15 @@ private:
   Iterator iterator_;
 };
 
-// template <typename L, typename R>
-// constexpr inline bool operator==(GenericIterator<L> const &lhs,
-//                                  GenericIterator<R> const &rhs) {
-//   return lhs.Base() == rhs.Base();
-// }
-
-// template <typename Iterator>
-// constexpr inline bool operator==(GenericIterator<Iterator> const &lhs,
-//                                  GenericIterator<Iterator> const &rhs) {
-//   return lhs.Base() == rhs.Base();
-// }
-
 template <typename Iterator> class GenericReverseIterator {
 public:
-  using IteratorTraits = IteratorTraits<Iterator>;
-  using iterator_category = typename IteratorTraits::iterator_category;
-  using value_type = typename IteratorTraits::value_type;
-  using pointer = typename IteratorTraits::pointer;
-  using reference = typename IteratorTraits::reference;
-  using difference_type = typename IteratorTraits::difference_type;
+  using iterator_type = Iterator;
+  using Traits = IteratorTraits<iterator_type>;
+  using iterator_category = typename Traits::iterator_category;
+  using value_type = typename Traits::value_type;
+  using pointer = typename Traits::pointer;
+  using reference = typename Traits::reference;
+  using difference_type = typename Traits::difference_type;
 
   GenericReverseIterator() noexcept : iterator_() {}
 
@@ -263,7 +254,7 @@ public:
     return *this;
   }
 
-  Iterator const &base() const noexcept { return iterator_; }
+  Iterator base() const noexcept { return iterator_; }
 
   reference operator*() const noexcept {
     Iterator tmp = iterator_;

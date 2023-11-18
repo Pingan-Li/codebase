@@ -18,7 +18,6 @@
 
 #include "base/allocator/simple_allocator.h"
 #include "base/container/internal/iterator.h"
-#include "base/container/internal/pointer_iterator.h"
 #include "base/memory/lifetime.h"
 
 namespace base {
