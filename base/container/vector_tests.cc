@@ -32,6 +32,24 @@ TEST_F(VectorTestHelper, InitialState) {
   ASSERT_EQ(vector.cbegin(), vector.crend().base());
 }
 
+TEST_F(VectorTestHelper, Constructor_3) {
+  base::Vector<int> vector(10, 10);
+  ASSERT_EQ(vector.Capacity(), 10);
+  ASSERT_EQ(vector.Size(), 10);
+  for (auto &&i : vector) {
+    ASSERT_EQ(i, 10);
+  }
+}
+
+TEST_F(VectorTestHelper, Constructor_4) {
+  base::Vector<int> vector(10);
+  ASSERT_EQ(vector.Capacity(), 10);
+  ASSERT_EQ(vector.Size(), 10);
+  for (auto &&i : vector) {
+    ASSERT_EQ(i, 0);
+  }
+}
+
 TEST_F(VectorTestHelper, Iterator) {
   base::Vector<int> result;
   std::vector<int> expect;
@@ -91,4 +109,7 @@ TEST_F(VectorTestHelper, ReverseIterator) {
 
   ASSERT_EQ(iter1, result.rend());
   ASSERT_EQ(iter2, expect.rend());
+  std::vector<int> vector;
 }
+
+TEST_F(VectorTestHelper, Temporary) {}

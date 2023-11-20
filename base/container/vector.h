@@ -26,17 +26,6 @@ template <typename T, typename Allocator> class VectorBase {
 public:
   VectorBase() noexcept = default;
   VectorBase(Allocator const &allocator) noexcept : allocator_(allocator) {}
-
-  using allocator_type = Allocator;
-  using allocator_traits = std::allocator_traits<allocator_type>;
-  using size_type = typename allocator_traits::size_type;
-  using value_type = T;
-  using reference = value_type &;
-  using const_reference = const value_type &;
-  using difference_type = typename allocator_traits::difference_type;
-  using pointer = typename allocator_traits::pointer;
-  using const_pointer = typename allocator_traits::const_pointer;
-
   Allocator allocator_;
 };
 
@@ -48,7 +37,16 @@ public:
   using const_iterator = GenericIterator<T const *>;
   using reverse_iteraotr = GenericReverseIterator<iterator>;
   using const_reverse_iterator = GenericReverseIterator<const_iterator>;
-  using size_type = typename Super::allocator_traits::size_type;
+
+  using allocator_type = Allocator;
+  using allocator_traits = std::allocator_traits<allocator_type>;
+  using size_type = typename allocator_traits::size_type;
+  using value_type = T;
+  using reference = value_type &;
+  using const_reference = const value_type &;
+  using difference_type = typename allocator_traits::difference_type;
+  using pointer = typename allocator_traits::pointer;
+  using const_pointer = typename allocator_traits::const_pointer;
   /**
    * @brief Constructor (1) Default constructor. Constructs an empty container
    * with a default-constructed allocator.
@@ -72,11 +70,11 @@ public:
    * @param n
    */
 
-  Vector(size_type n, T const &value, const Allocator &alloc = Allocator())
-      : Super(), data_(this->allocator_.allocate()), size_(), capacity_(n) {
-    for (size_type idx = 0; idx < size_; ++idx) {
-      data_[idx] = value;
-      ++size_;
+  Vector(size_type n, const_reference value,
+         const allocator_type &alloc = Allocator())
+      : Super(), data_(this->allocator_.allocate(n)), size_(0), capacity_(n) {
+    while (size_ != capacity_) {
+      data_[size_++] = value;
     }
   }
 
@@ -88,9 +86,8 @@ public:
    */
   explicit Vector(size_type n)
       : Super(), data_(this->allocator_.allocate(n)), size_(0), capacity_(n) {
-    for (size_type idx = 0; idx < n; ++idx) {
-      base::Construct(data_ + idx);
-      ++size_;
+    while (size_ != capacity_) {
+      base::Construct(data_ + (size_++));
     }
   }
 
@@ -105,7 +102,10 @@ public:
    */
 
   template <class InputIterator>
-  Vector(InputIterator first, InputIterator last,
+  Vector(typename std::enable_if<IsInputIterator<InputIterator>::value,
+                                 InputIterator>::type first,
+         typename std::enable_if<IsInputIterator<InputIterator>::value,
+                                 InputIterator>::type last,
          const Allocator &alloc = Allocator()) {
     while (first != last) {
       EmplaceBack(*first);
