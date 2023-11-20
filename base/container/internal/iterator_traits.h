@@ -13,6 +13,7 @@
 #define BASE_CONTAINER_INTERNAL_ITERATOR_TRAITS_H_
 
 #include <cstddef>
+#include <type_traits>
 
 namespace base {
 
@@ -88,6 +89,18 @@ template <typename T> struct IteratorTraits<T const *> {
   using pointer = T const *;
   using reference = T const &;
   using difference_type = std::ptrdiff_t;
+};
+
+template <typename T, typename = void> struct IsInputIterator {
+  constexpr static bool value = false;
+};
+
+template <typename T>
+struct IsInputIterator<
+    T, std::enable_if<
+           std::is_same<typename T::iterator_category, InputIteratorTag>::value,
+           T>> {
+  constexpr static bool value = true;
 };
 } // namespace base
 #endif

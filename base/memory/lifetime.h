@@ -14,11 +14,11 @@
 #include <utility>
 
 namespace base {
-template <typename T, typename... Args> void Construct(T *ptr, Args &&...args) {
-  ptr->T(std::forward<Args>(args)...);
+template <typename T, typename... Args> void Construct(T *p, Args &&...args) {
+  ::new (p) T(std::forward<Args>(args)...);
 }
 
-template <typename T> void Destruct(T *ptr) { ptr->~T(); }
+template <typename T> void Destruct(T *p) { p->~T(); }
 
 } // namespace base
 #endif // BASE_HELPER_CONSTRUCT_H_
