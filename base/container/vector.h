@@ -101,14 +101,26 @@ public:
    * @param alloc
    */
 
-  template <class InputIterator>
-  Vector(typename std::enable_if<IsInputIterator<InputIterator>::value,
-                                 InputIterator>::type first,
-         typename std::enable_if<IsInputIterator<InputIterator>::value,
-                                 InputIterator>::type last,
-         const Allocator &alloc = Allocator()) {
+  template <typename InputIterator>
+  Vector(InputIterator first,
+         typename std::enable_if<
+             std::is_base_of<std::input_iterator_tag,
+                             typename std::iterator_traits<
+                                 InputIterator>::iterator_category>::value ||
+                 std::is_base_of<base::InputIteratorTag,
+                                 typename base::IteratorTraits<
+                                     InputIterator>::iterator_category>::value,
+             InputIterator>::type last,
+         Allocator const &alloc = Allocator())
+      : Super(), data_(nullptr), size_(0), capacity_(0) {
+    typename base::IteratorTraits<InputIterator>::difference_type diff =
+        last - first;
+    if (diff <= 0)
+      return;
+    capacity_ = diff;
+    data_ = this->allocator_.allocate(diff);
     while (first != last) {
-      EmplaceBack(*first);
+      data_[size_++] = *first;
       ++first;
     }
   }
@@ -129,12 +141,44 @@ public:
   }
 
   /**
+   * @brief Constructor (7) Constructs the container with the copy of the
+   * contents of other, using alloc as the allocator.
+   *
+   * @param other
+   * @param alloc
+   */
+  Vector(const Vector &other, Allocator const &alloc) : Super(alloc) {
+    for (size_type idx = 0; idx < other.Size(); ++idx) {
+      data_[idx] = other.data_[idx];
+      ++size_;
+    }
+  }
+
+  Vector(Vector &&other) noexcept
+      : Super(other.allocator_), data_(other.data_), size_(other.size_),
+        capacity_(other.capacity_) {
+    other.data_ = nullptr;
+    capacity_ = 0;
+    size_ = 0;
+  }
+
+  Vector(Vector &&other, Allocator const &alloc) noexcept
+      : Super(alloc), size_(other.size_), capacity_(other.capacity_) {
+    other.data_ = nullptr;
+    capacity_ = 0;
+    size_ = 0;
+  }
+
+  /**
    * @brief Destroy the Vector object
    *
    */
 
   // final
-  ~Vector() { this->allocator_.deallocate(data_); }
+  ~Vector() {
+    Clear();
+    this->allocator_.deallocate(data_);
+  }
 
   // Iterators.
   iterator begin() { return iterator(data_); }

@@ -50,6 +50,24 @@ TEST_F(VectorTestHelper, Constructor_4) {
   }
 }
 
+TEST_F(VectorTestHelper, Constructor_5) {
+  std::vector<int> expect;
+  for (auto i = 0; i < 10; ++i) {
+    expect.push_back(i);
+  }
+
+  base::Vector<int> result{expect.begin(), expect.end()};
+
+  for (std::size_t idx = 0; idx < expect.size(); ++idx) {
+    ASSERT_EQ(result[idx], expect[idx]);
+  }
+
+  base::Vector<int> other{result.begin(), result.end()};
+  for (std::size_t idx = 0; idx < expect.size(); ++idx) {
+    ASSERT_EQ(other[idx], expect[idx]);
+  }
+}
+
 TEST_F(VectorTestHelper, Iterator) {
   base::Vector<int> result;
   std::vector<int> expect;
