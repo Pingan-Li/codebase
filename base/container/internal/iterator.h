@@ -17,8 +17,6 @@
 #include "base/container/internal/iterator_traits.h"
 namespace base {
 
-template <typename IteratorImpl> struct Iterator {};
-
 template <typename Iterator> class ReverseIterator {
 public:
   using iterator_category =

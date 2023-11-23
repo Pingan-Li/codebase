@@ -101,16 +101,11 @@ public:
    * @param alloc
    */
 
-  template <typename InputIterator>
-  Vector(InputIterator first,
-         typename std::enable_if<
-             std::is_base_of<std::input_iterator_tag,
-                             typename std::iterator_traits<
-                                 InputIterator>::iterator_category>::value ||
-                 std::is_base_of<base::InputIteratorTag,
-                                 typename base::IteratorTraits<
-                                     InputIterator>::iterator_category>::value,
-             InputIterator>::type last,
+  // TODO: Needs a real constraint for InputIterator.
+  template <typename InputIterator,
+            typename = typename std::enable_if<
+                !std::is_integral<InputIterator>::value, InputIterator>::type>
+  Vector(InputIterator first, InputIterator last,
          Allocator const &alloc = Allocator())
       : Super(), data_(nullptr), size_(0), capacity_(0) {
     typename base::IteratorTraits<InputIterator>::difference_type diff =
