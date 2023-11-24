@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <limits>
 #include <memory>
+#include <tuple>
 
 #include "base/allocator/simple_allocator.h"
 #include "base/container/internal/iterator.h"
@@ -127,8 +128,8 @@ public:
    * @param other
    */
   Vector(Vector const &other)
-      : Super(), data_(this->allocator_(other.Size())), size_(0),
-        capacity_(other.Size()) {
+      : Super(), data_(this->allocator_.allocate(other.Capacity())), size_(0),
+        capacity_(other.Capacity()) {
     for (size_type idx = 0; idx < other.Size(); ++idx) {
       data_[idx] = other.data_[idx];
       ++size_;
@@ -142,28 +143,68 @@ public:
    * @param other
    * @param alloc
    */
-  Vector(const Vector &other, Allocator const &alloc) : Super(alloc) {
+  Vector(const Vector &other, Allocator const &alloc)
+      : Super(alloc), data_(this->allocator_.allocate(other.Capacity())),
+        size_(0), capacity_(other.Capacity()) {
     for (size_type idx = 0; idx < other.Size(); ++idx) {
       data_[idx] = other.data_[idx];
       ++size_;
     }
   }
 
+  /**
+   * @brief Constructor (8) Move constructor. Constructs the container with the
+   * contents of other using move semantics. Allocator is obtained by
+   * move-construction from the allocator belonging to other. After the move,
+   * other is guaranteed to be empty().
+   *
+   * @param other
+   */
   Vector(Vector &&other) noexcept
-      : Super(other.allocator_), data_(other.data_), size_(other.size_),
-        capacity_(other.capacity_) {
+      : Super(std::move(other.GetAllocator())), data_(other.Data()),
+        size_(other.Size()), capacity_(other.Capacity()) {
     other.data_ = nullptr;
-    capacity_ = 0;
-    size_ = 0;
+    other.capacity_ = 0;
+    other.size_ = 0;
   }
 
+  /**
+   * @brief Constructor (9) Allocator-extended move constructor. Using alloc as
+   * the allocator for the new container, moving the contents from other; if
+   * alloc != other.get_allocator(), this results in an element-wise move. (In
+   * that case, other is not guaranteed to be empty after the move.)
+   *
+   * @param other
+   * @param alloc
+   */
   Vector(Vector &&other, Allocator const &alloc) noexcept
-      : Super(alloc), size_(other.size_), capacity_(other.capacity_) {
-    other.data_ = nullptr;
-    capacity_ = 0;
-    size_ = 0;
+      : Super(alloc), size_(other.Size()), capacity_(other.Capacity()) {
+    if (alloc != other.GetAllocator()) {
+      data_ = this->allocator_.allocate(capacity_);
+      for (std::size_t idx; idx < other.Size(); ++idx) {
+        data_[idx] = std::move(other.data_[idx]);
+      }
+    } else {
+      std::swap(data_, other.data_);
+    }
+    other.size_ = 0;
+    other.capacity_ = 0;
   }
 
+  /**
+   * @brief Constructor (10) Constructs the container with the contents of the
+   * initializer list init.
+   *
+   * @param init
+   * @param alloc
+   */
+  Vector(std::initializer_list<T> init, Allocator const &alloc = Allocator())
+      : Super(alloc), data_(this->allocator_.allocate(init.size())), size_(0),
+        capacity_(init.size()) {
+    for (auto &&value : init) {
+      data_[size_++] = std::move(value);
+    }
+  }
   /**
    * @brief Destroy the Vector object
    *
@@ -174,6 +215,8 @@ public:
     Clear();
     this->allocator_.deallocate(data_);
   }
+
+  allocator_type GetAllocator() const noexcept { return this->allocator_; }
 
   // Iterators.
   iterator begin() { return iterator(data_); }

@@ -9,6 +9,7 @@
  *
  */
 
+#include "base/allocator/simple_allocator.h"
 #include "base/container/vector.h"
 
 #include "testing/googletest/include/gtest/gtest.h"
@@ -19,8 +20,21 @@ public:
   void TearDown() override{};
 };
 
-TEST_F(VectorTestHelper, InitialState) {
+TEST_F(VectorTestHelper, Constructor_1) {
   base::Vector<int> vector;
+  ASSERT_EQ(vector.Size(), 0);
+  ASSERT_EQ(vector.Capacity(), 0);
+  ASSERT_EQ(vector.Data(), nullptr);
+  ASSERT_EQ(vector.begin(), vector.end());
+  ASSERT_EQ(vector.cbegin(), vector.cend());
+  ASSERT_EQ(vector.rbegin(), vector.rend());
+  ASSERT_EQ(vector.crbegin(), vector.crend());
+  ASSERT_EQ(vector.begin(), vector.rend().base());
+  ASSERT_EQ(vector.cbegin(), vector.crend().base());
+}
+
+TEST_F(VectorTestHelper, Constructor_2) {
+  base::Vector<int> vector(base::SimpleAllocator<int>{});
   ASSERT_EQ(vector.Size(), 0);
   ASSERT_EQ(vector.Capacity(), 0);
   ASSERT_EQ(vector.Data(), nullptr);
@@ -66,6 +80,82 @@ TEST_F(VectorTestHelper, Constructor_5) {
   for (std::size_t idx = 0; idx < expect.size(); ++idx) {
     ASSERT_EQ(other[idx], expect[idx]);
   }
+}
+
+TEST_F(VectorTestHelper, Constructor_6) {
+  base::Vector<int> expect;
+  for (auto i = 0; i < 10; ++i) {
+    expect.PushBack(i);
+  }
+
+  base::Vector<int> result{expect};
+
+  ASSERT_EQ(result.Size(), expect.Size());
+  ASSERT_EQ(result.Capacity(), expect.Capacity());
+  for (std::size_t idx = 0; idx < expect.Size(); ++idx) {
+    ASSERT_EQ(result[idx], expect[idx]);
+  }
+}
+
+TEST_F(VectorTestHelper, Constructor_7) {
+  base::Vector<int> expect;
+  for (auto i = 0; i < 10; ++i) {
+    expect.PushBack(i);
+  }
+
+  base::Vector<int> result(expect, base::SimpleAllocator<int>());
+  ASSERT_EQ(result.Size(), expect.Size());
+  ASSERT_EQ(result.Capacity(), expect.Capacity());
+
+  for (std::size_t idx = 0; idx < expect.Size(); ++idx) {
+    ASSERT_EQ(result[idx], expect[idx]);
+  }
+
+  base::Vector<int> other{result.begin(), result.end()};
+  for (std::size_t idx = 0; idx < expect.Size(); ++idx) {
+    ASSERT_EQ(other[idx], expect[idx]);
+  }
+}
+
+TEST_F(VectorTestHelper, Constructor_8) {
+  base::Vector<int> expect;
+  for (auto i = 0; i < 10; ++i) {
+    expect.PushBack(i);
+  }
+
+  base::Vector<int> result(std::move(expect));
+
+  ASSERT_EQ(expect.Size(), 0);
+  ASSERT_EQ(expect.Capacity(), 0);
+  ASSERT_EQ(expect.Data(), nullptr);
+  ASSERT_EQ(expect.Empty(), true);
+}
+
+TEST_F(VectorTestHelper, Constructor_9) {
+  base::Vector<int> expect;
+  for (auto i = 0; i < 10; ++i) {
+    expect.PushBack(i);
+  }
+
+  base::Vector<int> result(std::move(expect), base::SimpleAllocator<int>());
+
+  ASSERT_EQ(expect.Size(), 0);
+  ASSERT_EQ(expect.Capacity(), 0);
+  ASSERT_EQ(expect.Data(), nullptr);
+  ASSERT_EQ(expect.Empty(), true);
+}
+
+TEST_F(VectorTestHelper, Constructor_10) {
+  base::Vector<int> result{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+  for (int i = 0; i < 10; ++i) {
+    ASSERT_EQ(result[i], i);
+  }
+
+  ASSERT_EQ(result.Size(), 10);
+  ASSERT_EQ(result.Capacity(), 10);
+  ASSERT_NE(result.Data(), nullptr);
+  ASSERT_FALSE(result.Empty());
 }
 
 TEST_F(VectorTestHelper, Iterator) {
