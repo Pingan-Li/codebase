@@ -70,3 +70,14 @@ executable("atomic") {
     "//testing:gtest_main",
   ]
 }
+
+executable("thread_counting") {
+  include_dirs = [ "//" ]
+  sources = [ "thread_counting.cc" ]
+
+  deps = [
+    "//base:base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
