@@ -232,6 +232,7 @@ executable("symbol_table_tests") {
     "//testing:gtest_main",
   ]
 }
+
 executable("vector_tests") {
   include_dirs = [ "//" ]
 
@@ -247,7 +248,20 @@ executable("vector_tests") {
     "-fsanitize=address",
     "-fno-access-control",
   ]
+
   ldflags = [ "-fsanitize=address" ]
+}
+
+executable("array_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "./container/array_tests.cc" ]
+
+  deps = [
+    ":base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
 }
 
 group("base_tests") {
