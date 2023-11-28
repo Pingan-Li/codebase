@@ -81,3 +81,14 @@ executable("thread_counting") {
     "//testing:gtest_main",
   ]
 }
+
+executable("thread_printing") {
+  include_dirs = [ "//" ]
+  sources = [ "thread_printing.cc" ]
+
+  deps = [
+    "//base:base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
