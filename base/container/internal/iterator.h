@@ -224,7 +224,7 @@ public:
   }
 
 private:
-  Iterator iterator_;
+  iterator_type iterator_;
 };
 
 template <typename Iterator> class GenericReverseIterator {
@@ -239,7 +239,7 @@ public:
 
   GenericReverseIterator() noexcept : iterator_() {}
 
-  GenericReverseIterator(Iterator const iterator) : iterator_(iterator) {}
+  GenericReverseIterator(iterator_type const iterator) : iterator_(iterator) {}
 
   template <typename Iter>
   GenericReverseIterator(GenericReverseIterator<Iter> const iterator)
@@ -252,15 +252,15 @@ public:
     return *this;
   }
 
-  Iterator base() const noexcept { return iterator_; }
+  iterator_type base() const noexcept { return iterator_; }
 
   reference operator*() const noexcept {
-    Iterator tmp = iterator_;
+    iterator_type tmp = iterator_;
     return *(--tmp);
   }
 
   pointer operator->() const noexcept {
-    Iterator tmp = iterator_;
+    iterator_type tmp = iterator_;
     return (--tmp).operator->();
   }
 
@@ -274,7 +274,7 @@ public:
   }
 
   GenericReverseIterator operator++(int) noexcept {
-    Iterator tmp = iterator_;
+    iterator_type tmp = iterator_;
     --iterator_;
     return GenericReverseIterator(iterator_);
   }
@@ -285,7 +285,7 @@ public:
   }
 
   GenericReverseIterator operator--(int) noexcept {
-    Iterator tmp = iterator_;
+    iterator_type tmp = iterator_;
     ++tmp;
     return tmp;
   }
@@ -309,7 +309,7 @@ public:
   }
 
 private:
-  Iterator iterator_;
+  iterator_type iterator_;
 };
 
 template <typename L, typename R>
