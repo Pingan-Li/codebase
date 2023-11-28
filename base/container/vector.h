@@ -219,19 +219,31 @@ public:
   allocator_type GetAllocator() const noexcept { return this->allocator_; }
 
   // Iterators.
-  iterator begin() { return iterator(data_); }
-  iterator end() { return iterator(data_ + size_); }
+  iterator begin() noexcept { return iterator(data_); }
+  const_iterator begin() const noexcept { return iterator(data_); }
 
-  reverse_iteraotr rbegin() { return reverse_iteraotr(end()); }
-  reverse_iteraotr rend() { return reverse_iteraotr(begin()); }
+  iterator end() noexcept { return iterator(data_ + size_); }
+  const_iterator end() const noexcept { return iterator(data_ + size_); }
 
   const_iterator cbegin() const { return const_iterator(data_); }
+
   const_iterator cend() const { return const_iterator(data_ + size_); }
 
-  const_reverse_iterator crbegin() const {
+  reverse_iteraotr rbegin() noexcept { return reverse_iteraotr(end()); }
+  const_reverse_iterator rbegin() const noexcept {
+    return reverse_iteraotr(end());
+  }
+
+  reverse_iteraotr rend() noexcept { return reverse_iteraotr(begin()); }
+  const_reverse_iterator rend() const noexcept {
+    return reverse_iteraotr(begin());
+  }
+
+  const_reverse_iterator crbegin() const noexcept {
     return const_reverse_iterator(cend());
   }
-  const_reverse_iterator crend() const {
+
+  const_reverse_iterator crend() const noexcept {
     return const_reverse_iterator(cbegin());
   }
   // ~Iterators.
