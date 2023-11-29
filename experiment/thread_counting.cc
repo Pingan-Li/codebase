@@ -12,6 +12,7 @@
 #include <condition_variable>
 #include <iostream>
 #include <mutex>
+#include <thread>
 
 /**
  * @brief - solution a. using condition_variable
@@ -75,6 +76,7 @@ void a() {
  */
 namespace b {
 
+#if __cplusplus > 202002L
 std::binary_semaphore odd_flag{1};
 std::binary_semaphore even_flag{1};
 
@@ -110,13 +112,17 @@ void print_odd() {
     even_flag.release();
   }
 }
+#endif
 
 void b() {
+#if __cplusplus > 202002L
   std::cout << "Solution B" << std::endl;
   std::thread thread1{print_even};
   std::thread thread2{print_odd};
   thread1.join();
   thread2.join();
+#else
+#endif
 };
 } // namespace b
 
