@@ -126,8 +126,48 @@ void b() {
 };
 } // namespace b
 
+/**
+ * @brief using atomic int.
+ *
+ */
+namespace c {
+std::atomic<int> counter = 0;
+inline constexpr int kMax = 100;
+void print_even() {
+  while (true) {
+    if (!(counter < kMax)) {
+      break;
+    }
+    if (counter % 2 == 0) {
+      std::cerr << "thread 1, counter: " << counter++ << std::endl;
+    }
+  }
+}
+
+void print_odd() {
+  while (true) {
+    if (!(counter < kMax)) {
+      break;
+    }
+    if (counter % 2 == 1) {
+      std::cerr << "thread 2, counter: " << counter++ << std::endl;
+    }
+  }
+}
+
+void c() {
+  std::cout << "Solution C" << std::endl;
+  std::thread thread1(print_even);
+  std::thread thread2(print_odd);
+
+  thread1.join();
+  thread2.join();
+}
+} // namespace c
+
 int main(int argc, char **argv) {
-  a::a();
-  b::b();
+  // a::a();
+  // b::b();
+  c::c();
   return 0;
 }
