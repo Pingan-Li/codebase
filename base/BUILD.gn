@@ -26,6 +26,8 @@ source_set("base_sources") {
     "concurrent/restrict_mutex.h",
     "concurrent/semaphore.cc",
     "concurrent/semaphore.h",
+    "concurrent/spin_lock.cc",
+    "concurrent/spin_lock.h",
     "concurrent/thread.cc",
     "concurrent/thread.h",
     "concurrent/thread_group.cc",
@@ -256,6 +258,18 @@ executable("array_tests") {
   include_dirs = [ "//" ]
 
   sources = [ "./container/array_tests.cc" ]
+
+  deps = [
+    ":base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
+
+executable("spin_lock_tests") {
+  include_dirs = [ "//" ]
+
+  sources = [ "./concurrent/spin_lock_tests.cc" ]
 
   deps = [
     ":base_sources",
