@@ -34,7 +34,7 @@ TEST_F(VectorTestHelper, Constructor_1) {
 }
 
 TEST_F(VectorTestHelper, Constructor_2) {
-  base::Vector<int> vector(base::SimpleAllocator<int>{});
+  base::Vector<int> vector(base::Allocator<int>{});
   ASSERT_EQ(vector.Size(), 0);
   ASSERT_EQ(vector.Capacity(), 0);
   ASSERT_EQ(vector.Data(), nullptr);
@@ -103,7 +103,7 @@ TEST_F(VectorTestHelper, Constructor_7) {
     expect.PushBack(i);
   }
 
-  base::Vector<int> result(expect, base::SimpleAllocator<int>());
+  base::Vector<int> result(expect, base::Allocator<int>());
   ASSERT_EQ(result.Size(), expect.Size());
   ASSERT_EQ(result.Capacity(), expect.Capacity());
 
@@ -137,7 +137,7 @@ TEST_F(VectorTestHelper, Constructor_9) {
     expect.PushBack(i);
   }
 
-  base::Vector<int> result(std::move(expect), base::SimpleAllocator<int>());
+  base::Vector<int> result(std::move(expect), base::Allocator<int>());
 
   ASSERT_EQ(expect.Size(), 0);
   ASSERT_EQ(expect.Capacity(), 0);

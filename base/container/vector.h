@@ -17,7 +17,7 @@
 #include <memory>
 #include <tuple>
 
-#include "base/allocator/simple_allocator.h"
+#include "base/allocator/allocator.h"
 #include "base/container/internal/iterator.h"
 #include "base/memory/lifetime.h"
 
@@ -30,7 +30,7 @@ public:
   Allocator allocator_;
 };
 
-template <typename T, typename Allocator = SimpleAllocator<T>>
+template <typename T, typename Allocator = Allocator<T>>
 class Vector final : private VectorBase<T, Allocator> {
 public:
   using Super = VectorBase<T, Allocator>;
@@ -213,7 +213,7 @@ public:
   // final
   ~Vector() {
     Clear();
-    this->allocator_.deallocate(data_);
+    this->allocator_.deallocate(data_, 1);
   }
 
   allocator_type GetAllocator() const noexcept { return this->allocator_; }
@@ -322,7 +322,7 @@ private:
       for (size_type i = 0; i < size_; ++i) {
         new_data[i] = std::move(data_[i]);
       }
-      this->allocator_.deallocate(data_);
+      this->allocator_.deallocate(data_, 1);
       data_ = new_data;
     }
   }

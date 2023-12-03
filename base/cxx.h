@@ -21,7 +21,7 @@ namespace base {
 #define CXX_23 202302L
 
 #define SINCE(CXX_STD) __cplusplus >= CXX_STD
-#define UNTIL(CXX_STD) __cplusplus <= CXX_STD
+#define UNTIL(CXX_STD) __cplusplus < CXX_STD
 
 } // namespace base
 #endif
