@@ -103,7 +103,7 @@ public:
     return static_cast<T *>(::operator new(n * sizeof(T)));
   }
 
-  T *allocate(std::size_t n) { allocate(n, nulltpr); }
+  T *allocate(std::size_t n) { return allocate(n, nullptr); }
 #elif SINCE(CXX_20)
   [[nodiscard]] constexpr T *allocate(std::size_t n) {
 #if SINCE(CXX_11)
