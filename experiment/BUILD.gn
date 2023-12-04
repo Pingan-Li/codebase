@@ -92,3 +92,14 @@ executable("thread_printing") {
     "//testing:gtest_main",
   ]
 }
+
+executable("ebo") {
+  include_dirs = [ "//" ]
+  sources = [ "ebo.cc" ]
+
+  deps = [
+    "//base:base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
