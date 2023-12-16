@@ -32,7 +32,7 @@ public:
   void Release() noexcept;
 
 private:
-  std::atomic<bool> is_exclusive_;
+  std::atomic_flag is_exclusive_;
 };
 } // namespace base
 #endif

@@ -16,13 +16,13 @@ namespace base {
 SpinLock::SpinLock() noexcept : is_exclusive_(false) {}
 
 void SpinLock::Acquire() noexcept {
-  while (is_exclusive_.exchange(true, std::memory_order_acquire)) {
+  while (is_exclusive_.test_and_set(std::memory_order_acquire)) {
     // Spinning.
   }
 }
 
 void SpinLock::Release() noexcept {
-  is_exclusive_.store(false, std::memory_order_release);
+  is_exclusive_.clear(std::memory_order_release);
 }
 
 } // namespace base
