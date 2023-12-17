@@ -15,7 +15,7 @@
 
 #include "testing/googletest/include/gtest/gtest.h"
 
-static constexpr int kMax = 1000000;
+static constexpr int kMax = 1'000'000;
 static constexpr int kThreadCount = 40;
 
 int volatile value = 0;

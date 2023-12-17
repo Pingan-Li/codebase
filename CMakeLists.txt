@@ -30,5 +30,5 @@ target_link_libraries(gmock_main PRIVATE gmock)
 include_directories(".")
 
 # Experiments
-add_executable(atomic "experiment/atomic.cc")
-target_link_libraries(atomic PRIVATE gtest_main)
+add_executable(atomic_exp "experiment/atomic_exp.cc")
+target_link_libraries(atomic_exp PRIVATE gtest_main)
