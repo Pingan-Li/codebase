@@ -23,13 +23,13 @@ void func0() {
 void func1() {
   while (b == 0)
     continue;
-  assert(a == 1); // Neve fires on x86, but it will fail on ARM.
+  assert(a == 1); // Never fires on x86, but it will fail on ARM.
 }
 
 int main() {
-  std::thread thread1{func1};
   std::thread thread0{func0};
+  std::thread thread1{func1};
 
-  thread1.join();
   thread0.join();
+  thread1.join();
 }
