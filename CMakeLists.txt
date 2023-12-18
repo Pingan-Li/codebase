@@ -37,4 +37,5 @@ add_executable(atomic_exp "experiment/atomic_exp.cc")
 target_link_libraries(atomic_exp PRIVATE gtest_main)
 
 add_executable(store_sotre_reordering_exp "experiment/store_store_reordering_exp.cc")
-target_link_libraries(store_sotre_reordering_exp PRIVATE gtest_main)
+
+add_executable(weak_observer "experiment/weak_observer.cc")
