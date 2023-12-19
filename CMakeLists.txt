@@ -4,7 +4,7 @@ project("codebase")
 
 # Monorepo configurations
 include_directories(".")
-add_compile_options("-std=c++20")
+add_compile_options("-std=c++17")
 if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
   link_libraries("pthread")
 endif()
@@ -36,6 +36,7 @@ add_executable(atomic_exp "experiment/atomic_exp.cc")
 target_link_libraries(atomic_exp PRIVATE gtest_main)
 
 add_executable(store_load_reordering_exp "experiment/store_load_reordering_exp.cc")
+add_executable(store_load_reordering_preshing "experiment/store_load_reordering_preshing.cc")
 add_executable(store_sotre_reordering_exp "experiment/store_store_reordering_exp.cc")
 
 add_executable(weak_observer "experiment/weak_observer.cc")
