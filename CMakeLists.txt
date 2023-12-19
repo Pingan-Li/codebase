@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 3.5)
 
 project("codebase")
 
-add_compile_options("-std=c++17")
+# Monorepo configurations
+include_directories(".")
+add_compile_options("-std=c++20")
+if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
+  link_libraries("pthread")
+endif()
 
 # GTest
 set(gtest_source_set testing/googletest/src/gtest-all.cc)
@@ -25,12 +30,6 @@ add_library(gmock_main STATIC testing/googlemock/src/gmock_main.cc)
 target_include_directories(gmock_main PUBLIC testing/googletest/include)
 target_include_directories(gmock_main PUBLIC testing/googlemock/include)
 target_link_libraries(gmock_main PRIVATE gmock)
-
-# Monorepo configurations
-include_directories(".")
-if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
-  link_libraries("pthread")
-endif()
 
 # Experiments
 add_executable(atomic_exp "experiment/atomic_exp.cc")
