@@ -39,7 +39,6 @@ void Func0() {
       // __asm__ __volatile__("dmb sy");
       a = y;
       flag0.test_and_set(std::memory_order_release);
-      i.fetch_add(1, std::memory_order_release);
     }
   }
 }
@@ -51,7 +50,6 @@ void Func1() {
       // __asm__ __volatile__("dmb sy");
       b = x;
       flag1.test_and_set(std::memory_order_release);
-      j.fetch_add(1, std::memory_order_release);
     }
   }
 }
@@ -70,12 +68,13 @@ int main() {
       }
       x = 0;
       y = 0;
+      a = 0;
+      b = 0;
       flag0.clear(std::memory_order_release);
       flag1.clear(std::memory_order_release);
       std::cout << "Reordering ratio = "
                 << reordering / static_cast<double>(iterations) * 100
                 << " %\n ";
-      assert(i == j);
     }
   }
 
