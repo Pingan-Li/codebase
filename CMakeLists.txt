@@ -31,6 +31,17 @@ target_include_directories(gmock_main PUBLIC testing/googletest/include)
 target_include_directories(gmock_main PUBLIC testing/googlemock/include)
 target_link_libraries(gmock_main PRIVATE gmock)
 
+# base library 
+set(base_source_set 
+  "base/concurrent/mutex.cc"
+  "base/concurrent/condition_variable.cc"
+  "base/concurrent/count_down_latch.cc")
+add_library(base SHARED ${base_source_set})
+
+# concurrent tests
+add_executable(conunt_down_latch_tests base/concurrent/count_down_latch_tests.cc)
+target_link_libraries(conunt_down_latch_tests PRIVATE base gtest gtest_main)
+
 # Experiments
 add_executable(atomic_exp "experiment/atomic_exp.cc")
 target_link_libraries(atomic_exp PRIVATE gtest_main)
