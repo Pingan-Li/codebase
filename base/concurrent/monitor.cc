@@ -1,3 +1,14 @@
+/**
+ * @file monitor.cc
+ * @author lipingan (lipingan.dev@outlook.com)
+ * @brief
+ * @version 0.1
+ * @date 2023-12-21
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
+
 #include "base/concurrent/monitor.h"
 
 namespace base {

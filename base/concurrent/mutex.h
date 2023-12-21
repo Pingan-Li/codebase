@@ -22,6 +22,7 @@ class ConditionVariable;
 class API Mutex final {
 public:
   Mutex();
+
   // Once a mutex is created, it cannot be validly copied or moved to a new
   // location.
   DISABLE_COPY(Mutex);
@@ -29,8 +30,10 @@ public:
 
   // Acquire the ownership of this mutex.
   void Acquire();
+
   // Release the ownership of this mutex.
   void Release();
+
   // Try to acquire the ownership of this mutex.
   // a false return value means failed.
   bool TryAcquire();

@@ -1,3 +1,14 @@
+/**
+ * @file monitor.h
+ * @author lipingan (lipingan.dev@outlook.com)
+ * @brief
+ * @version 0.1
+ * @date 2023-12-21
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
+
 #ifndef BASE_CONCURRENT_MONITOR_H_
 #define BASE_CONCURRENT_MONITOR_H_
 
