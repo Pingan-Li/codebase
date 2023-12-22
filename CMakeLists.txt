@@ -37,7 +37,9 @@ set(base_source_set
   "base/concurrent/mutex.cc"
   "base/concurrent/spin_lock.cc"
   "base/concurrent/condition_variable.cc"
-  "base/concurrent/count_down_latch.cc")
+  "base/concurrent/count_down_latch.cc"
+  "base/memory/atomic_reference_counting.cc"
+  "base/memory/reference_counting.cc")
 add_library(base SHARED ${base_source_set})
 
 # concurrent tests
