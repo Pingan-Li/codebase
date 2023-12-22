@@ -63,3 +63,7 @@ add_executable(store_load_reordering_preshing "experiment/store_load_reordering_
 add_executable(store_sotre_reordering_exp "experiment/store_store_reordering_exp.cc")
 
 add_executable(weak_observer "experiment/weak_observer.cc")
+
+add_executable(reference_counting_exp "experiment/reference_counting_exp.cc")
+target_compile_options(reference_counting_exp PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer")
+target_link_options(reference_counting_exp PRIVATE "-fsanitize=address")
