@@ -45,14 +45,21 @@ add_library(base SHARED ${base_source_set})
 # concurrent tests
 add_executable(count_down_latch_tests base/concurrent/count_down_latch_tests.cc)
 target_link_libraries(count_down_latch_tests PRIVATE base gtest_main gtest)
+
 add_executable(spin_lock base/concurrent/spin_lock_tests.cc)
 target_link_libraries(spin_lock PRIVATE base gtest_main gtest)
+
+add_executable(reference_counting_tests base/memory/reference_counting_tests.cc)
+target_link_libraries(reference_counting_tests PRIVATE base gtest_main gtest)
+
 # Experiments
 add_executable(atomic_exp "experiment/atomic_exp.cc")
 target_link_libraries(atomic_exp PRIVATE gtest_main gtest)
 
 add_executable(store_load_reordering_exp "experiment/store_load_reordering_exp.cc")
+
 add_executable(store_load_reordering_preshing "experiment/store_load_reordering_preshing.cc")
+
 add_executable(store_sotre_reordering_exp "experiment/store_store_reordering_exp.cc")
 
 add_executable(weak_observer "experiment/weak_observer.cc")

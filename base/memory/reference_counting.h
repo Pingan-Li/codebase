@@ -13,11 +13,10 @@
 #define BASE_MEMORY_REFERENCE_COUNTING_H_
 
 #include <atomic>
-#include <functional>
 #include <memory>
+#include <utility>
 
 namespace base {
-
 class ReferenceCountingBase {
 public:
   ReferenceCountingBase() noexcept;
@@ -65,21 +64,30 @@ private:
   int mutable count_;
 };
 
+template <typename Type> struct LifetimeTraits {
+  template <typename... Args> static Type *New(Args &&...args) {
+    return new Type(std::forward<Args>(args)...);
+  }
+
+  static void Delete(Type const *pointer) { delete pointer; }
+};
+
 /**
  * @brief
  *
  * @tparam Type
  * @tparam Traits
  */
-template <typename Type, typename Traits>
-class ReferenceCounting : ReferenceCountingBase {
+template <typename Type, typename Traits = LifetimeTraits<Type>>
+class ReferenceCounting : public ReferenceCountingBase {
 public:
   using value_type = Type;
   using traits_type = Traits;
 
-  ReferenceCounting() noexcept;
+  ReferenceCounting() noexcept : ReferenceCountingBase() {}
 
-  explicit ReferenceCounting(int initial_value) noexcept;
+  explicit ReferenceCounting(int initial_value) noexcept
+      : ReferenceCountingBase(initial_value) {}
 
   ReferenceCounting(ReferenceCounting const &other) = delete;
   ReferenceCounting &operator=(ReferenceCounting const &other) = delete;
