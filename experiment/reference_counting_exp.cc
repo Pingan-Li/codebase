@@ -13,6 +13,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <type_traits>
 #include <utility>
 
 namespace base {
@@ -135,19 +136,78 @@ private:
   ~A();
 };
 
-template <typename Type, typename... Args>
+// Reference: https://en.cppreference.com/w/cpp/types/enable_if
+
+/* WRONG */
+
+// struct T
+// {
+//     enum { int_t, float_t } type;
+
+//     template<typename Integer,
+//              typename = std::enable_if_t<std::is_integral<Integer>::value>>
+//     T(Integer) : type(int_t) {}
+
+//     template<typename Floating,
+//              typename =
+//              std::enable_if_t<std::is_floating_point<Floating>::value>>
+//     T(Floating) : type(float_t) {} // error: treated as redefinition
+// };
+
+/* RIGHT */
+
+struct T {
+  enum { int_t, float_t } type;
+
+  template <typename Integer,
+            std::enable_if_t<std::is_integral<Integer>::value, bool> = true>
+  T(Integer) : type(int_t) {}
+
+  template <
+      typename Floating,
+      std::enable_if_t<std::is_floating_point<Floating>::value, bool> = true>
+  T(Floating) : type(float_t) {} // OK
+};
+
+template <typename Type,
+          typename std::enable_if<std::is_base_of<RefCnt<Type>, Type>::value,
+                                  bool>::type _ = true>
+void TestRefCntEnableIf(Type const &value) {
+  return;
+}
+
+template <typename Type, typename std::enable_if<std::is_integral<Type>::value,
+                                                 bool>::type _ = true>
+void TestRefCntEnableIf(Type const &value) {
+  return;
+}
+
+template <typename Type, typename... Args,
+          typename std::enable_if<std::is_base_of<RefCnt<Type>, Type>::value,
+                                  bool>::type _ = true>
 auto MakeRefCnt(Args &&...args) -> Reference<Type> {
   return Reference<Type>(new Type(std::forward<Args>(args)...));
 }
 
-template <typename Type, typename... Args>
+template <typename Type, typename... Args,
+          typename std::enable_if<std::is_base_of<RefCnt<Type>, Type>::value,
+                                  bool>::type _ = true>
 auto MakeReference(Args &&...args) -> Reference<Type> {
   return Reference<Type>(std::forward<Args>(args)...);
 }
 
-template <typename Type> auto WrapRefCnt(Type const &type) -> Reference<Type> {
+template <typename Type,
+          typename std::enable_if<std::is_base_of<RefCnt<Type>, Type>::value,
+                                  bool>::type = true>
+auto WrapRefCnt(Type const &type) -> Reference<Type> {
   return Reference<Type>{&type};
 }
+
+class B : public RefCnt<B> {
+public:
+  B() = default;
+  ~B() = default;
+};
 } // namespace base
 
 int main(int argc, char **argv) {
@@ -158,4 +218,8 @@ int main(int argc, char **argv) {
   // Oops
   std::cout << (*ptr).Count() << std::endl;
   base::A *a = new base::A();
+  base::B b;
+  base::TestRefCntEnableIf(b);
+  int c = 1;
+  base::TestRefCntEnableIf(c);
 }
