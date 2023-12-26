@@ -52,6 +52,9 @@ target_link_libraries(spin_lock PRIVATE base gtest_main gtest)
 add_executable(reference_counting_tests base/memory/reference_counting_tests.cc)
 target_link_libraries(reference_counting_tests PRIVATE base gtest_main gtest)
 
+add_executable(shared_ptr_tests base/memory/shared_ptr_tests.cc)
+target_link_libraries(shared_ptr_tests PRIVATE base gtest_main gtest)
+
 # Experiments
 add_executable(atomic_exp "experiment/atomic_exp.cc")
 target_link_libraries(atomic_exp PRIVATE gtest_main gtest)
