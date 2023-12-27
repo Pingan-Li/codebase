@@ -54,6 +54,8 @@ target_link_libraries(reference_counting_tests PRIVATE base gtest_main gtest)
 
 add_executable(shared_ptr_tests base/memory/shared_ptr_tests.cc)
 target_link_libraries(shared_ptr_tests PRIVATE base gtest_main gtest)
+target_compile_options(shared_ptr_tests PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer")
+target_link_options(shared_ptr_tests PRIVATE "-fsanitize=address")
 
 # Experiments
 add_executable(atomic_exp "experiment/atomic_exp.cc")
