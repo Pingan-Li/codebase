@@ -70,3 +70,5 @@ add_executable(weak_observer "experiment/weak_observer.cc")
 add_executable(reference_counting_exp "experiment/reference_counting_exp.cc")
 target_compile_options(reference_counting_exp PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer")
 target_link_options(reference_counting_exp PRIVATE "-fsanitize=address")
+
+add_executable(type_erase_exp "experiment/type_erase_exp.cc")
