@@ -74,3 +74,5 @@ target_link_options(reference_counting_exp PRIVATE "-fsanitize=address")
 add_executable(type_erase_exp "experiment/type_erase_exp.cc")
 
 add_executable(enable_if_exp "experiment/enable_if_exp.cc")
+
+add_executable(var_exp "experiment/var_exp.cc")
