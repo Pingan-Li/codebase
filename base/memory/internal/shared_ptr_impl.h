@@ -72,9 +72,9 @@ public:
     deleter_base_.store(deleter_impl, std::memory_order_release);
   }
 
-  template <class Deleter, typename std::enable_if<
-                               std::is_copy_constructible<Deleter>::value, bool>
-                               type = true>
+  template <class Deleter,
+            typename std::enable_if<std::is_copy_constructible<Deleter>::value,
+                                    bool>::type = true>
   SharedPtr(std::nullptr_t ptr, Deleter d) {
     // C.5
   }
