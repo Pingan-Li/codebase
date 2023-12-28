@@ -13,5 +13,6 @@
 
 #include "base/memory/internal/shared_ptr_impl.h"
 namespace base {
-TEST(SharedPointer, Construct) { base::SharedPtr<int> ptr(new int(5)); }
+TEST(SharedPointer, Construct) { base::SharedPtr<int> ptr(new int(5));
+ }
 } // namespace base

@@ -4,7 +4,10 @@ project("codebase")
 
 # Monorepo configurations
 include_directories(".")
-add_compile_options("-std=c++17")
+add_compile_options("-std=c++17" "-Wall" "-Wextra")
+if (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+  add_compile_options("-Werror")
+endif()
 if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
   link_libraries("pthread")
 endif()
