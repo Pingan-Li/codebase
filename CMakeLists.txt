@@ -87,6 +87,6 @@ add_executable(var_exp "experiment/var_exp.cc")
 
 add_executable(pipe_exp "experiment/pipe_exp.cc")
 
-add_executable(sem_exp "experiment/sem_exp.cc")
+add_executable(posix_sem_exp "experiment/posix_sem_exp.cc")
 
 add_executable(shared_memory_exp "experiment/shared_memory_exp.cc")
