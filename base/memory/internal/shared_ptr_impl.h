@@ -9,7 +9,6 @@
  *
  */
 
-#include <__utility/pair.h>
 #include <algorithm>
 #include <atomic>
 #include <cstddef>
