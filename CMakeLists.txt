@@ -84,3 +84,9 @@ add_executable(type_erase_exp "experiment/type_erase_exp.cc")
 add_executable(enable_if_exp "experiment/enable_if_exp.cc")
 
 add_executable(var_exp "experiment/var_exp.cc")
+
+add_executable(pipe_exp "experiment/pipe_exp.cc")
+
+add_executable(sem_exp "experiment/sem_exp.cc")
+
+add_executable(shared_memory_exp "experiment/shared_memory_exp.cc")
