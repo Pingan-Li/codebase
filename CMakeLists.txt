@@ -92,3 +92,5 @@ add_executable(posix_sem_exp "experiment/posix_sem_exp.cc")
 add_executable(shared_memory_exp "experiment/shared_memory_exp.cc")
 
 add_executable(hash_exp "experiment/hash_exp.cc")
+
+add_subdirectory("experiment")
