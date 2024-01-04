@@ -12,7 +12,6 @@ add_executable(fifo "ipc/fifo.cc")
 target_link_libraries(fifo gtest gtest_main)
 
 add_executable(pipe "ipc/pipe.cc")
-target_link_libraries(pipe gtest gtest_main)
 
 add_executable(posix_mq "ipc/posix_mq.cc")
 target_link_libraries(posix_mq gtest gtest_main)
