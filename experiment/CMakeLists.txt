@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
 
 project("experiment")
 
+add_executable(ls "file_system/ls.cc")
+target_link_libraries(ls gtest gtest_main)
+
 add_executable(bio "io/bio.cc")
 target_link_libraries(bio gtest gtest_main)
 
