@@ -53,5 +53,6 @@ TEST(bio, open) {
   ASSERT_NE(fd, -1);
   ASSERT_TRUE(FileExists(test_file_path));
   ASSERT_EQ((sb.st_mode & 0777), mode);
+  // Remove
   unlink(test_file_path.c_str());
 }

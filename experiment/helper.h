@@ -19,6 +19,6 @@
   std::cerr << "[" << __FILE__ << "(" << __LINE__ << ")@" << __func__          \
             << "()] "                                                          \
             << "Error " << errno << " Occured: " << std::strerror(errno)       \
-            << std::endl;
+            << std::endl
 
 #endif // EXPERIMENT_HELPER_H_
