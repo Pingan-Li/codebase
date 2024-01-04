@@ -28,5 +28,6 @@ int main(int argc, char **argv) {
   while ((directory_entity = readdir(dir)) != nullptr) {
     std::cout << directory_entity->d_name << std::endl;
   }
+  closedir(dir);
   return 0;
 }
