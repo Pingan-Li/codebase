@@ -72,27 +72,34 @@ void Client(int stoc_fd, int ctos_fd) {
 }
 
 int main() {
-  // mkfifo -> EESIXTS -> open
   mode_t mode = 0755;
-
-  int ctos_fd = mkfifo(ctos, mode);
-  if (ctos_fd == -1) {
-    int oflag = O_RDWR;
-    ctos_fd = open(ctos, oflag);
-    if (ctos_fd == -1) {
+  int oflag = O_RDWR;
+  // mkfifo -> EESIXTS -> open
+  // mkfifo does NOT return a fd!
+  if (mkfifo(ctos, mode) == -1) {
+    if (errno != EEXIST) {
       LOG_ERR_MSG();
       std::exit(errno);
     }
   }
 
-  int stoc_fd = mkfifo(stoc, mode);
-  if (stoc_fd == -1) {
-    int oflag = O_RDWR;
-    stoc_fd = open(stoc, oflag);
-    if (stoc_fd == -1) {
+  int ctos_fd;
+  if ((ctos_fd = open(ctos, oflag)) == -1) {
+    LOG_ERR_MSG();
+    std::exit(errno);
+  }
+
+  if (mkfifo(stoc, mode) == -1) {
+    if (errno != EEXIST) {
       LOG_ERR_MSG();
       std::exit(errno);
     }
+  }
+
+  int stoc_fd;
+  if ((stoc_fd = open(stoc, oflag)) == -1) {
+    LOG_ERR_MSG();
+    std::exit(errno);
   }
 
   pid_t child_pid;
