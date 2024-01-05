@@ -11,10 +11,9 @@ target_link_libraries(fcntl_exp gtest gtest_main)
 add_executable(bio "io/bio.cc")
 target_link_libraries(bio gtest gtest_main)
 
-add_executable(fifo "ipc/fifo.cc")
-target_link_libraries(fifo gtest gtest_main)
-
 add_executable(pipe "ipc/pipe.cc")
+
+add_executable(fifo "ipc/fifo.cc")
 
 add_executable(posix_mq "ipc/posix_mq.cc")
 target_link_libraries(posix_mq gtest gtest_main)
