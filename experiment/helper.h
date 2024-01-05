@@ -21,4 +21,14 @@
             << "Error " << errno << " Occured: " << std::strerror(errno)       \
             << std::endl
 
+template <typename T, size_t N> void Zero(T (&a)[N]) {
+  auto *s = memset(a, 0, N);
+  assert(s == a);
+}
+
+template <typename T> void Zero(T *a, size_t n) {
+  auto *s = memset(a, 0, n);
+  assert(s == a);
+}
+
 #endif // EXPERIMENT_HELPER_H_

@@ -17,12 +17,7 @@
 #include <thread>
 #include <unistd.h>
 
-template <typename T, size_t N> void Zero(T (&a)[N]) {
-  assert(memset(a, 0, N) == a);
-}
-template <typename T> void Zero(T *a, size_t n) {
-  assert(memset(a, 0, n) == a);
-}
+#include "experiment/helper.h"
 
 int main() {
   int pipe_0[2]; // pipe_0[0] used for reading and pipe_0[1] used for writing.
