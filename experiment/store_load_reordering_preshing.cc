@@ -1,5 +1,6 @@
 /*
   https://preshing.com/20120515/memory-reordering-caught-in-the-act/
+  http://imsweb.club/code/memory_reordering.c
 */
 #include "pthread.h"
 #include "semaphore.h"

@@ -14,6 +14,8 @@
 #include <mutex>
 #include <thread>
 
+class ThreadCountingSolution {};
+
 /**
  * @brief - solution a. using condition_variable
  *
@@ -165,9 +167,51 @@ void c() {
 }
 } // namespace c
 
+namespace d {
+std::atomic<int> counter = 0;
+inline constexpr int kMax = 100;
+void print_even() {
+  while (true) {
+    int value = counter.load(std::memory_order_acquire);
+    if (!(value < kMax)) {
+      break;
+    }
+    if (value % 2 == 0) {
+      ++value;
+      std::cerr << "thread 1, counter: " << value << std::endl;
+      counter.store(value, std::memory_order_release);
+    }
+  }
+}
+
+void print_odd() {
+  while (true) {
+    int value = counter.load(std::memory_order_acquire);
+    if (!(value < kMax)) {
+      break;
+    }
+    if (value % 2 == 1) {
+      ++value;
+      std::cerr << "thread 2, counter: " << value << std::endl;
+      counter.store(value, std::memory_order_release);
+    }
+  }
+}
+
+void d() {
+  std::cout << "Solution D" << std::endl;
+  std::thread thread1(print_even);
+  std::thread thread2(print_odd);
+
+  thread1.join();
+  thread2.join();
+}
+} // namespace d
+
 int main(int argc, char **argv) {
   // a::a();
   // b::b();
-  c::c();
+  // c::c();
+  d::d();
   return 0;
 }
