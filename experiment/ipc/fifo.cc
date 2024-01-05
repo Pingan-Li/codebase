@@ -104,4 +104,7 @@ int main() {
   waitpid(child_pid, nullptr, 0);
   close(ctos_fd);
   close(stoc_fd);
+  // Must explicitly deleted by unlink()
+  unlink(ctos);
+  unlink(stoc);
 };
