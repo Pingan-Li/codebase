@@ -103,3 +103,14 @@ executable("ebo") {
     "//testing:gtest_main",
   ]
 }
+
+executable("thread_local") {
+  include_dirs = [ "//" ]
+  sources = [ "thread_local.cc" ]
+
+  deps = [
+    "//base:base_sources",
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
