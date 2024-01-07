@@ -42,7 +42,9 @@ set(base_source_set
   "base/concurrent/condition_variable.cc"
   "base/concurrent/count_down_latch.cc"
   "base/memory/atomic_reference_counting.cc"
-  "base/memory/reference_counting.cc")
+  "base/memory/reference_counting.cc"
+  "base/file/path.cc"
+  )
 add_library(base SHARED ${base_source_set})
 
 # concurrent tests
@@ -62,6 +64,11 @@ add_executable(shared_ptr_tests base/memory/shared_ptr_tests.cc)
 target_link_libraries(shared_ptr_tests PRIVATE base gtest_main gtest)
 target_compile_options(shared_ptr_tests PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer")
 target_link_options(shared_ptr_tests PRIVATE "-fsanitize=address")
+
+add_executable(path_tests base/file/path_tests.cc)
+target_link_libraries(path_tests PRIVATE base gtest_main gtest)
+target_compile_options(path_tests PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer")
+target_link_options(path_tests PRIVATE "-fsanitize=address")
 
 # Experiments
 add_executable(atomic_exp "experiment/atomic_exp.cc")

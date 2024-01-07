@@ -8,28 +8,57 @@
  * @copyright Copyright (c) 2023
  *
  */
- 
+
 #ifndef BASE_FILE_PATH_H_
 #define BASE_FILE_PATH_H_
 
 #include <string>
 
 namespace base {
-class Path {
+class Path final {
 public:
-  Path(std::string const &raw_path);
+  Path() = default;
+  explicit Path(char const *pathname);
+  explicit Path(std::string pathname);
 
+  // Copy and move.
   Path(Path const &other);
   Path &operator=(Path const &other);
-  Path(Path &&other);
-  Path &operator=(Path &&other);
+  Path(Path &&other) noexcept;
+  Path &operator=(Path &&other) noexcept;
+
+  // final
+  ~Path() = default;
+
+  bool Empty() const noexcept;
+
+  bool IsAbsolute() const noexcept;
+
+  void Append(char const *sub_path);
 
   void Append(std::string const &sub_path);
 
   void Append(Path const &sub_path);
 
-  virtual ~Path();
+  std::string PopBack();
+
+  std::string ToString() const;
+
+  static constexpr inline char GetPlatformSeprator() {
+#if defined(__linux) || defined(__linux__) || defined(__gnu__linux__) ||       \
+    defined(__APPLE__) || defined(__MACH__)
+    return '/';
+#elif
+    return '\\';
+#else
+    return '/';
+#endif
+  }
+
+private:
+  std::string path_name_;
 };
+
 } // namespace base
 
 #endif
