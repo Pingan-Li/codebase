@@ -17,6 +17,8 @@ add_executable(fifo "ipc/fifo.cc")
 
 add_executable(posix_mq "ipc/posix_mq.cc")
 
+add_executable(unix_socket "ipc/unix_socket.cc")
+
 add_executable(posix_sem "ipc/posix_sem.cc")
 target_link_libraries(posix_sem gtest gtest_main)
 

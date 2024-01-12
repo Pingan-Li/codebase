@@ -23,12 +23,12 @@
             << std::endl
 
 template <typename T, size_t N> void Zero(T (&a)[N]) {
-  auto *s = memset(a, 0, N);
+  auto *s = memset(a, 0, N * sizeof(T));
   assert(s == a);
 }
 
 template <typename T> void Zero(T *a, size_t n) {
-  auto *s = memset(a, 0, n);
+  auto *s = memset(a, 0, n * sizeof(T));
   assert(s == a);
 }
 
