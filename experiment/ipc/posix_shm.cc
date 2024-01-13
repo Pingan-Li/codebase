@@ -9,7 +9,6 @@
  *
  */
 
-#include <cassert>
 #include <fcntl.h>
 #include <pthread.h>
 #include <sys/mman.h>
@@ -17,6 +16,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include <cassert>
 #include <cerrno>
 #include <cstdlib>
 
@@ -53,21 +53,24 @@ int main() {
   int mmap_fd;
   if ((mmap_fd = shm_open(shared_memory_name, oflag, mode)) == -1) {
     LOG_ERR_MSG();
-    std::exit(errno);
+    std::exit(EXIT_FAILURE);
   }
-  CountBlock count_block;
-  count_block.count = 0;
+
+  // or: write(mmap_fd, &count_block, sizeof(count_block));
+  ftruncate(mmap_fd, sizeof(CountBlock));
+
+  CountBlock *cb = static_cast<CountBlock *>(mmap(nullptr, sizeof(CountBlock),
+                                                  PROT_READ | PROT_WRITE,
+                                                  MAP_SHARED, mmap_fd, 0));
+  cb->count = 0;
   pthread_mutexattr_t mutex_attr;
   pthread_mutexattr_init(&mutex_attr);
   // This is the point.
   // https://www.gonwan.com/2014/04/10/sharing-mutex-and-condition-variable-between-processes/
   pthread_mutexattr_setpshared(&mutex_attr, PTHREAD_PROCESS_SHARED);
-  pthread_mutex_init(&(count_block.mutex), &mutex_attr);
+  pthread_mutex_init(&(cb->mutex), &mutex_attr);
   pthread_mutexattr_destroy(&mutex_attr);
-  write(mmap_fd, &count_block, sizeof(count_block));
-  CountBlock *cb = static_cast<CountBlock *>(mmap(nullptr, sizeof(count_block),
-                                                  PROT_READ | PROT_WRITE,
-                                                  MAP_SHARED, mmap_fd, 0));
+
   if (!cb) {
     LOG_ERR_MSG();
   }
@@ -76,7 +79,7 @@ int main() {
   pid_t child_pid = fork();
   if (child_pid == -1) {
     LOG_ERR_MSG();
-    std::exit(errno);
+    std::exit(EXIT_FAILURE);
   } else if (child_pid == 0) {
     Server(cb, loop);
   } else {
@@ -89,8 +92,9 @@ int main() {
     } else {
       std::cout << "Count = " << cb->count << ", the result is OK" << std::endl;
     }
+
     munmap(cb, sizeof(CountBlock));
     shm_unlink(shared_memory_name);
-    return 0;
+    return EXIT_SUCCESS;
   }
 }
