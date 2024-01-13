@@ -15,7 +15,7 @@
 
 #include "experiment/helper.h"
 
-// CAUTION!. the name of message queue can ONLY have one splash!
+// CAUTION! The name of a message queue can have ONLY one splash!
 // Ref: https://www.man7.org/linux/man-pages/man7/mq_overview.7.html
 static char const message_queue_name[] = "/mqueue.lipingan";
 // greater than 10 will cause EINVAL. cat /proc/sys/fs/mqueue/msg_max
