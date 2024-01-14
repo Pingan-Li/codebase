@@ -28,6 +28,12 @@ target_link_libraries(posix_shm gtest gtest_main)
 add_executable(sysv_mq "ipc/sysv_mq.cc")
 target_link_libraries(sysv_mq gtest gtest_main)
 
+add_executable(sysv_mq_client "ipc/sysv_mq_client.cc")
+target_link_libraries(sysv_mq gtest gtest_main)
+
+add_executable(sysv_mq_server "ipc/sysv_mq_server.cc")
+target_link_libraries(sysv_mq gtest gtest_main)
+
 add_executable(sysv_sem "ipc/sysv_sem.cc")
 target_link_libraries(sysv_sem gtest gtest_main)
 
