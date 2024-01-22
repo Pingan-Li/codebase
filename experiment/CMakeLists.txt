@@ -45,3 +45,6 @@ target_link_libraries(sysv_sem gtest gtest_main)
 
 add_executable(sysv_shm "ipc/sysv_shm.cc")
 target_link_libraries(sysv_shm gtest gtest_main)
+
+add_executable(thread_local "thread_local.cc")
+target_link_libraries(thread_local gtest gtest_main)

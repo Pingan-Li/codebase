@@ -1,16 +1,16 @@
 /**
- * @file macro.h
+ * @file platform.h
  * @author lipingan (lipingan.dev@outlook.com)
  * @brief
  * @version 0.1
- * @date 2024-01-20
+ * @date 2024-01-18
  *
  * @copyright Copyright (c) 2024
  *
  */
 
-#ifndef BASE_MACRO_H_
-#define BASE_MACRO_H_
+#ifndef BASE_PLATFORM_PLATFORM_H_
+#define BASE_PLATFORM_PLATFORM_H_
 
 #if defined(__linux) || defined(__linux__) || defined(__gnu_linux__)
 #define IS_LINUX 1
@@ -44,17 +44,19 @@ constexpr bool const kIsWin64 = 1;
 constexpr bool const kIsWin64 = 1;
 #endif // defined(_WIN64)
 
-#define DISABLE_COPY(ClassName)                                                \
-  ClassName(ClassName const &) = delete;                                       \
-  ClassName &operator=(ClassName const &) = delete
+#if IS_LINUX || IS_MACOS
+#include <sys/types.h>
+using PlatformProcessHandle = pid_t;
+using PlatformThreadHandle = pid_t;
+#elif IS_WIN32 || IS_WIN64
+#error "Windows is not supported yet."
+#endif // IS_LINUX || IS_MACOS
 
-#define DISABLE_MOVE(ClassName)                                                \
-  ClassName(ClassName &&) = delete;                                            \
-  ClassName &operator=(ClassName &&) = delete
+namespace base {
+PlatformProcessHandle GetPlatformProcessHandle() noexcept;
 
-// Symbols.
-#if IS_LINUX
-#define API __attribute__((visibility("default")))
-#endif
+PlatformThreadHandle GetPlatformThreadHandle() noexcept;
 
-#endif // BASE_MACRO_H_
+} // namespace base
+
+#endif // BASE_PLATFORM_PLATFORM_H_

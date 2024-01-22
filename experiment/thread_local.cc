@@ -11,18 +11,58 @@
 
 #include "testing/googletest/include/gtest/gtest.h"
 
-thread_local int i = 0;
-void Func(int count) {
-  for (int j = 0; j < count; ++j) {
-    ++i;
-  }
-  std::printf("ThreadID = %u, i = %d\n", std::this_thread::get_id(), count);
+#include <cstdio>
+#include <pthread.h>
+#include <sched.h>
+#include <sys/syscall.h>
+#include <thread>
+#include <tuple>
+#include <unistd.h>
+#include <vector>
+
+inline pid_t GetThreadID() {
+  std::puts("GetThreadID created!");
+  return syscall(SYS_gettid);
 }
 
-TEST(ThreadLocal, Heck) {
-  std::thread thread0(Func, 300);
-  std::thread thread1(Func, 500);
+class PlatformThreadHandle {
+public:
+  // inline PlatformThreadHandle() noexcept {
+  //   std::puts("PlatformThreadHandle created!");
+  //   id_ = syscall(SYS_gettid);
+  // }
 
-  thread0.join();
-  thread1.join();
+  inline PlatformThreadHandle(pid_t thread_id) : id_(thread_id) {
+    std::puts("PlatformThreadHandle created!");
+  }
+
+  inline ~PlatformThreadHandle() noexcept {
+    std::puts("PlatformThreadHandle destroyed!");
+  }
+
+  inline pid_t Get() const noexcept { return id_; }
+
+private:
+  pid_t id_{};
+};
+
+void threda_func() {
+  for (int i = 0; i < 100; ++i) {
+    thread_local PlatformThreadHandle handle = GetThreadID();
+    std::ignore = handle.Get();
+  }
+}
+
+TEST(a, b) {
+  std::puts("thread created!");
+  std::vector<std::thread> threads;
+  for (int i = 0; i < 4; ++i) {
+    threads.emplace_back(threda_func);
+  }
+
+  for (auto &&thread : threads) {
+    thread.join();
+  }
+
+  std::puts("thread destroyed!");
 }

@@ -12,26 +12,30 @@
 #ifndef BASE_CONCURRENT_THREAD_H_
 #define BASE_CONCURRENT_THREAD_H_
 
-#include "base/macro.h"
+#include <pthread.h>
 
 #include <chrono>
 #include <functional>
-#include <iostream>
-#include <ratio>
 #include <string>
-
-#include <pthread.h>
 #include <tuple>
+#include <type_traits>
 #include <utility>
+
+#include "base/macro.h"
 
 namespace base {
 
 /**
- * @brief
+ * @brief Functionalities that related to the current thread.
  *
  */
-// TODO
 struct API CurrentThread {
+  /**
+   * @brief
+   *
+   * @return true
+   * @return false
+   */
   static bool IsMainThread() noexcept;
 
   template <typename Rep, typename Period>
@@ -68,24 +72,41 @@ struct API CurrentThread {
 };
 
 /**
- * @brief A portable ThreadId class.
+ * @brief
  *
  */
-// TODO
-class ThreadId {};
+struct PlatformThreadHandle {
+#if IS_LINUX
+  using KernelSpaceHandle = pid_t;
+  using UserSpaceHandle = pthread_t;
+#elif IS_MACOS
+  using KernelSpaceHandle = uint64_t;
+  using UserSpaceHandle = pthread_t;
+#endif
+  KernelSpaceHandle kernel_space_handle{};
+  UserSpaceHandle user_space_handle{};
+};
+
+struct PlatformProcessHandle {
+#if IS_LINUX || IS_MACOS
+  using ProcessHandle = pid_t;
+  inline PlatformProcessHandle() = default;
+
+  inline explicit PlatformProcessHandle(
+      ProcessHandle const &process_handle) noexcept
+      : process_handle(process_handle) {}
+  ProcessHandle process_handle{};
+#endif
+};
 
 /**
  * @brief A naive wrapper of platform thread.
  *
  */
-
 class API Thread {
 public:
-  // For now, only POSIX pthread is supported.
-  using PlatformThread = pthread_t;
-  using StartRoutine = std::function<void()>;
+  // using PlatformThread = pthread_t;
 
-  // TODO
   enum State {
     // Create but not started yet.
     kCreated,
@@ -99,9 +120,9 @@ public:
     kFinished,
   };
 
-  explicit Thread(std::string const &thread_name = "Anonymous");
+  explicit Thread(std::string const &name = "Anonymous");
 
-  // Disbale copy.
+  // Disable copy.
   DISABLE_COPY(Thread);
   // Support move.
   Thread(Thread &&) noexcept;
@@ -111,23 +132,26 @@ public:
 
   template <typename Callable, typename... Args>
   void Start(Callable &&callable, Args &&...args) {
+
     SwitchState(kStarted);
-    // Heap allocated.
-    InternalData *data = new InternalData;
-    data->thread = this;
-    data->start_routine = new StartRoutine(
+
+    StartRoutineParameters *parameters = new StartRoutineParameters;
+
+    parameters->start_routine = new StartRoutine(
         // explicitly copy callable and args...
         [callable_(std::forward<Callable>(callable)),
          args_(std::make_tuple(std::forward<Args>(
              args)...))]() mutable -> void { std::apply(callable_, args_); });
 
-    pthread_create(&thread_, nullptr, &StartInternal, data);
-    // Set pthread name.
-    // TODO: consider using prctl. pthread_setname_np is also non-protbale.
-    pthread_setname_np(thread_, name_.c_str());
+    parameters->thread = this;
+
+    pthread_create(&platform_thread_handle_.user_space_handle, nullptr,
+                   &StartInternal, parameters);
   }
 
   void Join() noexcept;
+
+  void Detach() noexcept;
 
   std::string GetName() const noexcept;
 
@@ -137,12 +161,14 @@ private:
   // Test helper function.
   friend class ThreadTestHelper;
 
-  static void *StartInternal(void *args);
+  using StartRoutine = std::function<void()>;
 
-  struct InternalData {
+  struct StartRoutineParameters {
     Thread *thread;
     StartRoutine *start_routine;
   };
+
+  static void *StartInternal(void *args);
   /**
    * @brief Switch thread state.
    *
@@ -158,8 +184,9 @@ private:
    */
   void CheckState(State currnet_state, State next_state);
 
-  // Must not exposed.
-  PlatformThread thread_;
+  PlatformThreadHandle platform_thread_handle_;
+  PlatformProcessHandle platform_process_handle_;
+
   // State
   State state_;
   // joined

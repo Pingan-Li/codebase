@@ -11,72 +11,103 @@
 
 #include "base/concurrent/thread.h"
 
+#include <pthread.h>
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <utility>
 
-#ifndef SYS_gettid
+namespace base {
+
+#if IS_LINUX && not defined(SYS_gettid)
 #error "SYS_gettid unavailable on this system"
 #endif
-
 #define gettid() ((pid_t)syscall(SYS_gettid))
 
-namespace base {
+#if IS_LINUX
+constexpr PlatformThreadHandle::KernelSpaceHandle const
+    kInvalidKernelSpaceHandle = 0;
+constexpr PlatformThreadHandle::UserSpaceHandle const kInvalidUserSpaceHandle =
+    0LU;
+#elif IS_MACOS
+constexpr PlatformThreadHandle::KernelSpaceHandle const
+    kInvalidKernelSpaceHandle = 0LU;
+constexpr PlatformThreadHandle::UserSpaceHandle const kInvalidUserSpaceHandle =
+    0LU;
+#endif
 
 // static
 bool CurrentThread::IsMainThread() noexcept {
-  // TODO, is this an solid implementation?
+#if IS_LINUX
   return getpid() == gettid();
+#elif IS_MACOS
+  return pthread_main_np();
+#endif
 }
 
-Thread::Thread(std::string const &thread_name)
-    : thread_(), joined_(false), name_(thread_name), state_{kCreated} {}
+Thread::Thread(std::string const &name)
+    : platform_thread_handle_(), platform_process_handle_(getpid()),
+      state_{kCreated}, joined_(false), name_(name) {}
 
 Thread::Thread(Thread &&other) noexcept
-    : thread_(std::move_if_noexcept(other.thread_)),
-      joined_(std::move_if_noexcept(other.joined_)),
-      name_(std::move_if_noexcept(other.name_)),
-      state_(std::move_if_noexcept(other.state_)) {}
+    : platform_thread_handle_(std::move(other.platform_thread_handle_)),
+      platform_process_handle_(std::move(other.platform_process_handle_)),
+      state_(std::move(other.state_)), joined_(std::move(other.joined_)),
+      name_(std::move(other.name_)) {}
 
 Thread &Thread::operator=(Thread &&other) noexcept {
-  thread_ = std::move_if_noexcept(other.thread_);
-  joined_ = std::move_if_noexcept(other.joined_);
-  name_ = std::move_if_noexcept(other.name_);
-  state_ = std::move_if_noexcept(other.state_);
+  platform_thread_handle_ = std::move(other.platform_thread_handle_);
+  platform_process_handle_ = std::move(other.platform_process_handle_);
+  state_ = std::move(other.state_);
+  joined_ = std::move(other.joined_);
+  name_ = std::move(other.name_);
   return *this;
 }
 
 Thread::~Thread() {
-  if (!joined_) {
-    pthread_detach(thread_);
+#if IS_LINUX || IS_MACOS
+  if (!joined_ && state_ == kStarted) {
+    pthread_join(platform_thread_handle_.user_space_handle, nullptr);
   }
+#endif
 }
 
-// NAIVE!
 void Thread::Join() noexcept {
-  if (!joined_) {
-    pthread_join(thread_, nullptr);
+  if (!joined_ && kStarted) {
+    pthread_join(platform_thread_handle_.user_space_handle, nullptr);
     joined_ = true;
   }
 }
 
 std::string Thread::GetName() const noexcept { return name_; }
 
-// NAIVE!
 Thread::State Thread::GetSate() const noexcept { return state_; }
 
 // private
 // static
 void *Thread::StartInternal(void *args) {
-  auto data = static_cast<InternalData *>(args);
-  if (data && data->start_routine) {
-    data->start_routine->operator()();
+  auto *parameters = static_cast<StartRoutineParameters *>(args);
+#if IS_LINUX
+  parameters->thread->platform_thread_handle_.kernel_space_handle = gettid();
+  pthread_setname_np(
+      parameters->thread->platform_thread_handle_.user_space_handle,
+      parameters->thread->name_.c_str());
+#elif IS_MACOS
+  pthread_threadid_np(
+      parameters->thread->platform_thread_handle_.user_space_handle,
+      parameters->thread->platform_thread_handle_.kernel_space_handle);
+  pthread_setname_np(parameters->thread->name_.c_str());
+#endif
+
+  if (parameters && parameters->start_routine) {
+    parameters->start_routine->operator()();
   }
-  if (data->thread) {
-    data->thread->SwitchState(kFinished);
+
+  if (parameters->thread) {
+    parameters->thread->SwitchState(kFinished);
   }
-  delete data->start_routine;
-  delete data;
+
+  delete parameters->start_routine;
+  delete parameters;
   return nullptr;
 }
 

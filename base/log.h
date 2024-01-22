@@ -18,17 +18,13 @@
 #include "base/algorithm/find.h"
 #include "base/timestamp.h"
 
+// [pid, tid, data, time, level, filename, line] LogMessage
+
 #define LOG(level) base::Log(__FILE__, __LINE__, level)
 
 namespace base {
 
-enum LogLevel {
-  DEBUG,
-  INFO,
-  WARN,
-  ERROR,
-  FATAL,
-};
+enum LogLevel { DEBUG, INFO, WARNNING, ERROR, FATAL };
 
 /**
  * @brief Extact the file name from macro __FILE__
@@ -84,4 +80,5 @@ public:
 
 LoggerStream &Log(FileName file_name, LogLevel level);
 } // namespace base
+
 #endif

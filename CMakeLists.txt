@@ -37,17 +37,46 @@ target_include_directories(gmock_main PUBLIC testing/googlemock/include)
 
 # base library 
 set(base_source_set 
-  "base/concurrent/mutex.cc"
-  "base/concurrent/spin_lock.cc"
+  "base/concurrent/blocking_queue.cc"
   "base/concurrent/condition_variable.cc"
   "base/concurrent/count_down_latch.cc"
+  "base/concurrent/mutex_guard.cc"
+  "base/concurrent/mutex.cc"
+  "base/concurrent/promise.cc"
+  "base/concurrent/platform_thread_linux.cc"
+  "base/concurrent/restrict_mutex.cc"
+  "base/concurrent/spin_lock.cc"
+  "base/concurrent/thread.cc"
+  "base/concurrent/thread_group.cc"
+  "base/concurrent/task_executor_impl.cc"
+  "base/command_line.cc"
   "base/memory/atomic_reference_counting.cc"
   "base/memory/reference_counting.cc"
   "base/file/path.cc"
+  "base/platform/platform.cc"
+  "base/string_aux.cc"
+  "base/timestamp.cc"
   )
 add_library(base SHARED ${base_source_set})
 
 # concurrent tests
+add_executable(thread_tests base/concurrent/thread_tests.cc)
+target_link_libraries(thread_tests PRIVATE base gtest_main gtest)
+target_compile_options(thread_tests PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer")
+target_link_options(thread_tests PRIVATE "-fsanitize=address")
+
+add_executable(platform_thread_linux_tests base/concurrent/platform_thread_linux_tests.cc)
+target_link_libraries(platform_thread_linux_tests PRIVATE base gtest_main gtest)
+target_compile_options(platform_thread_linux_tests PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer")
+target_link_options(platform_thread_linux_tests PRIVATE "-fsanitize=address")
+
+
+add_executable(task_executor_tests base/concurrent/task_executor_tests.cc)
+target_link_libraries(task_executor_tests PRIVATE base gtest_main gtest)
+target_compile_options(task_executor_tests PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer")
+target_link_options(task_executor_tests PRIVATE "-fsanitize=address")
+
+
 add_executable(count_down_latch_tests base/concurrent/count_down_latch_tests.cc)
 target_link_libraries(count_down_latch_tests PRIVATE base gtest_main gtest)
 
@@ -69,6 +98,12 @@ add_executable(path_tests base/file/path_tests.cc)
 target_link_libraries(path_tests PRIVATE base gtest_main gtest)
 target_compile_options(path_tests PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer")
 target_link_options(path_tests PRIVATE "-fsanitize=address")
+
+# platform tests
+add_executable(platform_tests base/platform/platform_tests.cc)
+target_link_libraries(platform_tests PRIVATE base gtest_main gtest)
+target_compile_options(platform_tests PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer")
+target_link_options(platform_tests PRIVATE "-fsanitize=address")
 
 # Experiments
 add_executable(atomic_exp "experiment/atomic_exp.cc")
