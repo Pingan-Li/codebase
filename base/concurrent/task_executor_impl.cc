@@ -20,20 +20,31 @@
 namespace base {
 
 TaskExecutorImpl::TaskExecutorImpl()
-    : task_queue_(), mtx_(), cv_(), config_(), idle_threads_(), threads_() {}
+    : task_queue_(), mtx_(), cv_(), config_(), idle_threads_(),
+      is_running_(false), threads_() {}
+
+TaskExecutorImpl::~TaskExecutorImpl() {
+  if (is_running_.load(std::memory_order_acquire)) {
+    Stop();
+  }
+}
 
 bool TaskExecutorImpl::Start(Configuration const &configuration) {
   config_ = std::move(configuration);
 
-  idle_threads_.store(config_.max_threads, std::memory_order_relaxed);
+  idle_threads_.store(config_.max_threads(), std::memory_order_release);
 
-  for (auto i = 0; i < config_.max_threads; ++i) {
+  for (auto i = 0; i < config_.max_threads(); ++i) {
     threads_.emplace_back([this]() -> void {
       while (true) {
+        std::cout << this->is_running_.load();
+        if (!this->is_running_.load()) {
+          std::cerr << "will return!" << std::endl;
+          return;
+        }
         Task task;
         {
           std::unique_lock<std::mutex> unique_lock{this->mtx_};
-          std::cout << "AC";
           while (this->task_queue_.empty()) {
             this->cv_.wait(unique_lock);
           }
@@ -47,20 +58,50 @@ bool TaskExecutorImpl::Start(Configuration const &configuration) {
     });
   }
 
+  is_running_.store(true, std::memory_order_release);
   return true;
 }
 
 bool TaskExecutorImpl::Submit(Task task, TaskTraits const &task_traits) {
-  //
   {
     std::lock_guard<std::mutex> lock_guard{mtx_};
     task_queue_.emplace_back(std::move(task));
-    cv_.notify_one();
   }
-
+  cv_.notify_one();
   std::ignore = task_traits;
   return true;
 }
 
-bool TaskExecutorImpl::Stop() {}
+int TaskExecutorImpl::GetThreads() const noexcept { return task_queue_.size(); }
+
+int TaskExecutorImpl::GetIdleThreads() const noexcept {
+  return idle_threads_.load(std::memory_order_acquire);
+}
+
+bool TaskExecutorImpl::Stop(Task callback) {
+  {
+    mtx_.lock();
+    is_running_ = false;
+    mtx_.unlock();
+  }
+
+  cv_.notify_all();
+
+  callback();
+
+  for (auto &&thread : threads_) {
+    if (thread.joinable()) {
+      thread.join();
+    } else {
+      thread.detach();
+    }
+  }
+
+  return true;
+}
+
+bool TaskExecutorImpl::IsRuning() const noexcept {
+  return is_running_.load(std::memory_order_acquire);
+}
+
 } // namespace base

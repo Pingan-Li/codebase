@@ -13,6 +13,7 @@
 #define BASE_CONCURRENT_TASK_EXECUTOR_IMPL_H_
 
 #include "base/concurrent/task_executor.h"
+#include "base/concurrent/thread_group.h"
 
 #include <atomic>
 #include <condition_variable>
@@ -24,7 +25,7 @@
 
 namespace base {
 
-class TaskExecutorImpl : public TaskExecutor {
+class TaskExecutorImpl : public TaskExecutor, public ThreadGroup {
 public:
   TaskExecutorImpl();
 
@@ -35,24 +36,23 @@ public:
 
   bool Submit(Task task, TaskTraits const &task_traits = {}) override;
 
-  inline int GetIdleThreads() {
-    return idle_threads_.load(std::memory_order_acquire);
-  }
+  int GetThreads() const noexcept override;
 
-  bool Stop(); // FASONG RENWU CHUQU.
+  int GetIdleThreads() const noexcept override;
 
-  ~TaskExecutorImpl() {
-    // for (auto &&t : threads_) {
-    //   t.detach();
-    // }
-  }
+  bool IsRuning() const noexcept override;
+
+  bool Stop(Task callback = {}) override;
+
+  ~TaskExecutorImpl() override;
 
 private:
   std::deque<Task> task_queue_;
   std::mutex mtx_;
   std::condition_variable cv_;
   Configuration config_;
-  std::atomic_int idle_threads_;
+  std::atomic<int> idle_threads_;
+  std::atomic<bool> is_running_;
   std::vector<std::thread> threads_;
 };
 

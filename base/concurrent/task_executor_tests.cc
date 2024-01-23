@@ -23,11 +23,11 @@
 
 TEST(TaskExecutorImpl, Submit) {
   base::TaskExecutorImpl task_executor_impl;
-  base::TaskExecutor::Configuration config{8};
+  base::ThreadGroup::Configuration config{"Main", 1, 0};
   task_executor_impl.Start(config);
-  ASSERT_EQ(task_executor_impl.GetIdleThreads(), config.max_threads);
+  ASSERT_EQ(task_executor_impl.GetIdleThreads(), config.max_threads());
 
-std::cerr.sync_with_stdio(true);
+  std::cerr.sync_with_stdio(true);
   std::vector<std::future<void>> futures;
   for (auto i = 0; i < 100; ++i) {
     auto task = base::MakeTask(
@@ -39,6 +39,6 @@ std::cerr.sync_with_stdio(true);
   for (auto &&f : futures) {
     f.get();
   }
-
-  // base::platform_thread::current::SleepFor(std::chrono::seconds{1124});
+  task_executor_impl.Stop(
+      base::MakeTask([]() -> void { std::cout << "Heck!" << std::endl; }));
 }

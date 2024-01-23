@@ -13,18 +13,34 @@
 #define BASE_CONCURRENT_TASK_EXECUTOR_H_
 
 #include "base/concurrent/task.h"
+#include "base/macro.h"
 
 namespace base {
 
 class TaskExecutor {
 public:
-  struct Configuration {
-    int max_threads = 8;
+  enum class TaskPriority { LOWEST, NROMAL, HIGHEST };
+
+  class TaskTraits {
+  public:
+    inline TaskTraits() : task_priority_(TaskPriority::NROMAL) {}
+
+    explicit inline TaskTraits(TaskPriority task_priority)
+        : task_priority_(task_priority) {}
+
+    TaskPriority task_priority() const noexcept { return task_priority_; }
+
+  private:
+    TaskPriority task_priority_;
   };
 
-  struct TaskTraits {};
+  TaskExecutor() = default;
 
-  virtual bool Start(Configuration const &config) = 0;
+  DISABLE_COPY(TaskExecutor);
+  DISABLE_MOVE(TaskExecutor);
+
+  virtual ~TaskExecutor() = default;
+
   virtual bool Submit(Task task, TaskTraits const &task_traits = {}) = 0;
 };
 

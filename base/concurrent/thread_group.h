@@ -4,6 +4,7 @@
 #include "base/concurrent/condition_variable.h"
 #include "base/concurrent/mutex.h"
 #include "base/concurrent/mutex_guard.h"
+#include "base/concurrent/task.h"
 #include "base/concurrent/thread.h"
 #include "base/macro.h"
 
@@ -17,54 +18,43 @@
 namespace base {
 class ThreadGroup {
 public:
-  using Task = std::function<void()>;
+  class Configuration {
+  public:
+    Configuration() = default;
 
-  struct CreationParams {
-    //  Thread group name.
-    std::string name = "Anonymous";
-    // 0 means no limit.
-    std::size_t thread_limit = 0;
-    // 0 means no limit.
-    std::size_t task_queue_limit = 0;
+    Configuration(std::string const &name, int max_threads, int max_tasks)
+        : name_(name), max_threads_(max_threads), max_tasks_(max_tasks) {}
+
+    std::string name() { return name_; }
+
+    int max_threads() { return max_threads_; }
+
+    int max_tasks() { return max_tasks_; }
+
+  private:
+    std::string name_ = "Anonymous";
+    int max_threads_;
+    int max_tasks_;
   };
 
-  static std::unique_ptr<ThreadGroup> Create(CreationParams const &args);
+  ThreadGroup() = default;
 
   DISABLE_COPY(ThreadGroup);
   DISABLE_MOVE(ThreadGroup);
 
-  virtual ~ThreadGroup();
+  virtual ~ThreadGroup() = default;
 
-  template <typename Callable, typename... Args>
-  std::future<typename std::invoke_result<Callable, Args...>::type>
-  Submit(Callable &&callable, Args &&...args) {
-    // Allocated.
-    auto packaged_task = std::make_shared<std::packaged_task<
-        typename std::invoke_result<Callable, Args...>::type()>>(
-        std::bind(std::forward<Callable>(callable),
-                  std::forward<Args>(args)...));
+  virtual bool Start(Configuration const &configuration) = 0;
 
-    // future.
-    auto future = packaged_task->get_future();
-    { MutexGuard<Mutex> mutex_guard{mtx_}; }
-  }
+  virtual bool Stop(Task callback) = 0;
 
-private:
-  friend Thread;
+  // virtual bool StopAtOnce(Task callback) = 0;
 
-  ThreadGroup();
+  virtual bool IsRuning() const noexcept = 0;
 
-  static void ThreadWorkRoutine(ThreadGroup *thread_group);
+  virtual int GetThreads() const noexcept = 0;
 
-  void SpawnNewThread();
-
-  std::string name_;
-  base::Mutex mtx_;
-  base::ConditionVariable cv_;
-  std::vector<base::Thread> worker_threads_;
-  std::queue<Task> task_queue_;
-  std::size_t thread_limit_;
-  std::size_t task_queue_limit;
+  virtual int GetIdleThreads() const noexcept = 0;
 };
 
 } // namespace base

@@ -33,7 +33,7 @@ TEST(fcntl, dupfd) {
     LOG_ERR_MSG();
     std::exit(errno);
   }
-  ASSERT_EQ(ret - sizeof(buffer), 0);
+  ASSERT_EQ(ret - sizeof(buffer), 0U);
   memset(buffer, 0, sizeof(buffer));
   lseek(fd, 0, SEEK_SET);
   ret = read(fd, buffer, sizeof(buffer));

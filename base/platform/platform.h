@@ -41,7 +41,7 @@ constexpr bool const kIsWin32 = 0;
 constexpr bool const kIsWin64 = 1;
 #else
 #define IS_WIN64 0
-constexpr bool const kIsWin64 = 1;
+constexpr bool const kIsWin64 = 0;
 #endif // defined(_WIN64)
 
 #if IS_LINUX || IS_MACOS
