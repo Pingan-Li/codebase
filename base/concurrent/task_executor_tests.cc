@@ -23,7 +23,7 @@
 
 TEST(TaskExecutorImpl, Submit) {
   base::TaskExecutorImpl task_executor_impl;
-  base::ThreadGroup::Configuration config{"Main", 1, 0};
+  base::ThreadGroup::Configuration config{"Main", 8, 0};
   task_executor_impl.Start(config);
   ASSERT_EQ(task_executor_impl.GetIdleThreads(), config.max_threads());
 
@@ -36,9 +36,10 @@ TEST(TaskExecutorImpl, Submit) {
     task_executor_impl.Submit(std::move(task));
   }
 
-  for (auto &&f : futures) {
-    f.get();
-  }
-  task_executor_impl.Stop(
-      base::MakeTask([]() -> void { std::cout << "Heck!" << std::endl; }));
+  auto stop_task = base::MakeTask(
+      [&task_executor_impl]() -> void { task_executor_impl.Stop(); });
+
+  task_executor_impl.Submit(std::move(stop_task));
+
+  // base::platform_thread::current::SleepFor(std::chrono::seconds{1});
 }
