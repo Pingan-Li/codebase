@@ -48,3 +48,6 @@ target_link_libraries(sysv_shm gtest gtest_main)
 
 add_executable(thread_local "thread_local.cc")
 target_link_libraries(thread_local gtest gtest_main)
+
+add_executable(closure_exp "closure_exp.cc")
+target_link_libraries(closure_exp gtest gtest_main)

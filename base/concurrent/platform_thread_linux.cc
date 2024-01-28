@@ -10,6 +10,7 @@
  */
 
 #include "base/concurrent/platform_thread_linux.h"
+#include "base/concurrent/restrict_mutex.h"
 
 #include <pthread.h>
 #include <sched.h>
@@ -21,87 +22,95 @@
 #include <iostream>
 
 namespace base {
-namespace platform_thread {
 
 #if not defined(SYS_gettid)
 #error "SYS_gettid unavailable on this system"
 #endif
 #define gettid() ((pid_t)syscall(SYS_gettid))
 
-bool SetName(ThreadHandle thread_handle, std::string const &name) noexcept {
-  int rv = pthread_setname_np(thread_handle, name.c_str()) != 0;
+static void *StartRoutine(void *data) {
+  if (!data)
+    return nullptr;
+
+  auto *delegate = static_cast<PlatformThread::Delegate *>(data);
+
+  delegate->ThreadMain();
+
+  return nullptr;
+}
+
+int PlatformThread::Spawn(Delegate *delegate, Handle *handle,
+                          Attributes *attributes) {
+  if (!delegate || !handle) {
+    return EINVAL;
+  }
+
+  if (!attributes) {
+    static Attributes default_attributes;
+    attributes = &default_attributes;
+  }
+
+  pthread_attr_t attr;
+  pthread_attr_init(&attr);
+  pthread_attr_setstacksize(&attr, attributes->stack_size);
+
+  int rv = pthread_create(handle, &attr, StartRoutine, delegate);
+
+  pthread_attr_destroy(&attr);
+
   switch (rv) {
-  case ERANGE: {
-    std::cerr << std::strerror(rv) << std::endl;
-    return false;
-  }
-  }
-  return true;
-}
-
-std::string GetName(ThreadHandle thread_handle) noexcept {
-  thread_local char buffer[1024];
-  int rv = pthread_getname_np(thread_handle, buffer, sizeof(buffer));
-  switch (rv) {
-  case ERANGE: {
-    std::cerr << std::strerror(rv) << std::endl;
-    return {};
-  }
-  }
-  return std::string{buffer};
-}
-
-bool Join(ThreadHandle thread_handle) noexcept {
-  int rv = pthread_join(thread_handle, nullptr);
-  switch (rv) {
-  case EDEADLK:
-  case ESRCH:
-  case EINVAL: {
-    std::cerr << std::strerror(rv) << std::endl;
-    return false;
-  }
-  }
-  return true;
-}
-
-namespace current {
-
-thread_local pid_t t_thread_group_handle = 0;
-thread_local platform_thread::ThreadHandle t_thread_handle = 0;
-thread_local platform_thread::KernelThreadHandle t_kernel_thread_handle = 0;
-
-bool IsMainThread() noexcept {
-  if (t_thread_group_handle == 0) {
-    t_thread_group_handle = getpid();
-  }
-
-  if (t_kernel_thread_handle == 0) {
-    t_kernel_thread_handle = gettid();
-  }
-
-  return t_thread_group_handle == t_kernel_thread_handle;
-}
-
-void Yeild() noexcept {
-  if (sched_yield() == -1) {
-    std::cerr << std::strerror(errno) << std::endl;
+  case EAGAIN:
+    return rv;
+  case EINVAL:
+    return rv;
+  case EPERM:
+    return rv;
+  default:
+    return 0;
   }
 }
 
-platform_thread::ThreadHandle GetThreadHandle() noexcept {
-  if (t_thread_handle == 0) {
-    t_thread_handle = pthread_self();
-  }
-  return t_thread_handle;
+int PlatformThread::Join(Handle handle) {
+  return pthread_join(handle, nullptr);
 }
 
-platform_thread::KernelThreadHandle GetKernelThreadHandle() noexcept {
-  if (t_kernel_thread_handle == 0) {
-    t_kernel_thread_handle = gettid();
-  }
-  return t_kernel_thread_handle;
+int PlatformThread::Detach(Handle handle) { return pthread_detach(handle); }
+
+int PlatformThread::SetName(Handle handle, std::string const &name) {
+  return pthread_setname_np(handle, name.c_str());
 }
 
-} // namespace current
-} // namespace platform_thread
+int PlatformThread::GetName(Handle handle, std::string &name) {
+  static char buff[1024];
+  int rv = pthread_getname_np(handle, buff, sizeof(buff));
+  name = std::string{buff};
+  return rv;
+}
+
+PlatformThread::Handle PlatformThread::Current::GetHandle() noexcept {
+  thread_local PlatformThread::Handle thread_handle = pthread_self();
+  return thread_handle;
+}
+
+PlatformThread::KernelHandle
+PlatformThread::Current::GetKernelHandle() noexcept {
+  thread_local PlatformThread::KernelHandle kernel_handle = gettid();
+  return kernel_handle;
+}
+
+bool PlatformThread::Current::IsMainThread() noexcept {
+  thread_local bool is_main_thread = (GetKernelHandle() == getpid());
+  return is_main_thread;
+}
+
+int PlatformThread::Current::Yield() noexcept { return sched_yield(); }
+
+int PlatformThread::Current::SetName(std::string const &name) {
+  return PlatformThread::SetName(Current::GetHandle(), name.c_str());
+}
+
+int PlatformThread::Current::GetName(std::string &name) {
+  return PlatformThread::GetName(Current::GetHandle(), name);
+}
+
 } // namespace base

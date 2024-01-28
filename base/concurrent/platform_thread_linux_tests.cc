@@ -15,36 +15,58 @@
 #include <unistd.h>
 
 #include <chrono>
-#include <future>
+#include <memory>
 #include <ostream>
 #include <thread>
+#include <tuple>
+#include <utility>
 
-#include "base/concurrent/task.h"
 #include "testing/googletest/include/gtest/gtest.h"
 
+class DeleagteImpl : public base::PlatformThread::Delegate {
+public:
+  template <typename ForwardFunctor, typename... ForwardArguments>
+  DeleagteImpl(ForwardFunctor &&f, ForwardArguments &&...args)
+      : closure_([f = std::forward<ForwardFunctor>(f),
+                  args_ = std::make_tuple(
+                      std::forward<ForwardArguments>(args)...)]() -> void {
+          std::cout << __func__ << "() called!" << std::endl;
+          std::apply(f, args_);
+        }) {}
+
+  virtual void ThreadMain() override {
+    std::cout << __func__ << "() called!" << std::endl;
+    closure_();
+  }
+
+private:
+  std::function<void()> closure_;
+};
+
 void TestThreadName(std::string const &name) {
-  base::platform_thread::ThreadHandle handle =
-      base::platform_thread::current::GetThreadHandle();
+  base::PlatformThread::Handle handle =
+      base::PlatformThread::Current::GetHandle();
 
-  ASSERT_TRUE(base::platform_thread::SetName(handle, name));
+  ASSERT_EQ(base::PlatformThread::SetName(handle, name), 0);
 
-  std::string thread_name = base::platform_thread::GetName(handle);
+  std::string thread_name;
+  base::PlatformThread::GetName(handle, thread_name);
 
   ASSERT_EQ(thread_name, name);
 }
 
 void TestThreadHandle() {
-  base::platform_thread::ThreadHandle pthread_id =
-      base::platform_thread::current::GetThreadHandle();
+  base::PlatformThread::Handle pthread_id =
+      base::PlatformThread::Current::GetHandle();
 
-  base::platform_thread::KernelThreadHandle lwp_id =
-      base::platform_thread::current::GetKernelThreadHandle();
+  base::PlatformThread::KernelHandle lwp_id =
+      base::PlatformThread::Current::GetKernelHandle();
 
   ASSERT_EQ(pthread_id, pthread_self());
   ASSERT_EQ(lwp_id, syscall(SYS_gettid));
 }
 
-TEST(PlatformThreadLinux, ThreadName) {
+TEST(PlatformThreadLinux, SetAndGetThreadName) {
   TestThreadName("Main");
   std::thread thread(TestThreadName, "Child");
   thread.join();
@@ -57,32 +79,35 @@ TEST(PlatformThreadLinux, Handle) {
 }
 
 TEST(PlatformThreadLinux, IsMain) {
-  ASSERT_TRUE(base::platform_thread::current::IsMainThread());
+  ASSERT_TRUE(base::PlatformThread::Current::IsMainThread());
   std::thread thread([]() -> void {
-    ASSERT_FALSE(base::platform_thread::current::IsMainThread());
+    ASSERT_FALSE(base::PlatformThread::Current::IsMainThread());
   });
   thread.join();
 }
 
-int add(int a, int b) { return a + b; }
-
-TEST(PlatformThreadLinux, Start) {
-  base::platform_thread::ThreadHandle thread_handle;
-  auto future = base::platform_thread::Start(thread_handle, &add, 1, 2);
-  std::cout << future.get() << std::endl;
-  base::platform_thread::Join(thread_handle);
+void add(int a, int b) {
+  std::cout << __func__ << "() called!" << std::endl;
+  std::ignore = a + b;
 }
 
-TEST(PlatformThreadLinux, Start_2) {
-  base::platform_thread::ThreadHandle thread_handle;
-  int result = 0;
-  auto packaged_task =
-      base::MakeTask([](int a, int b, int *result) -> void { *result = a + b; },
-                     1, 2, &result);
+TEST(PlatformThreadLinux, Spawn) {
+  base::PlatformThread::Handle handle;
+  auto delegate = std::make_unique<DeleagteImpl>(add, 1, 2);
 
-  auto future = packaged_task.get_future();
-  base::platform_thread::Start(thread_handle, std::move(packaged_task));
-  future.get();
-  std::cout << "result = " << result;
-  base::platform_thread::Join(thread_handle);
+  base::PlatformThread::Spawn(
+      static_cast<base::PlatformThread::Delegate *>(delegate.get()), &handle);
+
+  base::PlatformThread::Join(handle);
+}
+
+TEST(PlatformThreadLinux, Yield) { base::PlatformThread::Current::Yield(); }
+
+TEST(PlatformThreadLinux, SleepFor) {
+  base::PlatformThread::Current::SleepFor(std::chrono::seconds{1});
+}
+
+TEST(PlatformThreadLinux, SleepUntil) {
+  base::PlatformThread::Current::SleepUntil(std::chrono::seconds{1} +
+                                            std::chrono::system_clock ::now());
 }
