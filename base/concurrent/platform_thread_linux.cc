@@ -10,7 +10,6 @@
  */
 
 #include "base/concurrent/platform_thread_linux.h"
-#include "base/concurrent/restrict_mutex.h"
 
 #include <pthread.h>
 #include <sched.h>
@@ -18,8 +17,6 @@
 #include <unistd.h>
 
 #include <cerrno>
-#include <cstring>
-#include <iostream>
 
 namespace base {
 

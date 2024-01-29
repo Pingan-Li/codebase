@@ -53,8 +53,10 @@ set(base_source_set
   "base/memory/atomic_reference_counting.cc"
   "base/memory/reference_counting.cc"
   "base/file/path.cc"
+  "base/log.cc"
   "base/platform/platform.cc"
   "base/string_aux.cc"
+  "base/source_location.cc"
   "base/timestamp.cc"
   )
 add_library(base SHARED ${base_source_set})
@@ -73,8 +75,18 @@ target_link_options(platform_thread_linux_tests PRIVATE "-fsanitize=address")
 
 add_executable(task_executor_tests base/concurrent/task_executor_tests.cc)
 target_link_libraries(task_executor_tests PRIVATE base gtest_main gtest)
-target_compile_options(task_executor_tests PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer")
-target_link_options(task_executor_tests PRIVATE "-fsanitize=address")
+# target_compile_options(task_executor_tests PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer")
+# target_link_options(task_executor_tests PRIVATE "-fsanitize=address")
+
+add_executable(source_location_tests base/source_location_tests.cc)
+target_link_libraries(source_location_tests PRIVATE base gtest_main gtest)
+target_compile_options(source_location_tests PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer")
+target_link_options(source_location_tests PRIVATE "-fsanitize=address")
+
+add_executable(log_tests base/log_tests.cc)
+target_link_libraries(log_tests PRIVATE base gtest_main gtest)
+target_compile_options(log_tests PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer")
+target_link_options(log_tests PRIVATE "-fsanitize=address")
 
 
 add_executable(count_down_latch_tests base/concurrent/count_down_latch_tests.cc)

@@ -8,3 +8,5 @@
  * @copyright Copyright (c) 2024
  *
  */
+
+namespace base {} // namespace base

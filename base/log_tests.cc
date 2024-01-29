@@ -10,8 +10,10 @@
  */
 
 #include "base/log.h"
-#include "testing/googletest/include/gtest/gtest.h"
+
 #include <cstddef>
+
+#include "testing/googletest/include/gtest/gtest.h"
 
 namespace base {
 class LogTestHelper : public testing::Test {
@@ -52,6 +54,10 @@ TEST_F(LogTestHelper, case0) {
   FileName file_name(__FILE__);
   ASSERT_STREQ(source_file.data_, file_name.name_);
   ASSERT_EQ(source_file.size_, source_file.size_);
+}
+
+TEST(LogMessage, message) {
+  log::LogMessage(__FILE__, __LINE__, log::LogSeverity::ERROR);
 }
 
 } // namespace base
