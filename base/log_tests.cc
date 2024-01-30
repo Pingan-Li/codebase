@@ -11,8 +11,6 @@
 
 #include "base/log.h"
 
-#include <cstddef>
-
 #include "testing/googletest/include/gtest/gtest.h"
 
 namespace base {
@@ -57,7 +55,15 @@ TEST_F(LogTestHelper, case0) {
 }
 
 TEST(LogMessage, message) {
-  log::LogMessage(__FILE__, __LINE__, log::LogSeverity::ERROR);
+  log::LogMessage(__FILE__, __LINE__, base::log::LOG_ERROR);
+}
+
+TEST(LogMessage, Macro) {
+  LOG(DEBUG) << "DEBUG";
+  LOG(INFO) << "INFO";
+  LOG(WARNING) << "WARNING";
+  LOG(ERROR) << "ERROR";
+  LOG(FATAL) << "FATAL";
 }
 
 } // namespace base

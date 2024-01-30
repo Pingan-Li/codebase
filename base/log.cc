@@ -11,12 +11,13 @@
 
 #include "base/log.h"
 
+#include <unistd.h>
+
 #include <cstddef>
 #include <ctime>
 #include <iomanip>
 #include <ostream>
 #include <string_view>
-#include <unistd.h>
 
 #include "base/concurrent/platform_thread_linux.h"
 #include "base/macro.h"
@@ -29,9 +30,20 @@ constexpr char const kSlash = '/';
 namespace base {
 
 namespace log {
+static LogConfiguration g_log_configuration;
+void LogConfiguration::SetUseNanoseconds(bool flag) noexcept {
+  use_nanoseconds_ = flag;
+}
+bool LogConfiguration::GetUseNanoseconds() const noexcept {
+  return use_nanoseconds_;
+}
 
-void Initialize(LogConfiguration const &logging_configuration) {
-  static LogConfiguration lc = logging_configuration;
+void LogConfiguration::SetMinLogSeverity(LogSeverity severity) noexcept {
+  min_log_severity_ = severity;
+}
+
+LogSeverity LogConfiguration::GetMinLogSeverity() const noexcept {
+  return min_log_severity_;
 }
 
 LogMessage::LogMessage(char const *file_name, int code_line,
@@ -49,18 +61,20 @@ LogMessage::LogMessage(char const *file_name, int code_line,
   clock_gettime(CLOCK_REALTIME, &ts);
   tm *ptm = localtime(&ts.tv_sec);
   if (ptm) {
-    stream_ << ptm->tm_year + 1900 << '-' << std::setw(2) << std::setfill('0')
-            << ptm->tm_mon + 1 << '-' << std::setw(2) << std::setfill('0')
-            << ptm->tm_mday << ' ' << ptm->tm_hour << ':' << std::setw(2)
-            << std::setfill('0') << ptm->tm_min << ':' << std::setw(2)
-            << std::setfill('0') << std::setw(2) << std::setfill('0')
-            << ptm->tm_sec << "@" << file_name_ << '(' << code_line_ << ')'
-            << "]";
+    stream_ << std::setw(4) << std::setfill('0') << ptm->tm_year + 1900 << '-'
+            << std::setw(2) << std::setfill('0') << ptm->tm_mon + 1 << '-'
+            << std::setw(2) << std::setfill('0') << ptm->tm_mday << 'T'
+            << std::setw(2) << std::setfill('0') << ptm->tm_hour << ':'
+            << std::setw(2) << std::setfill('0') << ptm->tm_min << ':'
+            << std::setw(2) << std::setfill('0') << ptm->tm_sec << '.'
+            << std::setw(9) << std::setfill('0') << ts.tv_nsec << ' '
+            << severity_ << ' ' << file_name_ << '(' << code_line_ << ')'
+            << ']';
   }
 }
 
 LogMessage::~LogMessage() {
-  stream_ << "\n\0";
+  stream_ << '\n';
   std::string message = stream_.str();
   write(STDERR_FILENO, message.c_str(), message.size());
 }
@@ -68,6 +82,14 @@ LogMessage::~LogMessage() {
 std::ostream &LogMessage::Stream() noexcept { return stream_; }
 
 std::string LogMessage::ToString() noexcept { return stream_.str(); }
+
+void Initialize(LogConfiguration const &logging_configuration) {
+  g_log_configuration = logging_configuration;
+}
+
+bool ShouldCreateLogMessage(LogSeverity severity) {
+  return severity >= g_log_configuration.GetMinLogSeverity();
+}
 
 } // namespace log
 

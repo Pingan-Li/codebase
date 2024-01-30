@@ -14,16 +14,24 @@
 
 #include <cstddef>
 #include <cstring>
+#include <ostream>
 #include <sstream>
 
 #include "base/algorithm/find.h"
-#include "base/timestamp.h"
 
 // [pid, tid, data, time, level, filename, line] LogMessage
 
 namespace base {
 
 namespace log {
+
+using LogSeverity = int;
+constexpr LogSeverity LOG_VERBOSE = -1;
+constexpr LogSeverity LOG_DEBUG = 0;
+constexpr LogSeverity LOG_INFO = 1;
+constexpr LogSeverity LOG_WARNING = 2;
+constexpr LogSeverity LOG_ERROR = 3;
+constexpr LogSeverity LOG_FATAL = 4;
 
 class LogConfiguration final {
 public:
@@ -35,13 +43,15 @@ public:
 
   bool GetUseNanoseconds() const noexcept;
 
+  void SetMinLogSeverity(LogSeverity severity) noexcept;
+
+  LogSeverity GetMinLogSeverity() const noexcept;
+
 private:
-  bool use_nanoseconds{false};
+  bool use_nanoseconds_{false};
+
+  LogSeverity min_log_severity_{LOG_WARNING};
 };
-
-void Initialize(LogConfiguration const &logging_configuration);
-
-enum LogSeverity { DEBUG, INFO, WARNING, ERROR, FATAL };
 
 class LogMessage final {
 public:
@@ -60,6 +70,48 @@ private:
   LogSeverity severity_;
   std::ostringstream stream_;
 };
+
+class LogMessageVoidify {
+public:
+  LogMessageVoidify() = default;
+
+  void operator&(std::ostream &) {}
+};
+
+void Initialize(LogConfiguration const &logging_configuration);
+
+bool ShouldCreateLogMessage(LogSeverity severity);
+
+#define COMPACT_LOG_EX_DEBUG(ClassName, ...)                                   \
+  ::base::log::ClassName(__FILE__, __LINE__, ::base::log::LOG_DEBUG)
+
+#define COMPACT_LOG_EX_INFO(ClassName, ...)                                    \
+  ::base::log::ClassName(__FILE__, __LINE__, ::base::log::LOG_INFO)
+
+#define COMPACT_LOG_EX_WARNING(ClassName, ...)                                 \
+  ::base::log::ClassName(__FILE__, __LINE__, ::base::log::LOG_WARNING)
+
+#define COMPACT_LOG_EX_ERROR(ClassName, ...)                                   \
+  ::base::log::ClassName(__FILE__, __LINE__, ::base::log::LOG_ERROR)
+
+#define COMPACT_LOG_EX_FATAL(ClassName, ...)                                   \
+  ::base::log::ClassName(__FILE__, __LINE__, ::base::log::LOG_FATAL)
+
+#define COMPACT_LOG_DEBUG COMPACT_LOG_EX_DEBUG(LogMessage)
+#define COMPACT_LOG_INFO COMPACT_LOG_EX_INFO(LogMessage)
+#define COMPACT_LOG_WARNING COMPACT_LOG_EX_WARNING(LogMessage)
+#define COMPACT_LOG_ERROR COMPACT_LOG_EX_ERROR(LogMessage)
+#define COMPACT_LOG_FATAL COMPACT_LOG_EX_FATAL(LogMessage)
+
+#define LOG_IS_ON(severity)                                                    \
+  (::base::log::ShouldCreateLogMessage(::base::log::LOG_##severity))
+
+#define LOG_STREAM(severity) COMPACT_LOG_##severity.Stream()
+
+#define LAZY_STREAM(stream, condition)                                         \
+  !(condition) ? (void)0 : ::base::log::LogMessageVoidify() & (stream)
+
+#define LOG(severity) LAZY_STREAM(LOG_STREAM(severity), LOG_IS_ON(severity))
 
 } // namespace log
 
@@ -88,35 +140,6 @@ public:
   char const *name_;
   std::size_t size_;
 };
-
-#define COMPACT_LOG_EX_DEBUG(ClassName, ...)                                   \
-  ::logging::ClassName(__FILE__, __LINE__, ::logging::LogLevel::DEBUG,         \
-                       ##__VA__ARGS__)
-#define COMPACT_LOG_EX_INFO(ClassName, ...)                                    \
-  ::logging::ClassName(__FILE__, __LINE__, ::logging::LogLevel::INFO,          \
-                       ##__VA__ARGS__)
-#define COMPACT_LOG_EX_WARNING(ClassName, ...)                                 \
-  ::logging::ClassName(__FILE__, __LINE__, ::logging::LogLevel::WARNING,       \
-                       ##__VA__ARGS__)
-#define COMPACT_LOG_EX_ERROR(ClassName, ...)                                   \
-  ::logging::ClassName(__FILE__, __LINE__, ::logging::LogLevel::ERROR,         \
-                       ##__VA__ARGS__)
-#define COMPACT_LOG_EX_FATAL(ClassName, ...)                                   \
-  ::logging::ClassName(__FILE__, __LINE__, ::logging::LogLevel::FATAL,         \
-                       ##__VA__ARGS__)
-
-#define COMPACT_LOG_DEBUG COMPACT_LOG_EX_DEBUG(LogMessage)
-#define COMPACT_LOG_INFO COMPACT_LOG_EX_INFO(LogMessage)
-#define COMPACT_LOG_WARNING COMPACT_LOG_EX_WARNING(LogMessage)
-#define COMPACT_LOG_ERROR COMPACT_LOG_EX_ERROR(LogMessage)
-#define COMPACT_LOG_FATAL COMPACT_LOG_EX_FATAL(LogMessage)
-
-#define LOG_IS_ON(log_level)
-#define LOG_STREAM(severity) COMPACT_LOG_##severity.stream();
-#define LAZY_STREAM(stream, condition)                                         \
-  !(condition) ? (void)0 : ::logging::LogMessageVoidify() & (stream)
-
-#define LOG(severity) LAZY_STREAM(LOG_STREAM(severity), LOG_IS_ON(severity))
 } // namespace base
 
 #endif
