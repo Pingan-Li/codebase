@@ -11,12 +11,10 @@
 
 #include "base/log.h"
 
-#include <unistd.h>
-
+#include <cstring>
 #include <ctime>
 #include <iomanip>
 
-#include "base/concurrent/platform_thread_linux.h"
 #include "base/macro.h"
 
 #if IS_WIN32 || IS_WIN64
@@ -24,10 +22,35 @@ constexpr char const kSlash = '\\';
 #else
 constexpr char const kSlash = '/';
 #endif
+
+#if IS_LINUX
+#include <unistd.h>
+static inline pid_t GetPid() {
+  static pid_t currnet_pid = getpid();
+  return currnet_pid;
+}
+#endif
+
+#if IS_LINUX
+#include <sys/syscall.h>
+#if defined(SYS_gettid)
+#define gettid() ((pid_t)syscall(SYS_gettid))
+static inline pid_t GetTid() {
+  thread_local pid_t currnet_tid = gettid();
+  return currnet_tid;
+}
+#else
+#error "SYS_gettid unavailable on this system"
+#endif
+
+#endif
+
 namespace base {
 
 namespace log {
+
 static LogConfiguration g_log_configuration;
+
 void LogConfiguration::SetUseNanoseconds(bool flag) noexcept {
   use_nanoseconds_ = flag;
 }
@@ -57,8 +80,7 @@ LogMessage::LogMessage(char const *file, size_t file_length, int line,
       break;
     }
   }
-  stream_ << '[' << getpid() << ':'
-          << base::PlatformThread::Current::GetKernelHandle() << ' ';
+  stream_ << '[' << GetPid() << ':' << GetTid() << ' ';
   timespec ts;
   clock_gettime(CLOCK_REALTIME, &ts);
   tm *ptm = localtime(&ts.tv_sec);
