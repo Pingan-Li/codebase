@@ -13,14 +13,14 @@
 #define BASE_CONCURRENT_TASK_EXECUTOR_IMPL_H_
 
 #include "base/concurrent/task_executor.h"
-#include "base/concurrent/thread_group.h"
 
-#include <atomic>
 #include <condition_variable>
 #include <deque>
 #include <mutex>
+#include <thread>
 #include <vector>
 
+#include "base/concurrent/thread_group.h"
 #include "base/macro.h"
 
 namespace base {
@@ -48,12 +48,15 @@ public:
 
 private:
   std::deque<Task> task_queue_;
-  std::mutex mtx_;
-  std::condition_variable cv_;
-  Configuration config_;
-  std::atomic<int> idle_threads_;
-  std::atomic<bool> is_running_;
-  std::vector<std::thread> threads_;
+  std::mutex mutex_;
+  std::condition_variable condtion_varibale_;
+  std::vector<std::thread> worker_threads_;
+  bool is_running_{false};
+  // size_t number_of_busy_threads_{};
+  // size_t number_of_idle_threads_{};
+  // size_t number_of_total_threads_{};
+  // std::condition_variable notify_on_stop_;
+  Configuration configuration_;
 };
 
 } // namespace base

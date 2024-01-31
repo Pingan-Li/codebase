@@ -10,36 +10,33 @@
  */
 
 #include <chrono>
-#include <future>
 #include <iostream>
-#include <vector>
+#include <tuple>
 
 #include "base/concurrent/platform_thread_linux.h"
 #include "base/concurrent/task.h"
-#include "base/concurrent/task_executor.h"
 #include "base/concurrent/task_executor_impl.h"
 
+#include "base/log.h"
 #include "testing/googletest/include/gtest/gtest.h"
 
-TEST(TaskExecutorImpl, Submit) {
-  base::TaskExecutorImpl task_executor_impl;
-  base::ThreadGroup::Configuration config{"Main", 8, 0};
-  task_executor_impl.Start(config);
-  ASSERT_EQ(task_executor_impl.GetIdleThreads(), config.max_threads());
+void Add(int a, int b) {
+  LOG(INFO) << "LWPID = " << base::PlatformThread::Current::GetKernelHandle()
+            << ", result = " << a + b;
+}
 
-  std::cerr.sync_with_stdio(true);
-  std::vector<std::future<void>> futures;
+TEST(TaskExecutorImpl, Submit) {
+  base::log::LogConfiguration lc;
+  lc.SetMinLogSeverity(base::log::LOG_DEBUG);
+  base::log::Initialize(lc);
+
+  LOG(INFO) << "TaskExecutorImpl created";
+  base::TaskExecutorImpl task_executor_impl;
+  base::ThreadGroup::Configuration config{"Main", 2, 0};
+  task_executor_impl.Start(config);
+
   for (auto i = 0; i < 100; ++i) {
-    auto task = base::MakeTask(
-        [](int k) -> void { std::cerr << "i = " << k << std::endl; }, i);
-    futures.emplace_back(task.get_future());
+    auto task = base::MakeTask(Add, i, 0);
     task_executor_impl.Submit(std::move(task));
   }
-
-  auto stop_task = base::MakeTask(
-      [&task_executor_impl]() -> void { task_executor_impl.Stop(); });
-
-  task_executor_impl.Submit(std::move(stop_task));
-
-  // base::platform_thread::current::SleepFor(std::chrono::seconds{1});
 }

@@ -97,19 +97,19 @@ LogMessage::LogMessage(char const *file, size_t file_length, int line,
       stream_ << "VERBOSE";
       break;
     case LOG_DEBUG:
-      stream_ << "DEBUG  ";
+      stream_ << "DEBUG";
       break;
     case LOG_INFO:
-      stream_ << "INFO   ";
+      stream_ << "INFO";
       break;
     case LOG_WARNING:
       stream_ << "WARNING";
       break;
     case LOG_ERROR:
-      stream_ << "ERROR  ";
+      stream_ << "ERROR";
       break;
     case LOG_FATAL:
-      stream_ << "FATAL  ";
+      stream_ << "FATAL";
       break;
     };
     stream_ << ' ' << reduced_file << '(' << line << ')' << ']';

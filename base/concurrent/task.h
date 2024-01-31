@@ -12,14 +12,14 @@
 #ifndef BASE_CONCURRENT_TASK_H_
 #define BASE_CONCURRENT_TASK_H_
 
-#include <future>
+#include <functional>
 #include <tuple>
 #include <type_traits>
 #include <utility>
 
 namespace base {
 
-using Task = std::packaged_task<void()>;
+using Task = std::function<void()>;
 
 template <typename Callable, typename... Args,
           typename std::enable_if<std::is_void<typename std::invoke_result<
