@@ -9,7 +9,7 @@ if (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
   add_compile_options("-Werror")
 endif()
 if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
-  link_libraries("pthread")
+  link_libraries("pthread" "rt")
 endif()
 
 # GTest

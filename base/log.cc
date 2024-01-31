@@ -13,11 +13,8 @@
 
 #include <unistd.h>
 
-#include <cstddef>
 #include <ctime>
 #include <iomanip>
-#include <ostream>
-#include <string_view>
 
 #include "base/concurrent/platform_thread_linux.h"
 #include "base/macro.h"
@@ -46,14 +43,19 @@ LogSeverity LogConfiguration::GetMinLogSeverity() const noexcept {
   return min_log_severity_;
 }
 
-LogMessage::LogMessage(char const *file_name, int code_line,
+LogMessage::LogMessage(char const *file, int line,
                        LogSeverity severity) noexcept
-    : file_name_(file_name), code_line_(code_line), severity_(severity) {
-  std::string_view sv(file_name);
-  auto pos = sv.find_last_of(kSlash);
-  if (pos != std::string_view::npos) {
-    sv.remove_prefix(pos + 1);
-    file_name_ = sv.data();
+    : LogMessage(file, strlen(file), line, severity) {}
+
+LogMessage::LogMessage(char const *file, size_t file_length, int line,
+                       LogSeverity severity) noexcept
+    : file_(file), line_(line), severity_(severity) {
+  char const *reduced_file = file;
+  for (auto i = file_length; i != 0; --i) {
+    if (file[i] == kSlash) {
+      reduced_file = &(file[i + 1]);
+      break;
+    }
   }
   stream_ << '[' << getpid() << ':'
           << base::PlatformThread::Current::GetKernelHandle() << ' ';
@@ -67,9 +69,28 @@ LogMessage::LogMessage(char const *file_name, int code_line,
             << std::setw(2) << std::setfill('0') << ptm->tm_hour << ':'
             << std::setw(2) << std::setfill('0') << ptm->tm_min << ':'
             << std::setw(2) << std::setfill('0') << ptm->tm_sec << '.'
-            << std::setw(9) << std::setfill('0') << ts.tv_nsec << ' '
-            << severity_ << ' ' << file_name_ << '(' << code_line_ << ')'
-            << ']';
+            << std::setw(9) << std::setfill('0') << ts.tv_nsec << ' ';
+    switch (severity_) {
+    case LOG_VERBOSE:
+      stream_ << "VERBOSE";
+      break;
+    case LOG_DEBUG:
+      stream_ << "DEBUG  ";
+      break;
+    case LOG_INFO:
+      stream_ << "INFO   ";
+      break;
+    case LOG_WARNING:
+      stream_ << "WARNING";
+      break;
+    case LOG_ERROR:
+      stream_ << "ERROR  ";
+      break;
+    case LOG_FATAL:
+      stream_ << "FATAL  ";
+      break;
+    };
+    stream_ << ' ' << reduced_file << '(' << line << ')' << ']';
   }
 }
 
@@ -92,14 +113,4 @@ bool ShouldCreateLogMessage(LogSeverity severity) {
 }
 
 } // namespace log
-
-FileName::FileName(char *const file_name) : name_(file_name) {
-  size_ = strlen(file_name);
-  std::size_t index = FindBack(name_, size_, '/');
-  if (index != -1U) {
-    name_ += (index + 1);
-    size_ -= (index + 1);
-  }
-}
-
 } // namespace base

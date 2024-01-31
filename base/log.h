@@ -12,20 +12,16 @@
 #ifndef BASE_LOG_H_
 #define BASE_LOG_H_
 
-#include <cstddef>
-#include <cstring>
-#include <ostream>
 #include <sstream>
 
-#include "base/algorithm/find.h"
-
-// [pid, tid, data, time, level, filename, line] LogMessage
+// [pid, tid, data, time, level, filename, line] Message
 
 namespace base {
 
 namespace log {
 
 using LogSeverity = int;
+
 constexpr LogSeverity LOG_VERBOSE = -1;
 constexpr LogSeverity LOG_DEBUG = 0;
 constexpr LogSeverity LOG_INFO = 1;
@@ -55,8 +51,10 @@ private:
 
 class LogMessage final {
 public:
-  LogMessage(char const *file_name, int code_line,
-             LogSeverity severity) noexcept;
+  LogMessage(char const *file, int line, LogSeverity severity) noexcept;
+
+  LogMessage(char const *file, size_t file_length, int line,
+             LogSeverity) noexcept;
 
   ~LogMessage();
 
@@ -65,8 +63,8 @@ public:
   std::string ToString() noexcept;
 
 private:
-  char const *file_name_{nullptr};
-  int code_line_{0};
+  char const *file_{nullptr};
+  int line_{0};
   LogSeverity severity_;
   std::ostringstream stream_;
 };
@@ -83,19 +81,24 @@ void Initialize(LogConfiguration const &logging_configuration);
 bool ShouldCreateLogMessage(LogSeverity severity);
 
 #define COMPACT_LOG_EX_DEBUG(ClassName, ...)                                   \
-  ::base::log::ClassName(__FILE__, __LINE__, ::base::log::LOG_DEBUG)
+  ::base::log::ClassName(__FILE__, sizeof(__FILE__), __LINE__,                 \
+                         ::base::log::LOG_DEBUG)
 
 #define COMPACT_LOG_EX_INFO(ClassName, ...)                                    \
-  ::base::log::ClassName(__FILE__, __LINE__, ::base::log::LOG_INFO)
+  ::base::log::ClassName(__FILE__, sizeof(__FILE__), __LINE__,                 \
+                         ::base::log::LOG_INFO)
 
 #define COMPACT_LOG_EX_WARNING(ClassName, ...)                                 \
-  ::base::log::ClassName(__FILE__, __LINE__, ::base::log::LOG_WARNING)
+  ::base::log::ClassName(__FILE__, sizeof(__FILE__), __LINE__,                 \
+                         ::base::log::LOG_WARNING)
 
 #define COMPACT_LOG_EX_ERROR(ClassName, ...)                                   \
-  ::base::log::ClassName(__FILE__, __LINE__, ::base::log::LOG_ERROR)
+  ::base::log::ClassName(__FILE__, sizeof(__FILE__), __LINE__,                 \
+                         ::base::log::LOG_ERROR)
 
 #define COMPACT_LOG_EX_FATAL(ClassName, ...)                                   \
-  ::base::log::ClassName(__FILE__, __LINE__, ::base::log::LOG_FATAL)
+  ::base::log::ClassName(__FILE__, sizeof(__FILE__), __LINE__,                 \
+                         ::base::log::LOG_FATAL)
 
 #define COMPACT_LOG_DEBUG COMPACT_LOG_EX_DEBUG(LogMessage)
 #define COMPACT_LOG_INFO COMPACT_LOG_EX_INFO(LogMessage)
@@ -114,32 +117,6 @@ bool ShouldCreateLogMessage(LogSeverity severity);
 #define LOG(severity) LAZY_STREAM(LOG_STREAM(severity), LOG_IS_ON(severity))
 
 } // namespace log
-
-/**
- * @brief Extact the file name from macro __FILE__
- *
- */
-class FileName;
-class Logger;
-class LoggerStream;
-
-class FileName {
-public:
-  template <std::size_t N>
-  explicit FileName(char const (&file_name)[N])
-      : name_(file_name), size_(N - 1) {
-    std::size_t index = FindBack(file_name, '/');
-    if (index != 1U) {
-      name_ += (index + 1);
-      size_ -= (index + 1);
-    }
-  }
-
-  explicit FileName(char *const file_name);
-
-  char const *name_;
-  std::size_t size_;
-};
 } // namespace base
 
 #endif
