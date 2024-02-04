@@ -21,6 +21,7 @@
 #include <tuple>
 #include <utility>
 
+#include "base/log.h"
 #include "testing/googletest/include/gtest/gtest.h"
 
 class DeleagteImpl : public base::PlatformThread::Delegate {
@@ -30,12 +31,12 @@ public:
       : closure_([f = std::forward<ForwardFunctor>(f),
                   args_ = std::make_tuple(
                       std::forward<ForwardArguments>(args)...)]() -> void {
-          std::cout << __func__ << "() called!" << std::endl;
+          LOG(INFO) << __func__ << "() called!" << std::endl;
           std::apply(f, args_);
         }) {}
 
   virtual void ThreadMain() override {
-    std::cout << __func__ << "() called!" << std::endl;
+    LOG(INFO) << __func__ << "() called!" << std::endl;
     closure_();
   }
 
@@ -44,6 +45,10 @@ private:
 };
 
 void TestThreadName(std::string const &name) {
+  base::log::LogConfiguration config;
+  config.SetMinLogSeverity(base::log::LOG_INFO);
+  base::log::Initialize(config);
+
   base::PlatformThread::Handle handle =
       base::PlatformThread::Current::GetHandle();
 
@@ -87,7 +92,7 @@ TEST(PlatformThreadLinux, IsMain) {
 }
 
 void add(int a, int b) {
-  std::cout << __func__ << "() called!" << std::endl;
+  LOG(INFO) << __func__ << "() called!" << std::endl;
   std::ignore = a + b;
 }
 
@@ -110,4 +115,29 @@ TEST(PlatformThreadLinux, SleepFor) {
 TEST(PlatformThreadLinux, SleepUntil) {
   base::PlatformThread::Current::SleepUntil(std::chrono::seconds{1} +
                                             std::chrono::system_clock ::now());
+}
+
+class DeleagteImpl2 : public base::PlatformThread::Delegate {
+public:
+  void ThreadMain() override {
+    LOG(INFO) << "This = " << this;
+    LOG(INFO) << "tls_delegate = "
+              << base::PlatformThread::Current::GetDelegate();
+  }
+};
+TEST(PlatformThreadLinux, GetDelegate) {
+
+  DeleagteImpl2 d1;
+  DeleagteImpl2 d2;
+
+  base::PlatformThread::Handle h1;
+  base::PlatformThread::Handle h2;
+
+  base::PlatformThread::Spawn(&d1, &h1);
+  base::PlatformThread::Spawn(&d2, &h2);
+
+  base::PlatformThread::Join(h1);
+  base::PlatformThread::Join(h2);
+
+  ASSERT_EQ(base::PlatformThread::Current::GetDelegate(), nullptr);
 }

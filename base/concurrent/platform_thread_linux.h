@@ -52,6 +52,8 @@ public:
 
     static KernelHandle GetKernelHandle() noexcept;
 
+    static Delegate *GetDelegate() noexcept;
+
     static bool IsMainThread() noexcept;
 
     static int Yield() noexcept;

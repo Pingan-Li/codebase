@@ -18,6 +18,8 @@
 
 #include <cerrno>
 
+#include "base/log.h"
+
 namespace base {
 
 #if not defined(SYS_gettid)
@@ -25,11 +27,15 @@ namespace base {
 #endif
 #define gettid() ((pid_t)syscall(SYS_gettid))
 
+thread_local PlatformThread::Delegate *tls_delegate = nullptr;
+
 static void *StartRoutine(void *data) {
   if (!data)
     return nullptr;
 
   auto *delegate = static_cast<PlatformThread::Delegate *>(data);
+
+  tls_delegate = delegate;
 
   delegate->ThreadMain();
 
@@ -93,6 +99,10 @@ PlatformThread::KernelHandle
 PlatformThread::Current::GetKernelHandle() noexcept {
   thread_local PlatformThread::KernelHandle kernel_handle = gettid();
   return kernel_handle;
+}
+
+PlatformThread::Delegate *PlatformThread::Current::GetDelegate() noexcept {
+  return tls_delegate;
 }
 
 bool PlatformThread::Current::IsMainThread() noexcept {
