@@ -17,88 +17,85 @@
 #include <tuple>
 #include <utility>
 
+#include "base/concurrent/task_queue_impl.h"
 #include "base/log.h"
 
 namespace base {
 
 TaskExecutorImpl::TaskExecutorImpl()
-    : task_queue_{}, mutex_{}, condtion_varibale_{}, worker_threads_{},
-      is_running_{false}, configuration_{} {}
+    : task_queue_{nullptr}, worker_threads_{}, is_running_{false},
+      number_of_idle_threads_{0}, number_of_total_threads_{0},
+      configuration_{} {
+  task_queue_ = std::make_unique<TaskQueueImpl>(2);
+}
 
 TaskExecutorImpl::~TaskExecutorImpl() {
-  if (is_running_) {
+  if (is_running_.load(std::memory_order_acquire)) {
     Stop();
   }
 }
 
 bool TaskExecutorImpl::Start(Configuration const &configuration) {
-  std::lock_guard<std::mutex> lock_guard{mutex_};
+  is_running_.store(true, std::memory_order_release);
 
   configuration_ = std::move(configuration);
 
   for (auto i = 0; i < configuration_.max_threads(); ++i) {
-    worker_threads_.emplace_back([this]() -> void {
+    this->worker_threads_.emplace_back([this]() -> void {
       while (true) {
-        Task task;
-        {
-          std::unique_lock<std::mutex> unique_lock{this->mutex_};
 
-          while (!this->is_running_) {
-            LOG(INFO) << "lipinga: is_running_ = " << this->is_running_;
-            return;
-          }
-
-          while (this->task_queue_.empty()) {
-            this->condtion_varibale_.wait(unique_lock);
-          }
-
-          task = std::move(this->task_queue_.front());
-          this->task_queue_.pop_front();
+        if (!this->is_running_.load(std::memory_order_acquire)) {
+          return;
         }
-        task.operator()();
+
+        Task task = this->task_queue_->Pop();
+        this->number_of_idle_threads_.fetch_sub(1);
+        task();
+        this->number_of_idle_threads_.fetch_add(1);
       }
     });
   }
 
-  is_running_ = true;
   return true;
 }
 
 bool TaskExecutorImpl::Submit(Task task, TaskTraits const &task_traits) {
-  {
-    std::lock_guard<std::mutex> lock_guard{mutex_};
-    task_queue_.emplace_back(std::move(task));
-  }
-
-  condtion_varibale_.notify_one();
+  LOG(INFO) << __func__ << "() called!";
+  task_queue_->Push(task);
   std::ignore = task_traits;
   return true;
 }
 
-int TaskExecutorImpl::GetThreads() const noexcept { return 0; }
+int TaskExecutorImpl::GetThreads() const noexcept {
+  return number_of_total_threads_.load(std::memory_order_acquire);
+}
 
-int TaskExecutorImpl::GetIdleThreads() const noexcept { return 0; }
+int TaskExecutorImpl::GetIdleThreads() const noexcept {
+  return number_of_idle_threads_.load(std::memory_order_acquire);
+}
 
 bool TaskExecutorImpl::Stop(Task callback) {
-  {
-    std::lock_guard<std::mutex> lock_guard{mutex_};
-    is_running_ = false;
-    condtion_varibale_.notify_all();
+  LOG(WARNING)
+      << "ThreadGroup is stopping, Waiting all worker threads to exit.";
+
+  Task stopping_task{[this]() -> void {
+    this->is_running_.store(false);
+  }};
+
+  auto total = GetThreads();
+  for (auto i = 0; i < total; ++i) {
+    task_queue_->Push(stopping_task);
   }
 
   for (auto &&thread : worker_threads_) {
-    if (thread.joinable()) {
-      LOG(INFO) << "thread.join() called!";
-      thread.join();
-    } else {
-      LOG(INFO) << "thread.join() called!";
-      thread.detach();
-    }
+    LOG(INFO) << "join()!";
+    thread.join();
   }
+
+  LOG(WARNING) << "All threads have finished.";
 
   if (callback)
     callback();
-  // callback();
   return true;
 }
 

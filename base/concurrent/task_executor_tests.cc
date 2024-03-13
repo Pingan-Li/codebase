@@ -32,11 +32,15 @@ TEST(TaskExecutorImpl, Submit) {
 
   LOG(INFO) << "TaskExecutorImpl created";
   base::TaskExecutorImpl task_executor_impl;
-  base::ThreadGroup::Configuration config{"Main", 2, 0};
+  base::ThreadGroup::Configuration config{"Main", 10, 0};
   task_executor_impl.Start(config);
 
   for (auto i = 0; i < 100; ++i) {
     auto task = base::MakeTask(Add, i, 0);
     task_executor_impl.Submit(std::move(task));
   }
+
+  task_executor_impl.Stop();
+
+  base::PlatformThread::Current::SleepFor(std::chrono::seconds{15});
 }

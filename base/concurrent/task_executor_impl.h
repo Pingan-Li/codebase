@@ -20,6 +20,7 @@
 #include <thread>
 #include <vector>
 
+#include "base/concurrent/task_queue.h"
 #include "base/concurrent/thread_group.h"
 #include "base/macro.h"
 
@@ -47,15 +48,14 @@ public:
   ~TaskExecutorImpl() override;
 
 private:
-  std::deque<Task> task_queue_;
-  std::mutex mutex_;
-  std::condition_variable condtion_varibale_;
+  // std::deque<Task> task_queue_;
+  // std::mutex queue_mutex_;
+  // std::condition_variable queue_cv_;
+  std::unique_ptr<base::TaskQueue> task_queue_;
   std::vector<std::thread> worker_threads_;
-  bool is_running_{false};
-  // size_t number_of_busy_threads_{};
-  // size_t number_of_idle_threads_{};
-  // size_t number_of_total_threads_{};
-  // std::condition_variable notify_on_stop_;
+  std::atomic<bool> is_running_;
+  std::atomic<int> number_of_idle_threads_;
+  std::atomic<int> number_of_total_threads_;
   Configuration configuration_;
 };
 

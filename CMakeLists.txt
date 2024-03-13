@@ -49,6 +49,7 @@ set(base_source_set
   "base/concurrent/thread.cc"
   "base/concurrent/thread_group.cc"
   "base/concurrent/task_executor_impl.cc"
+  "base/concurrent/task_queue_impl.cc"
   "base/command_line.cc"
   "base/memory/atomic_reference_counting.cc"
   "base/memory/reference_counting.cc"
