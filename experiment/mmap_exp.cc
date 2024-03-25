@@ -19,9 +19,8 @@
 #include <iostream>
 #include <sys/mman.h>
 #include <sys/stat.h>
-#include <vector>
 
-int main(int argc, char **argv) {
+int main() {
   int fd;
   struct stat sb;
   char *mapped;
@@ -54,7 +53,7 @@ int main(int argc, char **argv) {
   //   mapped[2] = 'l';
   //   mapped[3] = 'l';
   //   mapped[4] = 'o';
-  for (std::size_t i = 0; i < sb.st_size; ++i) {
+  for (auto i = 0; i < sb.st_size; ++i) {
     std::cout << mapped[i];
   }
 

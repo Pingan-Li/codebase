@@ -22,8 +22,8 @@ public:
 
 TEST_F(VectorTestHelper, Constructor_1) {
   base::Vector<int> vector;
-  ASSERT_EQ(vector.Size(), 0);
-  ASSERT_EQ(vector.Capacity(), 0);
+  ASSERT_EQ(vector.Size(), 0ULL);
+  ASSERT_EQ(vector.Capacity(), 0ULL);
   ASSERT_EQ(vector.Data(), nullptr);
   ASSERT_EQ(vector.begin(), vector.end());
   ASSERT_EQ(vector.cbegin(), vector.cend());
@@ -35,8 +35,8 @@ TEST_F(VectorTestHelper, Constructor_1) {
 
 TEST_F(VectorTestHelper, Constructor_2) {
   base::Vector<int> vector(base::Allocator<int>{});
-  ASSERT_EQ(vector.Size(), 0);
-  ASSERT_EQ(vector.Capacity(), 0);
+  ASSERT_EQ(vector.Size(), 0ULL);
+  ASSERT_EQ(vector.Capacity(), 0UL);
   ASSERT_EQ(vector.Data(), nullptr);
   ASSERT_EQ(vector.begin(), vector.end());
   ASSERT_EQ(vector.cbegin(), vector.cend());
@@ -48,8 +48,8 @@ TEST_F(VectorTestHelper, Constructor_2) {
 
 TEST_F(VectorTestHelper, Constructor_3) {
   base::Vector<int> vector(10, 10);
-  ASSERT_EQ(vector.Capacity(), 10);
-  ASSERT_EQ(vector.Size(), 10);
+  ASSERT_EQ(vector.Capacity(), 10ULL);
+  ASSERT_EQ(vector.Size(), 10ULL);
   for (auto &&i : vector) {
     ASSERT_EQ(i, 10);
   }
@@ -57,8 +57,8 @@ TEST_F(VectorTestHelper, Constructor_3) {
 
 TEST_F(VectorTestHelper, Constructor_4) {
   base::Vector<int> vector(10);
-  ASSERT_EQ(vector.Capacity(), 10);
-  ASSERT_EQ(vector.Size(), 10);
+  ASSERT_EQ(vector.Capacity(), 10ULL);
+  ASSERT_EQ(vector.Size(), 10ULL);
   for (auto &&i : vector) {
     ASSERT_EQ(i, 0);
   }
@@ -125,8 +125,8 @@ TEST_F(VectorTestHelper, Constructor_8) {
 
   base::Vector<int> result(std::move(expect));
 
-  ASSERT_EQ(expect.Size(), 0);
-  ASSERT_EQ(expect.Capacity(), 0);
+  ASSERT_EQ(expect.Size(), 0ULL);
+  ASSERT_EQ(expect.Capacity(), 0ULL);
   ASSERT_EQ(expect.Data(), nullptr);
   ASSERT_EQ(expect.Empty(), true);
 }
@@ -139,8 +139,8 @@ TEST_F(VectorTestHelper, Constructor_9) {
 
   base::Vector<int> result(std::move(expect), base::Allocator<int>());
 
-  ASSERT_EQ(expect.Size(), 0);
-  ASSERT_EQ(expect.Capacity(), 0);
+  ASSERT_EQ(expect.Size(), 0ULL);
+  ASSERT_EQ(expect.Capacity(), 0ULL);
   ASSERT_EQ(expect.Data(), nullptr);
   ASSERT_EQ(expect.Empty(), true);
 }
@@ -152,8 +152,8 @@ TEST_F(VectorTestHelper, Constructor_10) {
     ASSERT_EQ(result[i], i);
   }
 
-  ASSERT_EQ(result.Size(), 10);
-  ASSERT_EQ(result.Capacity(), 10);
+  ASSERT_EQ(result.Size(), 10ULL);
+  ASSERT_EQ(result.Capacity(), 10ULL);
   ASSERT_NE(result.Data(), nullptr);
   ASSERT_FALSE(result.Empty());
 }
@@ -162,13 +162,13 @@ TEST_F(VectorTestHelper, Iterator) {
   base::Vector<int> result;
   std::vector<int> expect;
   int array[] = {1, 2, 3, 4, 5};
-  for (int i = 0; i < sizeof(array); ++i) {
+  for (auto i = 0ULL; i < sizeof(array); ++i) {
     result.PushBack(i);
     expect.push_back(i);
   }
   auto iter1 = result.begin();
   auto iter2 = expect.begin();
-  for (int i = 0; i < sizeof(array); ++i) {
+  for (auto i = 0ULL; i < sizeof(array); ++i) {
     ASSERT_EQ(*iter1, *iter2);
     ++iter1;
     ++iter2;
@@ -203,13 +203,13 @@ TEST_F(VectorTestHelper, ReverseIterator) {
   base::Vector<int> result;
   std::vector<int> expect;
   int array[] = {1, 2, 3, 4, 5};
-  for (int i = 0; i < sizeof(array); ++i) {
+  for (auto i = 0ULL; i < sizeof(array); ++i) {
     result.PushBack(i);
     expect.push_back(i);
   }
   auto iter1 = result.rbegin();
   auto iter2 = expect.rbegin();
-  for (int i = 0; i < sizeof(array); ++i) {
+  for (auto i = 0ULL; i < sizeof(array); ++i) {
     ASSERT_EQ(*iter1, *iter2);
     ++iter1;
     ++iter2;

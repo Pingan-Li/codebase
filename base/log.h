@@ -63,8 +63,6 @@ public:
   std::string ToString() noexcept;
 
 private:
-  char const *file_{nullptr};
-  int line_{0};
   LogSeverity severity_;
   std::ostringstream stream_;
 };

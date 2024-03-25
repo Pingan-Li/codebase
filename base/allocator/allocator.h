@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <limits>
 #include <memory>
+#include <tuple>
 #include <type_traits>
 
 #include "base/cxx.h"
@@ -61,7 +62,9 @@ public:
   constexpr Allocator() noexcept = default;
   constexpr Allocator(Allocator const &other) noexcept = default;
   template <typename U>
-  constexpr Allocator(Allocator<U> const &other) noexcept {}
+  constexpr Allocator(Allocator<U> const &other) noexcept {
+    std::ignore(other);
+  }
 #endif
 
 #if UNTIL(CXX_20)
@@ -171,6 +174,8 @@ public:
 
 template <typename T, typename U>
 inline bool operator==(Allocator<T> const &lhs, Allocator<U> const &rhs) {
+  std::ignore = lhs;
+  std::ignore = rhs;
   return true;
 }
 

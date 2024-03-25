@@ -55,7 +55,7 @@ private:
   std::vector<std::weak_ptr<Observer>> observers_;
 };
 
-int main(int argc, char **argv) {
+int main() {
   auto subject = std::make_shared<Subject>();
   {
     auto observer = std::make_shared<Observer>();

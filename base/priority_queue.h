@@ -86,7 +86,7 @@ private:
 
   void Sink(std::size_t i) {
     while (2 * i <= size_) {
-      int j = 2 * i;
+      auto j = 2 * i;
       if (j < size_ && Less(j, j + 1)) {
         ++j;
       }

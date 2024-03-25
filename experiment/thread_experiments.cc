@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2023
  *
  */
- 
+
 #include <chrono>
 #include <functional>
 #include <iostream>
@@ -48,9 +48,12 @@ template <typename... Args> void Wrapper(Args &&...args) {
 }
 void experiment2() {}
 
-template <typename F, typename... Args> void Start(F &&f, Args &&...args) {}
+template <typename F, typename... Args> void Start(F &&f, Args &&...args) {
+  std::ignore(f);
+  std::ignore(args...);
+}
 
-int main(int argc, char **argv) {
+int main() {
   experiment1();
   experiment2();
   std::this_thread::sleep_for(std::chrono::seconds{5});

@@ -9,10 +9,8 @@
  *
  */
 
-#include <cstddef>
 #include <memory>
 #include <type_traits>
-#include <vector>
 
 #include "testing/googletest/include/gtest/gtest.h"
 

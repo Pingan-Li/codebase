@@ -23,5 +23,13 @@ template <typename T, typename U> struct GreaterThan {
 template <typename T, typename U> struct Equal {
   bool operator()(T const &t, U const &u) { return t == u; }
 };
+
+template <typename T, typename U> struct LessThanOrEqual {
+  bool operator()(T const &t, U const &u) { return t <= u; }
+};
+
+template <typename T, typename U> struct GreaterThanOrEqual {
+  bool operator()(T const &t, U const &u) { return t >= u; }
+};
 } // namespace base
 #endif

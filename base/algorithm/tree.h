@@ -10,7 +10,7 @@
  */
 
 #include <iostream>
-#include <string>
+#include <tuple>
 
 namespace base {
 template <typename T> struct Node {
@@ -36,7 +36,7 @@ public:
     return;
   }
 
-  void Remove(T const &value) {}
+  void Remove(T const &value) { std::ignore = value; }
 
   void Print() const {}
 

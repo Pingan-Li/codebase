@@ -46,7 +46,10 @@ bool CurrentThread::IsMainThread() noexcept {
 
 Thread::Thread(std::string const &name)
     : platform_thread_handle_(), platform_process_handle_(getpid()),
-      state_{kCreated}, joined_(false), name_(name) {}
+      state_{kCreated}, joined_(false), name_(name) {
+  platform_thread_handle_.kernel_space_handle = kInvalidKernelSpaceHandle;
+  platform_thread_handle_.user_space_handle = kInvalidUserSpaceHandle;
+}
 
 Thread::Thread(Thread &&other) noexcept
     : platform_thread_handle_(std::move(other.platform_thread_handle_)),

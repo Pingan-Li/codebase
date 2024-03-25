@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
   }
 
   fseek(fp, 0, SEEK_END);
-  long size = ftell(fp);
+  auto size = static_cast<std::size_t>(ftell(fp));
   fseek(fp, 0, SEEK_SET);
   std::uint8_t *buffer = new std::uint8_t[size + 1];
   std::memset(buffer, 0, size + 1);

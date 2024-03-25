@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <memory>
+#include <tuple>
 
 namespace base {
 template <typename T> class SimpleAllocator final {
@@ -25,10 +26,12 @@ public:
 
   constexpr SimpleAllocator() noexcept = default;
   constexpr SimpleAllocator(SimpleAllocator const &other) noexcept = default;
-  constexpr ~SimpleAllocator() = default;
+  ~SimpleAllocator() = default;
 
   template <typename U>
-  constexpr SimpleAllocator(SimpleAllocator<U> const &other) noexcept {};
+  constexpr SimpleAllocator(SimpleAllocator<U> const &other) noexcept {
+    std::ignore(other);
+  }
 
   [[nodiscard]] constexpr T *allocate(std::size_t n) {
     return static_cast<T *>(::operator new(n * sizeof(T)));
@@ -43,12 +46,16 @@ public:
 template <class T, class U>
 bool operator==(const SimpleAllocator<T> &lhs,
                 const SimpleAllocator<U> &rhs) noexcept {
+  std::ignore(lhs);
+  std::ignore(rhs);
   return true;
 }
 
 template <class T, class U>
 bool operator!=(const SimpleAllocator<T> &lhs,
                 const SimpleAllocator<U> &rhs) noexcept {
+  std::ignore(lhs);
+  std::ignore(rhs);
   return false;
 }
 } // namespace base

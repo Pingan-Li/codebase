@@ -211,7 +211,7 @@ void c() {
 }
 } // namespace c
 
-int main(int argc, char **argv) {
+int main() {
   a::a();
   b::b();
   c::c();

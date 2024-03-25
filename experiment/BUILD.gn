@@ -2,67 +2,77 @@ group("experiments") {
 }
 
 executable("tcp_client") {
-  include_dirs = [ "//" ]
+  configs = [ "//buildconfig:global" ]
+
   sources = [ "tcp_client.cc" ]
 
   deps = [ "//base:base_sources" ]
 }
 
 executable("tcp_server") {
-  include_dirs = [ "//" ]
+  configs = [ "//buildconfig:global" ]
+
   sources = [ "tcp_server.cc" ]
 
   deps = [ "//base:base_sources" ]
 }
 
 executable("weak_observer") {
-  include_dirs = [ "//" ]
+  configs = [ "//buildconfig:global" ]
+
   sources = [ "weak_observer.cc" ]
 }
 
 executable("thread_expriments") {
-  include_dirs = [ "//" ]
+  configs = [ "//buildconfig:global" ]
+
   sources = [ "thread_experiments.cc" ]
 }
 
 executable("read") {
-  include_dirs = [ "//" ]
+  configs = [ "//buildconfig:global" ]
+
   sources = [ "read.cc" ]
 
   deps = [ "//base:base_sources" ]
 }
 
 executable("epoll_server") {
-  include_dirs = [ "//" ]
+  configs = [ "//buildconfig:global" ]
+
   sources = [ "epoll_server.cc" ]
 
   deps = [ "//base:base_sources" ]
 }
 
 executable("rb_tree") {
-  include_dirs = [ "//" ]
+  configs = [ "//buildconfig:global" ]
+
   sources = [ "rb_tree.cc" ]
 
   deps = [ "//base:base_sources" ]
 }
 
 executable("simple_cipher") {
-  include_dirs = [ "//" ]
+  configs = [ "//buildconfig:global" ]
+
   sources = [ "simple_cipher.cc" ]
 
   deps = [ "//base:base_sources" ]
 }
 
 executable("mmap") {
-  include_dirs = [ "//" ]
-  sources = [ "mmap.cc" ]
+  configs = [ "//buildconfig:global" ]
+
+  sources = [ "mmap_exp.cc" ]
 
   deps = [ "//base:base_sources" ]
 }
 
 executable("atomic") {
-  include_dirs = [ "//" ]
-  sources = [ "atomic.cc" ]
+  configs = [ "//buildconfig:global" ]
+
+  sources = [ "atomic_exp.cc" ]
 
   deps = [
     "//base:base_sources",
@@ -72,7 +82,8 @@ executable("atomic") {
 }
 
 executable("thread_counting") {
-  include_dirs = [ "//" ]
+  configs = [ "//buildconfig:global" ]
+
   sources = [ "thread_counting.cc" ]
 
   deps = [
@@ -83,7 +94,8 @@ executable("thread_counting") {
 }
 
 executable("thread_printing") {
-  include_dirs = [ "//" ]
+  configs = [ "//buildconfig:global" ]
+
   sources = [ "thread_printing.cc" ]
 
   deps = [
@@ -94,7 +106,8 @@ executable("thread_printing") {
 }
 
 executable("ebo") {
-  include_dirs = [ "//" ]
+  configs = [ "//buildconfig:global" ]
+
   sources = [ "ebo.cc" ]
 
   deps = [
@@ -105,7 +118,8 @@ executable("ebo") {
 }
 
 executable("thread_local") {
-  include_dirs = [ "//" ]
+  configs = [ "//buildconfig:global" ]
+
   sources = [ "thread_local.cc" ]
 
   deps = [

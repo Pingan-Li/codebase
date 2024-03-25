@@ -74,6 +74,7 @@ public:
   Vector(size_type n, const_reference value,
          const allocator_type &alloc = Allocator())
       : Super(), data_(this->allocator_.allocate(n)), size_(0), capacity_(n) {
+    std::ignore = alloc;
     while (size_ != capacity_) {
       data_[size_++] = value;
     }
@@ -109,6 +110,7 @@ public:
   Vector(InputIterator first, InputIterator last,
          Allocator const &alloc = Allocator())
       : Super(), data_(nullptr), size_(0), capacity_(0) {
+    std::ignore = alloc;
     typename base::IteratorTraits<InputIterator>::difference_type diff =
         last - first;
     if (diff <= 0)
@@ -181,7 +183,7 @@ public:
       : Super(alloc), size_(other.Size()), capacity_(other.Capacity()) {
     if (alloc != other.GetAllocator()) {
       data_ = this->allocator_.allocate(capacity_);
-      for (std::size_t idx; idx < other.Size(); ++idx) {
+      for (std::size_t idx = 0ull; idx < other.Size(); ++idx) {
         data_[idx] = std::move(other.data_[idx]);
       }
     } else {
@@ -276,9 +278,12 @@ public:
     }
   }
 
-  iterator Insert(const_iterator const_iter, T const &t) {}
+  iterator Insert(const_iterator const_iter, T const &t) {
+    std::ignore = const_iter;
+    std::ignore = t;
+  }
 
-  void Emplace(T &&t) {}
+  void Emplace(T &&t) { std::ignore = t; }
 
   iterator Erase() {}
   void PushBack(T const &t) {
@@ -300,8 +305,9 @@ public:
   T PopBack() { return std::move(data_[--size_]); }
   // ~Modifiers
 
-  void Reserve(size_type n) {}
+  void Reserve(size_type n) { std::ignore = n; }
   void Resize(size_type n, T const &t) {
+    std::ignore = t;
     capacity_ = n;
     size_ = n;
     T *new_area = this->allocator_.allocate(n);

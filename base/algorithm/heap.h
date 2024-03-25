@@ -108,7 +108,7 @@ private:
 
   void Sink(std::size_t index) {
     while (2 * index <= size_) {
-      int j = 2 * index;
+      auto j = 2 * index;
       if (j < size_ && comparator_(data_[j], data_[j + 1])) {
         ++j;
       }

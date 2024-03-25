@@ -23,7 +23,7 @@ TEST(Array, Construcion_0) {
   ASSERT_EQ(array.cbegin(), array.cend());
   ASSERT_EQ(array.rbegin(), array.rend());
   ASSERT_EQ(array.crbegin(), array.crend());
-  ASSERT_EQ(array.Size(), 0);
+  ASSERT_EQ(array.Size(), 0ULL);
   ASSERT_TRUE(array.Empty());
 }
 
@@ -33,7 +33,7 @@ TEST(Array, Construcion_1) {
   ASSERT_NE(array.cbegin(), array.cend());
   ASSERT_NE(array.rbegin(), array.rend());
   ASSERT_NE(array.crbegin(), array.crend());
-  ASSERT_EQ(array.Size(), 1);
+  ASSERT_EQ(array.Size(), 1ULL);
   ASSERT_FALSE(array.Empty());
 }
 

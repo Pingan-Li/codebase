@@ -72,7 +72,7 @@ LogMessage::LogMessage(char const *file, int line,
 
 LogMessage::LogMessage(char const *file, size_t file_length, int line,
                        LogSeverity severity) noexcept
-    : file_(file), line_(line), severity_(severity) {
+    : severity_(severity) {
   char const *reduced_file = file;
   for (auto i = file_length; i != 0; --i) {
     if (file[i] == kSlash) {
