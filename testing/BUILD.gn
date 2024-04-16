@@ -1,6 +1,5 @@
 config("gtest_config") {
   include_dirs = [
-    "//",
     "//testing/googletest",
     "//testing/googletest/include",
   ]
@@ -8,20 +7,25 @@ config("gtest_config") {
 
 config("gmock_config") {
   include_dirs = [
-    "//",
     "//testing/googlemock",
     "//testing/googlemock/include",
   ]
 }
 
 static_library("gtest") {
-  public_configs = [ ":gtest_config" ]
+  public_configs = [
+    ":gtest_config",
+    "//buildconfig:global",
+  ]
 
   sources = [ "//testing/googletest/src/gtest-all.cc" ]
 }
 
 static_library("gtest_main") {
-  public_configs = [ ":gtest_config" ]
+  public_configs = [
+    ":gtest_config",
+    "//buildconfig:global",
+  ]
 
   deps = [ ":gtest" ]
 
@@ -32,6 +36,7 @@ static_library("gmock") {
   public_configs = [
     ":gmock_config",
     ":gtest_config",
+    "//buildconfig:global",
   ]
 
   sources = [ "//testing/googlemock/src/gmock-all.cc" ]
@@ -41,6 +46,7 @@ static_library("gock_main") {
   public_configs = [
     ":gmock_config",
     ":gtest_config",
+    "//buildconfig:global",
   ]
 
   deps = [

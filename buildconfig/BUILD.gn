@@ -1,38 +1,33 @@
-# Global Config
+# Global config
 config("global") {
-  cflags = []
-  cflags_c = []
-  cflags_cc = []
-  defines = []
-  ldflags = []
-  include_dirs = []
+  # monorepo
+  include_dirs = [ "//" ]
 
-  # mono-repo
-  include_dirs += [ "//" ]
+  if (host_os == "linux" || host_os == "mac") {
+    # c/c++ language version
+    cflags_c = [ "-std=${std_c}" ]
+    cflags_cc = [ "-std=${std_cc}" ]
 
-  # c/c++ language version
-  cflags_c += [ "-std=${std_c}" ]
-  cflags_cc += [ "-std=${std_cc}" ]
-
-  # build type
-  if (build_type == "debug") {
-    cflags += [
-      "-g",
-      "-O0",
-      "-Wall",
-      "-Wextra",
-    ]
-    # defines += [ "DEBUG" ]
-  } else if (build_type == "release") {
-    cflags += [
-      "-O3",
-      "-Wall",
-      "-Wextra",
-      "-Werror",
-    ]
-    defines += [ "NDEBUG" ]
-  } else {
-    assert(false, "Unknown build type!")
+    # build type
+    if (build_type == "debug") {
+      cflags = [
+        "-g",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+      ]
+      # defines += [ "DEBUG" ]
+    } else if (build_type == "release") {
+      cflags = [
+        "-O3",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+      ]
+      defines = [ "NDEBUG" ]
+    } else {
+      assert(false, "Unknown build type!")
+    }
   }
 
   # Disable exceptions.
