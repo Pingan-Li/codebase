@@ -10,6 +10,8 @@
  */
 
 #include "testing/googletest/include/gtest/gtest.h"
+
+#include <thread>
 #include <type_traits>
 
 namespace base {
@@ -30,6 +32,16 @@ struct PopFront<TypeList<Head, Tail...>> {
   // using Front = Head;
 };
 template <typename List> using PopFrontType = typename PopFront<List>::Type;
+
+template <typename List> struct IsCopyable {};
+template <typename Head, typename... Tail>
+struct IsCopyable<TypeList<Head, Tail...>> {
+  static constexpr bool const value = std::is_copy_assignable<Head>::value &&
+                                      IsCopyable<TypeList<Tail...>>::value;
+};
+template <typename Last> struct IsCopyable<TypeList<Last>> {
+  static constexpr bool const value = std::is_copy_assignable<Last>::value;
+};
 
 } // namespace meta
 } // namespace base
@@ -52,4 +64,13 @@ TEST_F(TypeListTest, PopFront) {
   using Result = base::meta::TypeList<int, double>;
   static_assert(
       std::is_same<base::meta::PopFrontType<Parameter>, Result>::value, "OK");
+}
+
+TEST(IsCopyable, Case0) {
+  static_assert(
+      base::meta::IsCopyable<base::meta::TypeList<char, int, double>>::value,
+      "OK");
+  static_assert(
+      not base::meta::IsCopyable<base::meta::TypeList<std::thread>>::value,
+      "OK");
 }
