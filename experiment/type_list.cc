@@ -16,7 +16,7 @@
 
 namespace base {
 namespace meta {
-template <typename... Types> struct TypeList {};
+template <typename... Types> struct TypeList;
 
 template <typename List> struct Front;
 template <typename Head, typename... Tail>
@@ -33,7 +33,13 @@ struct PopFront<TypeList<Head, Tail...>> {
 };
 template <typename List> using PopFrontType = typename PopFront<List>::Type;
 
-template <typename List> struct IsCopyable {};
+template <typename Head, typename List> struct PushFront;
+template <typename Head, typename... Tail>
+struct PushFront<Head, TypeList<Tail...>> {
+  using Type = TypeList<Head, Tail...>;
+};
+
+template <typename List> struct IsCopyable;
 template <typename Head, typename... Tail>
 struct IsCopyable<TypeList<Head, Tail...>> {
   static constexpr bool const value = std::is_copy_assignable<Head>::value &&
@@ -42,6 +48,11 @@ struct IsCopyable<TypeList<Head, Tail...>> {
 template <typename Last> struct IsCopyable<TypeList<Last>> {
   static constexpr bool const value = std::is_copy_assignable<Last>::value;
 };
+
+// Variable template partial specialization.
+template <typename Type> constexpr std::size_t Size = sizeof(Type);
+template <typename Type> constexpr std::size_t Size<Type &> = sizeof(Type);
+template <typename Type> constexpr std::size_t Size<Type &&> = sizeof(Type);
 
 } // namespace meta
 } // namespace base
@@ -60,13 +71,26 @@ TEST_F(TypeListTest, Front) {
 }
 
 TEST_F(TypeListTest, PopFront) {
-  using Parameter = base::meta::TypeList<std::string, int, double>;
+  using List = base::meta::TypeList<std::string, int, double>;
   using Result = base::meta::TypeList<int, double>;
-  static_assert(
-      std::is_same<base::meta::PopFrontType<Parameter>, Result>::value, "OK");
+  static_assert(std::is_same<base::meta::PopFrontType<List>, Result>::value,
+                "OK");
 }
 
-TEST(IsCopyable, Case0) {
+TEST_F(TypeListTest, PushFront) {
+  using List = base::meta::TypeList<int>;
+  using NewList = base::meta::PushFront<double, List>::Type;
+  using Result = base::meta::TypeList<double, int>;
+  static_assert(std::is_same<NewList, Result>::value, "OK");
+}
+
+TEST_F(TypeListTest, Size) {
+  static_assert(base::meta::Size<int> == sizeof(int), "OK");
+  static_assert(base::meta::Size<double &> == base::meta::Size<double &&>,
+                "OK");
+}
+
+TEST(IsCopyable, IsCopyable) {
   static_assert(
       base::meta::IsCopyable<base::meta::TypeList<char, int, double>>::value,
       "OK");
