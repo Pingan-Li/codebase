@@ -128,3 +128,14 @@ executable("thread_local") {
     "//testing:gtest_main",
   ]
 }
+
+executable("type_list") {
+  configs = [ "//buildconfig:global" ]
+
+  sources = [ "type_list.cc" ]
+
+  deps = [
+    "//testing:gtest",
+    "//testing:gtest_main",
+  ]
+}
