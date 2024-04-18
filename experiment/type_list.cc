@@ -25,7 +25,7 @@ struct Front<TypeList<Head, Tail...>> {
 };
 template <typename List> using FrontType = typename Front<List>::Type;
 
-template <typename List> struct PopFront {};
+template <typename List> struct PopFront;
 template <typename Head, typename... Tail>
 struct PopFront<TypeList<Head, Tail...>> {
   using Type = TypeList<Tail...>;
@@ -47,6 +47,15 @@ struct IsCopyable<TypeList<Head, Tail...>> {
 };
 template <typename Last> struct IsCopyable<TypeList<Last>> {
   static constexpr bool const value = std::is_copy_assignable<Last>::value;
+};
+
+template <typename List> struct Length;
+template <typename Head, typename... Tail>
+struct Length<TypeList<Head, Tail...>> {
+  static constexpr std::size_t value = 1 + Length<TypeList<Tail...>>::value;
+};
+template <> struct Length<TypeList<>> {
+  static constexpr std::size_t value = 0;
 };
 
 // Variable template partial specialization.
@@ -75,6 +84,10 @@ TEST_F(TypeListTest, PopFront) {
   using Result = base::meta::TypeList<int, double>;
   static_assert(std::is_same<base::meta::PopFrontType<List>, Result>::value,
                 "OK");
+  using ZeroElementList = base::meta::TypeList<>;
+  static_assert(std::is_same<base::meta::PushFront<int, ZeroElementList>::Type,
+                             base::meta::TypeList<int>>::value,
+                "OK");
 }
 
 TEST_F(TypeListTest, PushFront) {
@@ -88,6 +101,13 @@ TEST_F(TypeListTest, Size) {
   static_assert(base::meta::Size<int> == sizeof(int), "OK");
   static_assert(base::meta::Size<double &> == base::meta::Size<double &&>,
                 "OK");
+}
+
+TEST_F(TypeListTest, Length) {
+  using ZeroElementList = base::meta::TypeList<>;
+  using SingleElementList = base::meta::TypeList<int>;
+  static_assert(base::meta::Length<ZeroElementList>::value == 0, "OK");
+  static_assert(base::meta::Length<SingleElementList>::value == 1, "OK");
 }
 
 TEST(IsCopyable, IsCopyable) {
