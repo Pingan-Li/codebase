@@ -11,6 +11,7 @@
 
 #include "testing/googletest/include/gtest/gtest.h"
 
+#include <cstddef>
 #include <thread>
 #include <type_traits>
 
@@ -29,7 +30,6 @@ template <typename List> struct PopFront;
 template <typename Head, typename... Tail>
 struct PopFront<TypeList<Head, Tail...>> {
   using Type = TypeList<Tail...>;
-  // using Front = Head;
 };
 template <typename List> using PopFrontType = typename PopFront<List>::Type;
 
@@ -37,6 +37,27 @@ template <typename Head, typename List> struct PushFront;
 template <typename Head, typename... Tail>
 struct PushFront<Head, TypeList<Tail...>> {
   using Type = TypeList<Head, Tail...>;
+};
+
+template <typename List, std::size_t N>
+struct GetListElement
+    : public GetListElement<typename PopFront<List>::Type, N - 1> {};
+template <typename List> struct GetListElement<List, 0> : public Front<List> {};
+
+template <typename List> struct Length;
+template <typename Head, typename... Tail>
+struct Length<TypeList<Head, Tail...>> {
+  static constexpr std::size_t value = 1 + Length<TypeList<Tail...>>::value;
+};
+template <> struct Length<TypeList<>> {
+  static constexpr std::size_t value = 0;
+};
+
+template <typename List> struct IsEmpty {
+  static constexpr bool value = false;
+};
+template <> struct IsEmpty<TypeList<>> {
+  static constexpr bool value = true;
 };
 
 template <typename List> struct IsCopyable;
@@ -47,15 +68,6 @@ struct IsCopyable<TypeList<Head, Tail...>> {
 };
 template <typename Last> struct IsCopyable<TypeList<Last>> {
   static constexpr bool const value = std::is_copy_assignable<Last>::value;
-};
-
-template <typename List> struct Length;
-template <typename Head, typename... Tail>
-struct Length<TypeList<Head, Tail...>> {
-  static constexpr std::size_t value = 1 + Length<TypeList<Tail...>>::value;
-};
-template <> struct Length<TypeList<>> {
-  static constexpr std::size_t value = 0;
 };
 
 // Variable template partial specialization.
@@ -95,6 +107,21 @@ TEST_F(TypeListTest, PushFront) {
   using NewList = base::meta::PushFront<double, List>::Type;
   using Result = base::meta::TypeList<double, int>;
   static_assert(std::is_same<NewList, Result>::value, "OK");
+}
+
+TEST_F(TypeListTest, GetListElement) {
+  using List = base::meta::TypeList<int, double>;
+  static_assert(
+      std::is_same<base::meta::GetListElement<List, 1>::Type, double>::value,
+      "OK");
+}
+
+TEST_F(TypeListTest, IsEmpty) {
+  using List = base::meta::TypeList<>;
+  static_assert(base::meta::IsEmpty<List>::value, "OK");
+
+  using List2 = base::meta::TypeList<int>;
+  static_assert(!base::meta::IsEmpty<List2>::value, "OK");
 }
 
 TEST_F(TypeListTest, Size) {
