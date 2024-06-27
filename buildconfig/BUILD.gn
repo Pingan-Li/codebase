@@ -4,10 +4,6 @@ import("//buildconfig/platform/platform.gni")
 import("//buildconfig/toolchain/toolchain.gni")
 
 config("compiler") {
-}
-
-config("default") {
-  # monorepo
   include_dirs = []
   defines = []
   cflags = []
@@ -17,46 +13,46 @@ config("default") {
   cflags_objcc = []
   ldflags = []
 
+  # monorepo
   include_dirs += [ "//" ]
 
-  if (is_linux || is_macos) {
-    cflags += [ "-O${optimization_level}" ]
+  cflags_c += [ "-std=${std_c}" ]
+  cflags_cc += [ "-std=${std_cxx}" ]
+
+  cflags += [ "-O${optimization_level}" ]
+
+  if (warning_level == 0) {
+    cflags += [ "-fpermissive" ]
+  } else if (warning_level == 1) {
+    cflags += [ "-Wall" ]
+  } else if (warning_level == 2) {
+    cflags += [
+      "-Wall",
+      "-Wextra",
+    ]
+  } else if (warning_level == "max" || warning_level == 3) {
+    cflags += [
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+    ]
   }
 
-  if (is_linux || is_macos) {
-    # c/c++ language version
-    cflags_c = [ "-std=${std_c}" ]
-    cflags_cc = [ "-std=${std_cxx}" ]
-
-    # build type
-    # if (build_type == "debug") {
-    #   cflags = [
-    #     "-g",
-    #     "-O0",
-    #     "-Wall",
-    #     "-Wextra",
-    #   ]
-    # defines += [ "DEBUG" ]
-    # } else if (build_type == "release") {
-    #   cflags = [
-    #     "-O3",
-    #     "-Wall",
-    #     "-Wextra",
-    #     "-Werror",
-    #   ]
-    #   defines = [ "NDEBUG" ]
-    # } else {
-    #   assert(false, "Unknown build type!")
-    # }
+  if (use_explicit_symbol_exports) {
+    cflags += [ "-fvisibility=hidden" ]
   }
 
-  if (!use_exception) {
-    cflags_cc += [ "-fno-exceptions" ]
+  if (treat_warnings_as_errors) {
+    cflags += [ "-Werror" ]
   }
 
-  if (use_asan) {
-    cflags += [ "-fsanitize=address" ]
-    ldflags += [ "-fsanitize=address" ]
+  if (use_static_linking) {
+    ldflags += [ "-static" ]
+    ldflags += [ "-static-libstdc++" ]
+  }
+
+  if (enable_debug_info) {
+    cflags += [ "-g" ]
   }
 }
 
@@ -109,10 +105,6 @@ config("ubsan") {
 }
 
 config("c") {
-  if (use_static_libc) {
-    ldflags += [ "-static" ]
-    ldflags += [ "-static-libgcc" ]
-  }
 }
 
 config("cxx") {
@@ -120,31 +112,46 @@ config("cxx") {
     ldflags = []
   }
 
-  if (use_static_libstdcxx) {
-    ldflags += [ "-static" ]
-    ldflags += [ "-static-libstdc++" ]
+  if (!defined(cflags_cc)) {
+    cflags_cc = []
+  }
+
+  if (!use_exceptions) {
+    cflags_cc += [ "-fno-exceptions" ]
+  }
+
+  if (!use_rtti) {
+    cflags_cc += [ "-fno-rtti" ]
   }
 }
 
-config("toolchain") {
-}
-
 config("executable") {
+  if (!defined(ldflags)) {
+    ldflags = []
+  }
+  if (!defined(cflags)) {
+    cflags = []
+  }
+
+  cflags += [ "-fPIE" ]
+
   if (is_linux) {
     ldflags = [
       # ld.so understands the string $ORIGIN (or equivalently ${ORIGIN}) in an rpath
       # specification (DT_RPATH or DT_RUNPATH) to mean the directory containing the
       # application executable.
-      #"-Wl,-rpath-link=\$ORIGIN",
-      "-Wl,-rpath=\${ORIGIN}",
+      "-Wl,-rpath=\$ORIGIN",
+      "-Wl,-rpath-link=\$ORIGIN",
     ]
   }
 }
 
 config("shared_library") {
-  if (is_linux || is_macos) {
-    cflags = [ "-fPIC" ]
+  if (!defined(cflags)) {
+    cflags = []
   }
+
+  cflags += [ "-fPIC" ]
 }
 
 config("static_libaray") {

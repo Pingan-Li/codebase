@@ -5,16 +5,15 @@ import("//buildconfig/platform/platform.gni")
 declare_args() {
   compiler_c = "gcc"
   compiler_cxx = "g++"
-  archiver = "ar"
   linker = "ld"
+  archiver = "ar"
   assembler = "asm"
-  timestamper = "touch"
   copyer = "cp"
+  timestamper = "touch"
 
-  warning_level = 5  # max: 5
+  warning_level = 3  # max: 3
   treat_warnings_as_errors = true
 
-  # max value is 3.
   # 0 ~ 3 are treated as O0 ~ O3 respectively.
   optimization_level = 0
 
@@ -28,8 +27,7 @@ declare_args() {
   # extra flags.
   extra_ldflags = []
 
-  # 0 is debug and all other numbers are release.
-  build_level = 0
-
   enable_debug_info = true
+
+  use_static_linking = false
 }

@@ -1,8 +1,6 @@
 declare_args() {
   std_c = "c11"
 
-  use_static_libc = false
-
   extra_cflags_c = []
   extra_defines_c = []
 }

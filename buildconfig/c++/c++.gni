@@ -2,8 +2,7 @@ declare_args() {
   std_cxx = "c++20"
 
   use_rtti = false
-  use_exception = false
-  use_static_libstdcxx = false
+  use_exceptions = false
 
   extra_cflags_cc = []
   extra_defines_cc = []
