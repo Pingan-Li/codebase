@@ -1,0 +1,35 @@
+import("//buildconfig/c++/c++.gni")
+import("//buildconfig/c/c.gni")
+import("//buildconfig/platform/platform.gni")
+
+declare_args() {
+  compiler_c = "gcc"
+  compiler_cxx = "g++"
+  archiver = "ar"
+  linker = "ld"
+  assembler = "asm"
+  timestamper = "touch"
+  copyer = "cp"
+
+  warning_level = 5  # max: 5
+  treat_warnings_as_errors = true
+
+  # max value is 3.
+  # 0 ~ 3 are treated as O0 ~ O3 respectively.
+  optimization_level = 0
+
+  use_asan = false
+  use_tsan = false
+  use_ubsan = false
+
+  # This will make all symbols hidden unless they are explicitly exported.
+  use_explicit_symbol_exports = true
+
+  # extra flags.
+  extra_ldflags = []
+
+  # 0 is debug and all other numbers are release.
+  build_level = 0
+
+  enable_debug_info = true
+}

@@ -1,53 +1,148 @@
-# Global config
-config("global") {
+import("//buildconfig/c++/c++.gni")
+import("//buildconfig/c/c.gni")
+import("//buildconfig/platform/platform.gni")
+import("//buildconfig/toolchain/toolchain.gni")
+
+config("compiler") {
+}
+
+config("default") {
   # monorepo
-  include_dirs = [ "//" ]
+  include_dirs = []
+  defines = []
+  cflags = []
+  cflags_c = []
+  cflags_cc = []
+  cflags_objc = []
+  cflags_objcc = []
+  ldflags = []
 
-  if (host_os == "linux" || host_os == "mac") {
-    # c/c++ language version
-    cflags_c = [ "-std=${std_c}" ]
-    cflags_cc = [ "-std=${std_cc}" ]
+  include_dirs += [ "//" ]
 
-    # build type
-    if (build_type == "debug") {
-      cflags = [
-        "-g",
-        "-O0",
-        "-Wall",
-        "-Wextra",
-      ]
-      # defines += [ "DEBUG" ]
-    } else if (build_type == "release") {
-      cflags = [
-        "-O3",
-        "-Wall",
-        "-Wextra",
-        "-Werror",
-      ]
-      defines = [ "NDEBUG" ]
-    } else {
-      assert(false, "Unknown build type!")
-    }
+  if (is_linux || is_macos) {
+    cflags += [ "-O${optimization_level}" ]
   }
 
-  # Disable exceptions.
-  # cflags_cc += [ "-fno-exceptions" ]
+  if (is_linux || is_macos) {
+    # c/c++ language version
+    cflags_c = [ "-std=${std_c}" ]
+    cflags_cc = [ "-std=${std_cxx}" ]
+
+    # build type
+    # if (build_type == "debug") {
+    #   cflags = [
+    #     "-g",
+    #     "-O0",
+    #     "-Wall",
+    #     "-Wextra",
+    #   ]
+    # defines += [ "DEBUG" ]
+    # } else if (build_type == "release") {
+    #   cflags = [
+    #     "-O3",
+    #     "-Wall",
+    #     "-Wextra",
+    #     "-Werror",
+    #   ]
+    #   defines = [ "NDEBUG" ]
+    # } else {
+    #   assert(false, "Unknown build type!")
+    # }
+  }
+
+  if (!use_exception) {
+    cflags_cc += [ "-fno-exceptions" ]
+  }
+
+  if (use_asan) {
+    cflags += [ "-fsanitize=address" ]
+    ldflags += [ "-fsanitize=address" ]
+  }
+}
+
+config("asan") {
+  if (!defined(ldflags)) {
+    ldflags = []
+  }
+  ldflags += [ "-fsanitize=address" ]
+
+  if (!defined(cflags)) {
+    cflags = []
+  }
+  cflags += [
+    "-g",
+    "-fsanitize=address",
+    "-fno-omit-frame-pointer",
+  ]
+}
+
+config("tsan") {
+  if (!defined(ldflags)) {
+    ldflags = []
+  }
+  ldflags += [ "-fsanitize=thread" ]
+
+  if (!defined(cflags)) {
+    cflags = []
+  }
+  cflags += [
+    "-g",
+    "-fsanitize=thread",
+    "-fno-omit-frame-pointer",
+  ]
+}
+
+config("ubsan") {
+  if (!defined(ldflags)) {
+    ldflags = []
+  }
+  ldflags += [ "-fsanitize=undefined" ]
+
+  if (!defined(cflags)) {
+    cflags = []
+  }
+  cflags += [
+    "-g",
+    "-fsanitize=undefined",
+    "-fno-omit-frame-pointer",
+  ]
+}
+
+config("c") {
+  if (use_static_libc) {
+    ldflags += [ "-static" ]
+    ldflags += [ "-static-libgcc" ]
+  }
+}
+
+config("cxx") {
+  if (!defined(ldflags)) {
+    ldflags = []
+  }
+
+  if (use_static_libstdcxx) {
+    ldflags += [ "-static" ]
+    ldflags += [ "-static-libstdc++" ]
+  }
+}
+
+config("toolchain") {
 }
 
 config("executable") {
-  if (host_os == "linux") {
+  if (is_linux) {
     ldflags = [
       # ld.so understands the string $ORIGIN (or equivalently ${ORIGIN}) in an rpath
       # specification (DT_RPATH or DT_RUNPATH) to mean the directory containing the
       # application executable.
       #"-Wl,-rpath-link=\$ORIGIN",
-      "-Wl,-rpath=\$ORIGIN",
+      "-Wl,-rpath=\${ORIGIN}",
     ]
   }
 }
 
 config("shared_library") {
-  if (host_os == "linux" || host_os == "macos") {
+  if (is_linux || is_macos) {
     cflags = [ "-fPIC" ]
   }
 }

@@ -4,10 +4,10 @@ executable("hello_world") {
   sources = [ "//hello_world.cc" ]
 }
 
-group("all_tests") {
-  deps = [ "//base:base_tests" ]
-}
+# group("all_tests") {
+#   deps = [ "//base:base_tests" ]
+# }
 
-group("all_experments") {
-  deps = [ "//experiment:experiments" ]
-}
+# group("all_experments") {
+#   deps = [ "//experiment:experiments" ]
+# }

@@ -1,9 +1,13 @@
 toolchain("clang") {
+  extra_cflags_c_string = string_join(" ", extra_cflags_c)
+  extra_cflags_cc_string = string_join(" ", extra_cflags_cc)
+  extra_ldflags_string = string_join(" ", extra_ldflags)
+
   tool("cc") {
     depfile = "{{output}}.d"
     depsformat = "gcc"
 
-    command = "clang -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} $extra_cflags_c -c {{source}} -o {{output}}"
+    command = "clang -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} $extra_cflags_c_string -c {{source}} -o {{output}}"
     description = "CC {{output}}"
 
     outfile = "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o"
@@ -14,7 +18,7 @@ toolchain("clang") {
     depfile = "{{output}}.d"
     depsformat = "gcc"
 
-    command = "clang++ -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} $extra_cflags_cc -c {{source}} -o {{output}}"
+    command = "clang++ -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} $extra_cflags_cc_string -c {{source}} -o {{output}}"
     description = "CXX {{output}}"
 
     outfile = "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o"
@@ -28,7 +32,7 @@ toolchain("clang") {
     rspfile = "$outfile.rsp"
     rspfile_content = "{{inputs}}"
 
-    command = "clang++ {{ldflags}} $extra_ldflags @$rspfile {{solibs}} {{libs}} -o $outfile"
+    command = "clang++ {{ldflags}} $extra_ldflags_string @$rspfile {{solibs}} {{libs}} -o $outfile"
     description = "LINK $outfile"
 
     outputs = [ outfile ]
@@ -58,7 +62,7 @@ toolchain("clang") {
 
     os_specific_option = "-install_name @loader_path/$outfile"
 
-    command = "clang++ -shared {{ldflags}} $extra_ldflags $os_specific_option @$rspfile -o $outfile"
+    command = "clang++ -shared {{ldflags}} $extra_ldflags_string $os_specific_option @$rspfile -o $outfile"
     description = "SOLINK $soname"
 
     outputs = [ outfile ]

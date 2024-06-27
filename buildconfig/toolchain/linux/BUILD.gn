@@ -1,9 +1,13 @@
 toolchain("cxx") {
+  extra_cflags_c_string = string_join(" ", extra_cflags_c)
+  extra_cflags_cc_string = string_join(" ", extra_cflags_cc)
+  extra_ldflags_string = string_join(" ", extra_ldflags)
+
   tool("cc") {
     depfile = "{{output}}.d"
     depsformat = "gcc"
 
-    command = "${cc} -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} $extra_cflags_c -c {{source}} -o {{output}}"
+    command = "${compiler_c} -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} $extra_cflags_c_string -c {{source}} -o {{output}}"
     description = "CC {{output}}"
 
     outfile = "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o"
@@ -14,7 +18,7 @@ toolchain("cxx") {
     depfile = "{{output}}.d"
     depsformat = "gcc"
 
-    command = "${cxx} -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} $extra_cflags_cc -c {{source}} -o {{output}}"
+    command = "${compiler_cxx} -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} $extra_cflags_cc_string -c {{source}} -o {{output}}"
     description = "CXX {{output}}"
 
     outfile = "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o"
@@ -28,7 +32,7 @@ toolchain("cxx") {
     rspfile = "$outfile.rsp"
     rspfile_content = "{{inputs}}"
 
-    command = "${cxx} {{ldflags}} $extra_ldflags -Wl,--start-group @$rspfile {{solibs}} -Wl,--end-group {{libs}} -o $outfile"
+    command = "${compiler_cxx} {{ldflags}} $extra_ldflags_string -Wl,--start-group @$rspfile {{solibs}} -Wl,--end-group {{libs}} -o $outfile"
     description = "LINK $outfile"
 
     outputs = [ outfile ]
@@ -54,7 +58,7 @@ toolchain("cxx") {
     rspfile = soname + ".rsp"
     rspfile_content = "-Wl,--whole-archive {{inputs}} {{solibs}} -Wl,--no-whole-archive {{libs}}"
 
-    command = "${cxx} -shared {{ldflags}} $extra_ldflags $os_specific_option @$rspfile -o $outfile"
+    command = "${compiler_cxx} -shared {{ldflags}} $extra_ldflags_string $os_specific_option @$rspfile -o $outfile"
     description = "SOLINK $soname"
 
     outputs = [ outfile ]
@@ -64,7 +68,7 @@ toolchain("cxx") {
     output_prefix = "lib"
     default_output_extension = ".a"
 
-    command = "rm -f {{output}} && ar rcs {{output}} {{inputs}}"
+    command = "rm -f {{output}} && ${archiver} rcs {{output}} {{inputs}}"
     description = "AR {{target_output_name}}{{output_extension}}"
 
     outfile = "{{target_out_dir}}/{{target_output_name}}{{output_extension}}"
@@ -72,12 +76,12 @@ toolchain("cxx") {
   }
 
   tool("stamp") {
-    command = "touch {{output}}"
+    command = "${timestamper} {{output}}"
     description = "STAMP {{output}}"
   }
 
   tool("copy") {
-    command = "cp -af {{source}} {{output}}"
+    command = "${copyer} -af {{source}} {{output}}"
     description = "COPY {{source}} {{output}}"
   }
 }
