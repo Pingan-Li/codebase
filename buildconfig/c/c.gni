@@ -3,4 +3,6 @@ declare_args() {
 
   extra_cflags_c = []
   extra_defines_c = []
+
+  use_static_libc = false
 }

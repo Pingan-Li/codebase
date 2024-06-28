@@ -29,5 +29,6 @@ declare_args() {
 
   enable_debug_info = true
 
+  # If it is true, all executables are static executables.
   use_static_linking = false
 }

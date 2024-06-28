@@ -6,4 +6,6 @@ declare_args() {
 
   extra_cflags_cc = []
   extra_defines_cc = []
+
+  use_static_libstdcxx = false
 }

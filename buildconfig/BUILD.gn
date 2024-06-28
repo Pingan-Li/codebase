@@ -48,95 +48,62 @@ config("compiler") {
 
   if (use_static_linking) {
     ldflags += [ "-static" ]
-    ldflags += [ "-static-libstdc++" ]
   }
 
   if (enable_debug_info) {
-    cflags += [ "-g" ]
+    cflags += [
+      "-g",
+      "-fno-omit-frame-pointer",
+    ]
   }
 }
 
 config("asan") {
-  if (!defined(ldflags)) {
-    ldflags = []
-  }
-  ldflags += [ "-fsanitize=address" ]
-
-  if (!defined(cflags)) {
-    cflags = []
-  }
-  cflags += [
-    "-g",
-    "-fsanitize=address",
-    "-fno-omit-frame-pointer",
-  ]
+  ldflags = [ "-fsanitize=address" ]
+  cflags = [ "-fsanitize=address" ]
 }
 
 config("tsan") {
-  if (!defined(ldflags)) {
-    ldflags = []
-  }
-  ldflags += [ "-fsanitize=thread" ]
-
-  if (!defined(cflags)) {
-    cflags = []
-  }
-  cflags += [
-    "-g",
-    "-fsanitize=thread",
-    "-fno-omit-frame-pointer",
-  ]
+  cflags = [ "-fsanitize=thread" ]
+  ldflags = [ "-fsanitize=thread" ]
 }
 
 config("ubsan") {
-  if (!defined(ldflags)) {
-    ldflags = []
-  }
-  ldflags += [ "-fsanitize=undefined" ]
-
-  if (!defined(cflags)) {
-    cflags = []
-  }
-  cflags += [
-    "-g",
-    "-fsanitize=undefined",
-    "-fno-omit-frame-pointer",
-  ]
+  cflags = [ "-fsanitize=undefined" ]
+  ldflags = [ "-fsanitize=undefined" ]
 }
 
 config("c") {
+  ldflags = []
+  if (use_static_libc) {
+    ldflags += [ "-static-libgcc" ]
+  }
 }
 
 config("cxx") {
-  if (!defined(ldflags)) {
-    ldflags = []
-  }
+  cflags_cc = []
+  ldflags = []
 
-  if (!defined(cflags_cc)) {
-    cflags_cc = []
+  if (!use_rtti) {
+    cflags_cc += [ "-fno-rtti" ]
   }
 
   if (!use_exceptions) {
     cflags_cc += [ "-fno-exceptions" ]
   }
 
-  if (!use_rtti) {
-    cflags_cc += [ "-fno-rtti" ]
+  if (use_static_libstdcxx) {
+    ldflags += [ "-static-libstdcxx" ]
   }
 }
 
 config("executable") {
-  if (!defined(ldflags)) {
-    ldflags = []
-  }
-  if (!defined(cflags)) {
-    cflags = []
-  }
-
-  cflags += [ "-fPIE" ]
+  ldflags = []
+  cflags = [ "-fPIE" ]
 
   if (is_linux) {
-    ldflags = [
+    # TODO, add a var to control.
+    ldflags += [
       # ld.so understands the string $ORIGIN (or equivalently ${ORIGIN}) in an rpath
       # specification (DT_RPATH or DT_RUNPATH) to mean the directory containing the
       # application executable.
@@ -147,12 +114,9 @@ config("executable") {
 }
 
 config("shared_library") {
-  if (!defined(cflags)) {
-    cflags = []
-  }
-
-  cflags += [ "-fPIC" ]
+  cflags = [ "-fPIC" ]
 }
 
 config("static_libaray") {
+  cflags = [ "-fPIC" ]
 }
