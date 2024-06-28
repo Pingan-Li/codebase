@@ -93,7 +93,7 @@ config("cxx") {
   }
 
   if (use_static_libstdcxx) {
-    ldflags += [ "-static-libstdcxx" ]
+    ldflags += [ "-static-libstdc++" ]
   }
 }
 
