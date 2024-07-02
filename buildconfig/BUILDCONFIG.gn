@@ -2,10 +2,6 @@ import("//buildconfig/c++/c++.gni")
 import("//buildconfig/c/c.gni")
 import("//buildconfig/toolchain/toolchain.gni")
 
-# GN has only six internal args. they are:
-# host_os, target_os, current_os,
-# host_cpu, target_cpu, currnet_cpu.
-
 # toolchain
 if (is_macos) {
   set_default_toolchain("toolchain/macos:clang")

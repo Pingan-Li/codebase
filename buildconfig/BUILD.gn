@@ -30,7 +30,7 @@ config("compiler") {
       "-Wall",
       "-Wextra",
     ]
-  } else if (warning_level == "max" || warning_level == 3) {
+  } else if (warning_level == "max" || warning_level >= 3) {
     cflags += [
       "-Wall",
       "-Wextra",
@@ -59,18 +59,27 @@ config("compiler") {
 }
 
 config("asan") {
-  ldflags = [ "-fsanitize=address" ]
   cflags = [ "-fsanitize=address" ]
+  ldflags = [
+    "-fsanitize=address",
+    "-static-libasan",
+  ]
 }
 
 config("tsan") {
   cflags = [ "-fsanitize=thread" ]
-  ldflags = [ "-fsanitize=thread" ]
+  ldflags = [
+    "-fsanitize=thread",
+    "-static-libtsan",
+  ]
 }
 
 config("ubsan") {
   cflags = [ "-fsanitize=undefined" ]
-  ldflags = [ "-fsanitize=undefined" ]
+  ldflags = [
+    "-fsanitize=undefined",
+    "-static-libubsan",
+  ]
 }
 
 config("c") {
