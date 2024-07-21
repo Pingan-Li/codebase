@@ -126,6 +126,6 @@ config("shared_library") {
   cflags = [ "-fPIC" ]
 }
 
-config("static_libaray") {
+config("static_library") {
   cflags = [ "-fPIC" ]
 }

@@ -1,3 +1,7 @@
+group("all_tests") {
+  deps = [ "//base:base_tests" ]
+}
+
 executable("hello_world") {
   include_dirs = [ "//" ]
 

@@ -13,19 +13,13 @@ config("gmock_config") {
 }
 
 static_library("gtest") {
-  public_configs = [
-    ":gtest_config",
-    "//buildconfig:global",
-  ]
+  public_configs = [ ":gtest_config" ]
 
   sources = [ "//testing/googletest/src/gtest-all.cc" ]
 }
 
 static_library("gtest_main") {
-  public_configs = [
-    ":gtest_config",
-    "//buildconfig:global",
-  ]
+  public_configs = [ ":gtest_config" ]
 
   deps = [ ":gtest" ]
 
@@ -36,7 +30,6 @@ static_library("gmock") {
   public_configs = [
     ":gmock_config",
     ":gtest_config",
-    "//buildconfig:global",
   ]
 
   sources = [ "//testing/googlemock/src/gmock-all.cc" ]
@@ -46,7 +39,6 @@ static_library("gock_main") {
   public_configs = [
     ":gmock_config",
     ":gtest_config",
-    "//buildconfig:global",
   ]
 
   deps = [

@@ -54,3 +54,10 @@ set_defaults("static_library") {
   configs += default_configs
   configs += [ "//buildconfig:static_library" ]
 }
+
+set_defaults("source_set") {
+  if (!defined(configs)) {
+    configs = []
+  }
+  configs += default_configs
+}

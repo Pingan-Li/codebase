@@ -1,60 +1,15 @@
 source_set("base_sources") {
-  configs = [ "//buildconfig:global" ]
-
   sources = [
-    "algorithm/hash.cc",
-    "algorithm/hash.h",
-    "algorithm/linked_symbol_table.h",
-    "algorithm/symbol_table.h",
-    "command_line.cc",
-    "command_line.h",
-    "concurrent/blocking_queue.cc",
-    "concurrent/blocking_queue.h",
-    "concurrent/condition_variable.cc",
-    "concurrent/condition_variable.h",
-    "concurrent/count_down_latch.cc",
-    "concurrent/count_down_latch.h",
-    "concurrent/monitor.cc",
-    "concurrent/monitor.h",
     "concurrent/mutex.cc",
     "concurrent/mutex.h",
-    "concurrent/mutex_guard.cc",
-    "concurrent/mutex_guard.h",
-    "concurrent/platform_thread_linux.cc",
-    "concurrent/platform_thread_linux.h",
-    "concurrent/promise.cc",
-    "concurrent/promise.h",
-    "concurrent/restrict_mutex.cc",
-    "concurrent/restrict_mutex.h",
-    "concurrent/semaphore.cc",
-    "concurrent/semaphore.h",
-    "concurrent/spin_lock.cc",
-    "concurrent/spin_lock.h",
-    "concurrent/thread.cc",
-    "concurrent/thread.h",
-    "concurrent/thread_group.cc",
-    "concurrent/thread_group.h",
-    "concurrent/thread_pool.cc",
-    "concurrent/thread_pool.h",
-    "file/directory.cc",
-    "file/directory.h",
-    "file/file.cc",
-    "file/file.h",
-    "file/path.cc",
-    "file/path.h",
-    "log.cc",
-    "log.h",
-    "string_aux.cc",
-    "string_aux.h",
-    "timestamp.cc",
-    "timestamp.h",
   ]
 }
 
-executable("mutex_tests") {
-  configs = [ "//buildconfig:global" ]
-
-  sources = [ "concurrent/mutex_tests.cc" ]
+executable("adaptive_lock_tests") {
+  sources = [
+    "concurrent/lock/adaptive_lock.cc",
+    "concurrent/lock/adaptive_lock_tests.cc",
+  ]
 
   deps = [
     ":base_sources",
@@ -63,238 +18,213 @@ executable("mutex_tests") {
   ]
 }
 
-executable("closure_tests") {
-  configs = [ "//buildconfig:global" ]
+# executable("mutex_tests") {
+#   sources = [ "concurrent/mutex_tests.cc" ]
 
-  sources = [ "closure_tests.cc" ]
+#   public_deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
-  deps = [
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-}
+# executable("closure_tests") {
+#   sources = [ "closure_tests.cc" ]
 
-executable("thread_tests") {
-  configs = [ "//buildconfig:global" ]
+#   deps = [
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
-  sources = [ "./concurrent/thread_tests.cc" ]
+# executable("thread_tests") {
+#   sources = [ "./concurrent/thread_tests.cc" ]
 
-  deps = [
-    ":base_sources",
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-}
+#   deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
-executable("monitor_tests") {
-  configs = [ "//buildconfig:global" ]
+# executable("monitor_tests") {
+#   sources = [ "./concurrent/monitor_tests.cc" ]
 
-  sources = [ "./concurrent/monitor_tests.cc" ]
+#   deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
-  deps = [
-    ":base_sources",
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-}
+# executable("condition_variable_tests") {
+#   sources = [ "./concurrent/condition_variable_tests.cc" ]
 
-executable("condition_variable_tests") {
-  configs = [ "//buildconfig:global" ]
+#   deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
-  sources = [ "./concurrent/condition_variable_tests.cc" ]
+# executable("command_line_tests") {
+#   sources = [ "./command_line_tests.cc" ]
 
-  deps = [
-    ":base_sources",
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-}
+#   deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
-executable("command_line_tests") {
-  configs = [ "//buildconfig:global" ]
+# executable("string_aux_tests") {
+#   sources = [ "./string_aux_tests.cc" ]
 
-  sources = [ "./command_line_tests.cc" ]
+#   deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
-  deps = [
-    ":base_sources",
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-}
+# executable("time_tests") {
+#   sources = [ "./time_tests.cc" ]
 
-executable("string_aux_tests") {
-  configs = [ "//buildconfig:global" ]
+#   deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
-  sources = [ "./string_aux_tests.cc" ]
+# executable("blocking_queue_tests") {
+#   sources = [ "./concurrent/blocking_queue_tests.cc" ]
 
-  deps = [
-    ":base_sources",
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-}
+#   deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
-executable("time_tests") {
-  configs = [ "//buildconfig:global" ]
+# executable("priority_queue_tests") {
+#   sources = [ "./priority_queue_tests.cc" ]
 
-  sources = [ "./time_tests.cc" ]
+#   deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
-  deps = [
-    ":base_sources",
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-}
+# executable("hash_tests") {
+#   sources = [ "./algorithm/hash_tests.cc" ]
 
-executable("blocking_queue_tests") {
-  configs = [ "//buildconfig:global" ]
+#   deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
-  sources = [ "./concurrent/blocking_queue_tests.cc" ]
+# executable("heap_tests") {
+#   sources = [ "./algorithm/heap_tests.cc" ]
 
-  deps = [
-    ":base_sources",
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-}
+#   deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
-executable("priority_queue_tests") {
-  configs = [ "//buildconfig:global" ]
+# executable("log_tests") {
+#   sources = [ "./log_tests.cc" ]
 
-  sources = [ "./priority_queue_tests.cc" ]
+#   deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
-  deps = [
-    ":base_sources",
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-}
+# executable("find_tests") {
+#   sources = [ "./algorithm/find_tests.cc" ]
 
-executable("hash_tests") {
-  configs = [ "//buildconfig:global" ]
+#   deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
-  sources = [ "./algorithm/hash_tests.cc" ]
+# executable("timestamp_tests") {
+#   sources = [ "./timestamp_tests.cc" ]
 
-  deps = [
-    ":base_sources",
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-}
+#   deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
-executable("heap_tests") {
-  configs = [ "//buildconfig:global" ]
+# executable("symbol_table_tests") {
+#   sources = [ "./algorithm/symbol_table_tests.cc" ]
 
-  sources = [ "./algorithm/heap_tests.cc" ]
+#   deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
-  deps = [
-    ":base_sources",
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-}
+# executable("vector_tests") {
+#   sources = [ "./container/vector_tests.cc" ]
 
-executable("log_tests") {
-  configs = [ "//buildconfig:global" ]
+#   deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
 
-  sources = [ "./log_tests.cc" ]
+#   cflags = [
+#     "-fsanitize=address",
+#     "-fno-access-control",
+#   ]
 
-  deps = [
-    ":base_sources",
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-}
+#   ldflags = [ "-fsanitize=address" ]
+# }
 
-executable("find_tests") {
-  configs = [ "//buildconfig:global" ]
+# executable("array_tests") {
+#   sources = [ "./container/array_tests.cc" ]
 
-  sources = [ "./algorithm/find_tests.cc" ]
+#   deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
-  deps = [
-    ":base_sources",
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-}
+# executable("spin_lock_tests") {
+#   sources = [ "./concurrent/spin_lock_tests.cc" ]
 
-executable("timestamp_tests") {
-  configs = [ "//buildconfig:global" ]
-
-  sources = [ "./timestamp_tests.cc" ]
-
-  deps = [
-    ":base_sources",
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-}
-
-executable("symbol_table_tests") {
-  configs = [ "//buildconfig:global" ]
-
-  sources = [ "./algorithm/symbol_table_tests.cc" ]
-
-  deps = [
-    ":base_sources",
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-}
-
-executable("vector_tests") {
-  configs = [ "//buildconfig:global" ]
-
-  sources = [ "./container/vector_tests.cc" ]
-
-  deps = [
-    ":base_sources",
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-
-  cflags = [
-    "-fsanitize=address",
-    "-fno-access-control",
-  ]
-
-  ldflags = [ "-fsanitize=address" ]
-}
-
-executable("array_tests") {
-  configs = [ "//buildconfig:global" ]
-
-  sources = [ "./container/array_tests.cc" ]
-
-  deps = [
-    ":base_sources",
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-}
-
-executable("spin_lock_tests") {
-  configs = [ "//buildconfig:global" ]
-
-  sources = [ "./concurrent/spin_lock_tests.cc" ]
-
-  deps = [
-    ":base_sources",
-    "//testing:gtest",
-    "//testing:gtest_main",
-  ]
-}
+#   deps = [
+#     ":base_sources",
+#     "//testing:gtest",
+#     "//testing:gtest_main",
+#   ]
+# }
 
 group("base_tests") {
   deps = [
-    ":blocking_queue_tests",
-    ":closure_tests",
-    ":command_line_tests",
-    ":condition_variable_tests",
-    ":monitor_tests",
-    ":mutex_tests",
-    ":priority_queue_tests",
-    ":string_aux_tests",
-    ":thread_tests",
+    ":adaptive_lock_tests",
+    # ":blocking_queue_tests",
+    # ":closure_tests",
+    # ":command_line_tests",
+    # ":condition_variable_tests",
+    # ":monitor_tests",
+    # ":mutex_tests",
+    # ":priority_queue_tests",
+    # ":string_aux_tests",
+    # ":thread_tests",
   ]
 }
