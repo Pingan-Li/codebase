@@ -25,5 +25,5 @@ void Mutex::Release() { pthread_mutex_unlock(&mtx_); }
 
 bool Mutex::TryAcquire() { return pthread_mutex_trylock(&mtx_) == 0; }
 
-Mutex::~Mutex() { pthread_mutex_destroy(&mtx_); };
+Mutex::~Mutex() { pthread_mutex_destroy(&mtx_); }
 } // namespace base
