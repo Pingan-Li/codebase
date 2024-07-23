@@ -11,17 +11,44 @@
 
 #include <cstddef>
 #include <memory>
+
 #include "testing/googletest/include/gtest/gtest.h"
+
+using Task = std::function<void()>;
+
+
+
+enum class Policy{
+};
 
 class TaskExecutor : public std::enable_shared_from_this<TaskExecutor> {
  public:
  private:
 };
 
-class Pipeline {
+/**
+ * @brief
+ *
+ */
+class TaskPipeline {
  public:
+  constexpr TaskPipeline() noexcept = default;
+
+  TaskPipeline(TaskPipeline const&) = delete;
+  TaskPipeline& operator=(TaskPipeline const&) = delete;
+
+  TaskPipeline(TaskPipeline&&) = delete;
+  TaskPipeline& operator=(TaskPipeline&&) = delete;
+
+  void Init();
+
+  void Push(Task task);
+
+  Task Pop();
+
+  void Stop();
+
  private:
- 
 };
 
 class TaskExecutionService {

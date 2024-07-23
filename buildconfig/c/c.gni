@@ -1,5 +1,5 @@
 declare_args() {
-  # C language  standard version.
+  # C language standard version.
   std_c = "c11"
 
   # extra C compile flags.
