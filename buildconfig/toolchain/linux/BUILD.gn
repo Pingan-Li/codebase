@@ -81,7 +81,7 @@ toolchain("cxx") {
   }
 
   tool("copy") {
-    command = "${copyer} -af {{source}} {{output}}"
+    command = "${copier} -af {{source}} {{output}}"
     description = "COPY {{source}} {{output}}"
   }
 }

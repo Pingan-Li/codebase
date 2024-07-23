@@ -1,5 +1,8 @@
 group("all_tests") {
-  deps = [ "//base:base_tests" ]
+  deps = [
+    "//base:base_tests",
+    "//experiment:all_experiments",
+  ]
 }
 
 executable("hello_world") {
