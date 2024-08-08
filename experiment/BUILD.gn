@@ -11,6 +11,15 @@ executable("task_executor") {
   ]
 }
 
+executable("time_exp") {
+  sources = [ "time_exp.cc" ]
+
+  deps = [
+    "//base:base_sources",
+    "//testing:gtest",
+  ]
+}
+
 # executable("tcp_client") {
 #   configs = [ "//buildconfig:global" ]
 

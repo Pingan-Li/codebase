@@ -9,75 +9,73 @@
  *
  */
 
-#include <cstddef>
-#include <memory>
+#include <condition_variable>
+#include <functional>
+#include <mutex>
+#include <queue>
+#include <thread>
 
-#include "testing/googletest/include/gtest/gtest.h"
+namespace concurrent {
 
 using Task = std::function<void()>;
+using TaskQueue = std::queue<Task>;
+using TaskWorker = std::thread;
 
-
-
-enum class Policy{
+class TaskScheduler {
+ public:
+  virtual void Submit(Task task) = 0;
 };
 
-class TaskExecutor : public std::enable_shared_from_this<TaskExecutor> {
+class SequentialTaskScheduler : public TaskScheduler {
  public:
+  void Submit(Task task) override;
+};
+
+class ConcurrentTaskScheduler : public TaskScheduler {
+ public:
+  void Submit(Task task) override;
+};
+
+class TaskExecutor {
+ public:
+  virtual void Submit(Task task) = 0;
+
+  virtual void Start() = 0;
+
+  virtual void Stop() = 0;
+};
+
+class SequentialTaskExecutor : public TaskExecutor {
+ public:
+  void Submit(Task task) override;
+
+  void Start() override;
+
+  void Stop() override;
+
  private:
+  std::mutex mutex_;
+  std::condition_variable condition_variable_;
+  TaskWorker task_worker;
+  TaskQueue task_queue_;
 };
 
-/**
- * @brief
- *
- */
-class TaskPipeline {
+void SequentialTaskExecutor::Submit(Task task) {
+  (void)task;
+}
+
+void SequentialTaskExecutor::Start() {}
+
+void SequentialTaskExecutor::Stop() {}
+
+class ConcurrnetTaskExecutor : public TaskExecutor {
  public:
-  constexpr TaskPipeline() noexcept = default;
-
-  TaskPipeline(TaskPipeline const&) = delete;
-  TaskPipeline& operator=(TaskPipeline const&) = delete;
-
-  TaskPipeline(TaskPipeline&&) = delete;
-  TaskPipeline& operator=(TaskPipeline&&) = delete;
-
-  void Init();
-
-  void Push(Task task);
-
-  Task Pop();
-
-  void Stop();
-
  private:
 };
 
 class TaskExecutionService {
  public:
-  struct ServiceAttributes {
-    std::size_t concurrnet_pipeline_size = 2;
-    std::size_t sequential_pipeline_size = 2;
-    std::size_t threads_per_concurrnet_pipeline = 4;
-  };
-
-  constexpr TaskExecutionService() noexcept = default;
-
-  TaskExecutionService(TaskExecutionService const&) = delete;
-  TaskExecutionService& operator=(TaskExecutionService const&) = delete;
-
-  TaskExecutionService(TaskExecutionService&&) = delete;
-  TaskExecutionService& operator=(TaskExecutionService&&) = delete;
-
-  virtual ~TaskExecutionService();
-
-  std::unique_ptr<TaskExecutor> CreateSequentialTaskExecutor();
-
-  std::unique_ptr<TaskExecutor> CreateConcurrentTaskExecutor();
-
-  void Init();
-
-  void Stop();
-
- private:
 };
+class TaskExecutionServiceImpl : public TaskExecutionService {};
 
-TEST(TaskExecutor, Case0) {}
+}  // namespace concurrent
