@@ -20,6 +20,15 @@ executable("time_exp") {
   ]
 }
 
+executable("algo_exp") {
+  sources = [ "algo_exp.cc" ]
+
+  deps = [
+    "//base:base_sources",
+    "//testing:gtest",
+  ]
+}
+
 # executable("tcp_client") {
 #   configs = [ "//buildconfig:global" ]
 

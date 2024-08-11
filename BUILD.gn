@@ -9,6 +9,4 @@ executable("hello_world") {
   include_dirs = [ "//" ]
 
   sources = [ "hello_world.cc" ]
-
-  configs += [ "//buildconfig:asan" ]
 }
