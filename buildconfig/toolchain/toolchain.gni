@@ -36,6 +36,9 @@ declare_args() {
   # for "-Ofast".
   optimization_level = 0
 
+  # symbol_level
+  symbol_level = 3
+
   # enable address sanitizer.
   use_asan = false
 
